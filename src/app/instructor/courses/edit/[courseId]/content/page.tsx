@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,69 +23,43 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, GripVertical, Trash2, ArrowLeft, Loader2, PlayCircle, Link as LinkIcon, ClockIcon } from 'lucide-react';
+import { Plus, GripVertical, Trash2, ArrowLeft, Loader2, PlayCircle, Link as LinkIcon, ClockIcon, AlertCircle } from 'lucide-react';
 import type { Course, Section as SectionType, Lecture as LectureType } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import Plyr from 'plyr';
-import 'plyr/dist/plyr.css';
-import { useRef } from 'react';
+import ReactPlayer from 'react-player/lazy';
+
 
 const VideoPlayer = ({ videoUrl }: { videoUrl?: string }) => {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const playerRef = useRef<Plyr | null>(null);
+    const [error, setError] = useState(false);
+    const cleanedUrl = videoUrl?.trim() || '';
 
-    useEffect(() => {
-        if (videoRef.current) {
-            if (playerRef.current) {
-                playerRef.current.destroy();
-            }
-            playerRef.current = new Plyr(videoRef.current, {});
-        }
-
-        return () => {
-            if (playerRef.current) {
-                playerRef.current.destroy();
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        if (playerRef.current && videoUrl) {
-            try {
-                if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-                    const videoIdMatch = videoUrl.match(/(?:v=|\/)([\w-]{11})(?:\?|&|#|$)/);
-                    const videoId = videoIdMatch ? videoIdMatch[1] : null;
-                    if (videoId) {
-                        playerRef.current.source = {
-                            type: 'video',
-                            sources: [{ src: videoId, provider: 'youtube' }],
-                        };
-                    }
-                } else {
-                     playerRef.current.source = {
-                        type: 'video',
-                        sources: [{ src: videoUrl, type: 'video/mp4' }],
-                    };
-                }
-            } catch (e) {
-                console.error("Invalid video URL for Plyr:", videoUrl, e);
-            }
-        }
-    }, [videoUrl]);
-    
-
-    if (!videoUrl) {
+    if (!cleanedUrl || !ReactPlayer.canPlay(cleanedUrl)) {
         return (
-            <div className="aspect-video w-full bg-slate-900 flex items-center justify-center rounded-lg">
-                <p className="text-white">URL de la vidéo invalide ou manquante.</p>
+            <div className="aspect-video w-full bg-slate-900 flex flex-col items-center justify-center rounded-lg text-white p-4">
+                <AlertCircle className="h-8 w-8 mb-2" />
+                <p className="font-semibold">Format de lien non supporté ou vidéo privée.</p>
+                <p className="text-sm text-slate-400">Vérifiez que l'URL est correcte et que la vidéo est publique.</p>
             </div>
         );
     }
-
+    
     return (
        <div className="aspect-video w-full bg-black rounded-lg overflow-hidden video-wrapper shadow-2xl">
-         <video ref={videoRef} className="w-full h-full" preload="none" playsInline controls></video>
+         <ReactPlayer
+            url={cleanedUrl}
+            width="100%"
+            height="100%"
+            controls={true}
+            playing={true} // Auto-play when component mounts
+            onError={() => setError(true)}
+         />
+         {error && (
+            <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white p-4">
+                 <AlertCircle className="h-8 w-8 mb-2" />
+                <p className="font-semibold">Impossible de charger cette vidéo.</p>
+            </div>
+         )}
        </div>
     );
 };
@@ -207,7 +181,7 @@ export default function CourseContentPage() {
 
           batch.set(lectureRef, { 
               title: lecture.title || `Leçon ${lectureIndex + 1}`,
-              videoUrl: lecture.videoUrl || '',
+              videoUrl: lecture.videoUrl?.trim() || '',
               duration: lecture.duration || 0,
               isFreePreview: lecture.isFreePreview || false,
             });
