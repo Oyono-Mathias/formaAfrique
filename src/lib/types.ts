@@ -1,5 +1,4 @@
 
-
 import type { Timestamp } from "firebase/firestore";
 
 export interface Lecture {
@@ -35,7 +34,7 @@ export interface Submission {
 
 export interface Course {
     id: string;
-    courseId: string;
+    courseId?: string; // Maintained for some legacy if needed, but primary is id
     title: string;
     description: string;
     instructorId: string;

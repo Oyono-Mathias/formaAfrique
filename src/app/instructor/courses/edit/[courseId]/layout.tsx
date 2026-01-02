@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, BookText, Eye, Info, ListVideo, Loader2, Sparkles, Tag, CheckCircle } from 'lucide-react';
+import { ArrowLeft, BookText, Eye, Info, ListVideo, Loader2, Sparkles, Tag, CheckCircle, Send } from 'lucide-react';
 import type { Course } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useRole } from '@/context/RoleContext';
 
 
 const StudioSidebarLink = ({ href, icon: Icon, label, isActive }: { href: string; icon: React.ElementType; label: string; isActive: boolean; }) => (
@@ -37,7 +38,8 @@ export default function CourseEditLayout({
     const pathname = usePathname();
     const db = getFirestore();
     const { toast } = useToast();
-    const [isPublishing, setIsPublishing] = useState(false);
+    const { formaAfriqueUser } = useRole();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const courseRef = useMemoFirebase(() => doc(db, 'courses', courseId as string), [db, courseId]);
     const { data: course, isLoading: isCourseLoading } = useDoc<Course>(courseRef);
@@ -66,26 +68,65 @@ export default function CourseEditLayout({
             default: return status;
         }
     }
-
-    const handlePublish = async () => {
-        if (!course) return;
+    
+    const handleAction = async () => {
+        if (!course || !formaAfriqueUser) return;
         
-        setIsPublishing(true);
-        const newStatus = course.status === 'Published' ? 'Draft' : 'Published';
+        setIsSubmitting(true);
+        let newStatus: Course['status'];
+        let successTitle = '';
+        let successDescription = '';
+
+        if (formaAfriqueUser.role === 'admin') {
+            newStatus = 'Published';
+            successTitle = 'Cours approuvé et publié !';
+            successDescription = 'Le cours est maintenant visible par tous les étudiants.';
+        } else {
+            newStatus = 'Pending Review';
+            successTitle = 'Soumis pour validation !';
+            successDescription = 'Votre cours a été envoyé à l\'équipe de modération pour examen.';
+        }
+        
         const courseDocRef = doc(db, 'courses', courseId as string);
 
         try {
             await updateDoc(courseDocRef, { status: newStatus });
             toast({
-                title: `Cours ${newStatus === 'Published' ? 'publié' : 'dépublié'} !`,
-                description: `Votre cours est maintenant en mode '${getStatusBadgeText(newStatus)}'.`,
+                title: successTitle,
+                description: successDescription,
             });
         } catch(error) {
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de changer le statut du cours.' });
             console.error("Error updating course status:", error);
         } finally {
-            setIsPublishing(false);
+            setIsSubmitting(false);
         }
+    }
+    
+    const renderActionButton = () => {
+        if (!course || !formaAfriqueUser) return null;
+
+        if (formaAfriqueUser.role === 'admin') {
+            if (course.status === 'Published') return null; // Admin doesn't need to re-approve
+            return (
+                <Button size="sm" onClick={handleAction} disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin"/> : <CheckCircle className="mr-2 h-4 w-4"/>}
+                    Approuver & Publier
+                </Button>
+            );
+        }
+        
+        if (formaAfriqueUser.role === 'instructor') {
+             if (course.status === 'Published' || course.status === 'Pending Review') return null;
+            return (
+                 <Button size="sm" onClick={handleAction} disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin"/> : <Send className="mr-2 h-4 w-4"/>}
+                    Soumettre pour validation
+                </Button>
+            );
+        }
+
+        return null;
     }
 
 
@@ -139,10 +180,7 @@ export default function CourseEditLayout({
                             <Eye className="mr-2 h-4 w-4"/> Aperçu
                         </Link>
                     </Button>
-                     <Button size="sm" onClick={handlePublish} disabled={isPublishing}>
-                        {isPublishing ? <Loader2 className="h-4 w-4 animate-spin"/> : <CheckCircle className="mr-2 h-4 w-4"/>}
-                        {course?.status === 'Published' ? 'Dépublier' : 'Publier'}
-                    </Button>
+                     {renderActionButton()}
                 </header>
                 <main className="flex flex-1 flex-col gap-4 p-4 md:p-6 lg:p-8 xl:p-10 bg-slate-50/50">
                     {children}
