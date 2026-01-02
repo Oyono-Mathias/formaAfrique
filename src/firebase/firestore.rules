@@ -17,6 +17,10 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(userId)).data;
     }
 
+    function isStudent() {
+      return isSignedIn() && getUserData(request.auth.uid).role == 'student';
+    }
+
     function isAdmin() {
       return isSignedIn() && getUserData(request.auth.uid).role == 'admin';
     }
@@ -52,7 +56,10 @@ service cloud.firestore {
 
     // --- Règles pour 'courses' ---
     match /courses/{courseId} {
-      allow get, list: if true;
+      // Les étudiants ne peuvent lister que les cours publiés
+      // Les instructeurs/admins peuvent tout lister
+      allow list: if (isStudent() && request.query.where.status == 'Published') || isApprovedInstructor() || isAdmin();
+      allow get: if true;
       allow create: if isSignedIn() && isApprovedInstructor();
       allow update: if isSignedIn() && (isCourseOwner(courseId) || isAdmin());
       
