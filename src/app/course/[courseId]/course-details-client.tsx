@@ -229,9 +229,9 @@ const ReviewsSection = ({ courseId }: { courseId: string }) => {
                 <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold text-yellow-500">{averageRating.toFixed(1)}</span>
                     <StarRating rating={averageRating} />
-                    <span className="text-muted-foreground text-sm">({reviews.length} avis)</span>
+                    <span className="text-muted-foreground text-sm">({reviews?.length || 0} avis)</span>
                 </div>
-                {reviewsWithUsers.slice(0, 5).map(review => (
+                {reviewsWithUsers?.slice(0, 5).map(review => (
                     <div key={review.id} className="flex gap-4 border-t dark:border-slate-700 pt-4">
                         <Avatar>
                             <AvatarImage src={review.reviewerImage} />
@@ -691,5 +691,3 @@ export default function CourseDetailsClient() {
     </>
   );
 }
-
-    
