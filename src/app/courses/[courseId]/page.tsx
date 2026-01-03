@@ -11,15 +11,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Lock, PlayCircle, BookOpen, ArrowLeft, Loader2, FileText, Book } from 'lucide-react';
+import { CheckCircle, Lock, PlayCircle, BookOpen, ArrowLeft, Loader2, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Course, Section, Lecture, Enrollment } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
 import { useToast } from '@/hooks/use-toast';
-import { Worker } from '@react-pdf-viewer/core';
-import { Viewer } from '@react-pdf-viewer/core';
+import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
@@ -383,3 +382,5 @@ export default function CoursePlayerPage() {
         </div>
     );
 }
+
+    

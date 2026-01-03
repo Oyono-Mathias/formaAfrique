@@ -205,7 +205,7 @@ export default function EditCoursePage() {
                           <FormControl>
                             <RadioGroupItem value="video" id="video" className="sr-only" />
                           </FormControl>
-                          <FormLabel htmlFor="video" className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                          <FormLabel htmlFor="video" className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
                             <Video className="mb-3 h-6 w-6" />
                             Cours Vidéo
                           </FormLabel>
@@ -214,7 +214,7 @@ export default function EditCoursePage() {
                           <FormControl>
                             <RadioGroupItem value="ebook" id="ebook" className="sr-only" />
                           </FormControl>
-                           <FormLabel htmlFor="ebook" className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                           <FormLabel htmlFor="ebook" className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
                             <Book className="mb-3 h-6 w-6" />
                             E-book (PDF)
                           </FormLabel>
@@ -406,3 +406,5 @@ export default function EditCoursePage() {
     </Form>
   );
 }
+
+    
