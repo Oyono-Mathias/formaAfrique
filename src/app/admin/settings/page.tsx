@@ -132,7 +132,7 @@ export default function AdminSettingsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     
-    const settingsDocRef = doc(db, 'settings', 'global_config');
+    const settingsDocRef = doc(db, 'settings', 'global');
 
     const form = useForm<SettingsFormValues>({
         resolver: zodResolver(settingsSchema),

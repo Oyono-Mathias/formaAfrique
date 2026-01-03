@@ -17,10 +17,6 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(userId)).data;
     }
 
-    function isStudent() {
-      return isSignedIn() && getUserData(request.auth.uid).role == 'student';
-    }
-
     function isAdmin() {
       return isSignedIn() && getUserData(request.auth.uid).role == 'admin';
     }
@@ -52,12 +48,16 @@ service cloud.firestore {
       match /wishlist/{courseId} {
         allow read, write, delete: if isOwner(userId);
       }
+      
+      match /notifications/{notificationId} {
+        allow read, write, list: if isOwner(userId);
+      }
     }
 
     // --- Règles pour 'courses' ---
     match /courses/{courseId} {
-      allow list: if true;
       allow get: if true;
+      allow list: if true; // Allow anyone to list courses for the catalog
       allow create: if isSignedIn() && isApprovedInstructor();
       allow update: if isSignedIn() && (isCourseOwner(courseId) || isAdmin());
       
@@ -103,7 +103,7 @@ service cloud.firestore {
     // --- Règles pour 'enrollments' ---
     match /enrollments/{enrollmentId} {
         allow read: if isSignedIn(); 
-        allow create: if isSignedIn();
+        allow create: if isSignedIn() && isOwner(request.resource.data.studentId);
         allow list: if isSignedIn() && 
                     (request.query.where.size() > 0 &&
                      (('instructorId' in request.query.where && request.query.where.instructorId == request.auth.uid) ||
@@ -119,15 +119,14 @@ service cloud.firestore {
     // --- Règles pour 'reviews' ---
      match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
       allow update, delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.userId)); 
     }
 
      // --- Règles pour 'payments' ---
     match /payments/{paymentId} {
-        allow get: if isAdmin();
-        allow read: if isSignedIn() && isOwner(resource.data.instructorId);
-        allow list: if isSignedIn() && request.query.where.instructorId == request.auth.uid;
+        allow get: if isAdmin() || isOwner(resource.data.userId);
+        allow list: if isAdmin();
         allow create: if isSignedIn() && isOwner(request.resource.data.userId);
         allow update: if isAdmin();
         allow delete: if isAdmin();
@@ -137,6 +136,7 @@ service cloud.firestore {
     match /payouts/{payoutId} {
       allow create: if isSignedIn() && request.resource.data.instructorId == request.auth.uid;
       allow read: if (isSignedIn() && isOwner(resource.data.instructorId)) || isAdmin();
+      allow list: if isAdmin();
       allow update, delete: if isAdmin();
     }
 
@@ -146,7 +146,8 @@ service cloud.firestore {
       allow list: if isSignedIn() &&
                     (request.query.where.size() > 0 &&
                      (('userId' in request.query.where && request.query.where.userId == request.auth.uid) ||
-                      ('instructorId' in request.query.where && request.query.where.instructorId == request.auth.uid)));
+                      ('instructorId' in request.query.where && request.query.where.instructorId == request.auth.uid) ||
+                      isAdmin()));
       allow create: if isSignedIn() && isOwner(request.resource.data.userId);
       allow update: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(resource.data.instructorId) || isAdmin());
       allow delete: if isAdmin();
@@ -182,12 +183,10 @@ service cloud.firestore {
       }
     }
 
-    // --- Règles pour 'settings' ---
+    // --- Règles pour la configuration globale ---
     match /settings/{docId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
   }
 }
-
-    
