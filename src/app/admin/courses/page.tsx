@@ -96,14 +96,14 @@ const CourseCard = ({
 
   return (
     <>
-      <Card className="overflow-hidden transition-shadow duration-300 hover:shadow-xl rounded-xl dark:bg-[#1e293b] dark:border-slate-700 flex flex-col h-full">
+      <Card className="overflow-hidden transition-shadow duration-300 hover:shadow-xl rounded-lg dark:bg-[#1e293b] dark:border-slate-700 flex flex-col h-full">
         <div className="relative">
           <Image
             src={course.imageUrl || `https://picsum.photos/seed/${course.id}/600/338`}
             alt={course.title}
             width={600}
             height={338}
-            className="aspect-video object-cover w-full h-40"
+            className="aspect-video object-cover w-full h-28"
           />
            <Badge
             variant={getStatusBadgeVariant(course.status)}
@@ -117,17 +117,17 @@ const CourseCard = ({
             {getStatusBadgeText(course.status)}
           </Badge>
         </div>
-        <CardContent className="p-3 flex flex-col flex-grow">
-          <h3 className="font-bold text-sm truncate dark:text-white mb-1 h-5">{course.title}</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Par {instructor?.fullName || '...'}</p>
+        <CardContent className="p-2.5 flex flex-col flex-grow">
+          <h3 className="font-bold text-sm truncate dark:text-white h-5">{course.title}</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Par {instructor?.fullName || '...'}</p>
           <div className="flex-grow"></div>
           <div className="flex items-center justify-between mt-1">
-            <p className="font-semibold text-base dark:text-white">
+            <p className="font-semibold text-sm dark:text-white">
               {course.price > 0 ? `${course.price.toLocaleString('fr-FR')} XOF` : 'Gratuit'}
             </p>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white">
+                <Button variant="ghost" size="sm" className="h-7 w-7 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -270,10 +270,10 @@ export default function AdminCoursesPage() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-xl dark:bg-slate-700" />)}
+          {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-56 w-full rounded-lg dark:bg-slate-700" />)}
         </div>
       ) : courses && courses.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {courses.map(course => (
             <CourseCard
               key={course.id}
