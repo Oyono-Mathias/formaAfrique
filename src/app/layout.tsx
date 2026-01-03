@@ -38,7 +38,7 @@ export default function RootLayout({
   const whatsappMessage = encodeURIComponent("Bonjour FormaAfrique, j'aimerais avoir plus d'informations sur un cours.");
 
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" className="dark" suppressHydrationWarning>
        <body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
         <FirebaseClientProvider>
           <RoleProvider>
