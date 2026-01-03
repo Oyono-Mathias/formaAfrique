@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { getFirestore, doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -148,30 +148,37 @@ export default function AdminSettingsPage() {
     });
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(settingsDocRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                 form.reset({
-                    general: data.general || form.getValues('general'),
-                    commercial: data.commercial || form.getValues('commercial'),
-                    platform: data.platform || form.getValues('platform'),
-                    legal: data.legal || form.getValues('legal'),
-                });
-            } else {
-                 getDoc(settingsDocRef).then(snap => {
-                     if (!snap.exists()) {
-                         setDoc(settingsDocRef, form.getValues(), { merge: true });
-                     }
-                 })
-            }
-            setIsLoading(false);
-        }, (error) => {
-            console.error("Failed to fetch settings:", error);
-            setIsLoading(false);
-        });
+      const fetchSettings = async () => {
+        try {
+          const docSnap = await getDoc(settingsDocRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            form.reset({
+              general: data.general || form.getValues('general'),
+              commercial: data.commercial || form.getValues('commercial'),
+              platform: data.platform || form.getValues('platform'),
+              legal: data.legal || form.getValues('legal'),
+            });
+          } else {
+            // If the document doesn't exist, create it with default values
+            await setDoc(settingsDocRef, form.getValues(), { merge: true });
+          }
+        } catch (error) {
+          console.error("Failed to fetch or create settings:", error);
+          toast({
+            variant: 'destructive',
+            title: 'Erreur',
+            description: 'Impossible de charger les paramètres de la plateforme.',
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-        return () => unsubscribe();
-    }, [settingsDocRef, form]);
+      fetchSettings();
+      // We only want to run this once on mount, so we pass an empty dependency array.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     
     const handleSave = async (data: Partial<SettingsFormValues>) => {
         if (formaAfriqueUser?.role !== 'admin') {
@@ -217,35 +224,35 @@ export default function AdminSettingsPage() {
         <Form {...form}>
             <div className="space-y-8">
                 <div>
-                    <h1 className="text-3xl font-bold">Paramètres</h1>
-                    <p className="text-muted-foreground">Gérez les configurations globales de la plateforme.</p>
+                    <h1 className="text-3xl font-bold text-white">Paramètres</h1>
+                    <p className="text-slate-400">Gérez les configurations globales de la plateforme.</p>
                 </div>
 
                 <Tabs defaultValue="general" orientation="vertical" className="flex flex-col md:flex-row gap-8">
-                    <TabsList className="w-full md:w-48 h-full flex-shrink-0 flex-col justify-start items-stretch">
-                        <TabsTrigger value="general" className="w-full justify-start gap-2"><Settings className="h-4 w-4"/> Général</TabsTrigger>
-                        <TabsTrigger value="commercial" className="w-full justify-start gap-2"><Percent className="h-4 w-4"/> Commercial</TabsTrigger>
-                        <TabsTrigger value="platform" className="w-full justify-start gap-2"><Building className="h-4 w-4"/> Plateforme</TabsTrigger>
-                        <TabsTrigger value="legal" className="w-full justify-start gap-2"><FileText className="h-4 w-4"/> Légal</TabsTrigger>
+                    <TabsList className="w-full md:w-48 h-full flex-shrink-0 flex-col justify-start items-stretch bg-slate-800 border-slate-700">
+                        <TabsTrigger value="general" className="w-full justify-start gap-2 text-slate-300 data-[state=active]:bg-slate-700 data-[state=active]:text-white"><Settings className="h-4 w-4"/> Général</TabsTrigger>
+                        <TabsTrigger value="commercial" className="w-full justify-start gap-2 text-slate-300 data-[state=active]:bg-slate-700 data-[state=active]:text-white"><Percent className="h-4 w-4"/> Commercial</TabsTrigger>
+                        <TabsTrigger value="platform" className="w-full justify-start gap-2 text-slate-300 data-[state=active]:bg-slate-700 data-[state=active]:text-white"><Building className="h-4 w-4"/> Plateforme</TabsTrigger>
+                        <TabsTrigger value="legal" className="w-full justify-start gap-2 text-slate-300 data-[state=active]:bg-slate-700 data-[state=active]:text-white"><FileText className="h-4 w-4"/> Légal</TabsTrigger>
                     </TabsList>
                     
                     <div className="flex-1">
                         <TabsContent value="general">
-                            <Card>
+                            <Card className="bg-[#1e293b] border-slate-700">
                                 <form onSubmit={form.handleSubmit(onGeneralSubmit)}>
-                                    <CardHeader><CardTitle>Informations Générales</CardTitle></CardHeader>
+                                    <CardHeader><CardTitle className="text-white">Informations Générales</CardTitle></CardHeader>
                                     <CardContent className="space-y-4">
                                         <FormField control={form.control} name="general.siteName" render={({ field }) => (
-                                            <FormItem><FormLabel>Nom du site</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">Nom du site</FormLabel><FormControl><Input {...field} className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="general.logoUrl" render={({ field }) => (
-                                            <FormItem><FormLabel>URL du Logo</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">URL du Logo</FormLabel><FormControl><Input {...field} className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="general.contactEmail" render={({ field }) => (
-                                            <FormItem><FormLabel>Email de contact</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">Email de contact</FormLabel><FormControl><Input {...field} className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="general.siteDescription" render={({ field }) => (
-                                            <FormItem><FormLabel>Description SEO</FormLabel><FormControl><Textarea {...field} rows={3}/></FormControl><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">Description SEO</FormLabel><FormControl><Textarea {...field} rows={3} className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormMessage /></FormItem>
                                         )} />
                                     </CardContent>
                                     <CardFooter className="justify-end">
@@ -258,18 +265,18 @@ export default function AdminSettingsPage() {
                             </Card>
                         </TabsContent>
                          <TabsContent value="commercial">
-                            <Card>
+                            <Card className="bg-[#1e293b] border-slate-700">
                                  <form onSubmit={form.handleSubmit(onCommercialSubmit)}>
-                                    <CardHeader><CardTitle>Finances & Paiements</CardTitle></CardHeader>
+                                    <CardHeader><CardTitle className="text-white">Finances & Paiements</CardTitle></CardHeader>
                                     <CardContent className="space-y-4">
                                         <FormField control={form.control} name="commercial.commissionRate" render={({ field }) => (
-                                            <FormItem><FormLabel>Taux de commission (%)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormDescription>Ce taux sera appliqué à toutes les nouvelles ventes.</FormDescription><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">Taux de commission (%)</FormLabel><FormControl><Input type="number" {...field} className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormDescription className="text-slate-400">Ce taux sera appliqué à toutes les nouvelles ventes.</FormDescription><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="commercial.minimumPayout" render={({ field }) => (
-                                            <FormItem><FormLabel>Seuil de retrait minimum (XOF)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormDescription>Le montant minimum qu'un instructeur doit atteindre pour demander un retrait.</FormDescription><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">Seuil de retrait minimum (XOF)</FormLabel><FormControl><Input type="number" {...field} className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormDescription className="text-slate-400">Le montant minimum qu'un instructeur doit atteindre pour demander un retrait.</FormDescription><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="commercial.enableMobileMoney" render={({ field }) => (
-                                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"><div className="space-y-0.5"><FormLabel>Paiements Mobile Money</FormLabel><FormDescription>Activer ou désactiver les paiements par Orange/MTN Money.</FormDescription></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                                            <FormItem className="flex flex-row items-center justify-between rounded-lg border border-slate-700 p-3 shadow-sm bg-slate-800/50"><div className="space-y-0.5"><FormLabel className="text-slate-200">Paiements Mobile Money</FormLabel><FormDescription className="text-slate-400">Activer ou désactiver les paiements par Orange/MTN Money.</FormDescription></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                                         )} />
                                     </CardContent>
                                     <CardFooter className="justify-end">
@@ -282,18 +289,18 @@ export default function AdminSettingsPage() {
                             </Card>
                         </TabsContent>
                          <TabsContent value="platform">
-                            <Card>
+                            <Card className="bg-[#1e293b] border-slate-700">
                                 <form onSubmit={form.handleSubmit(onPlatformSubmit)}>
-                                    <CardHeader><CardTitle>Configuration de la Plateforme</CardTitle></CardHeader>
+                                    <CardHeader><CardTitle className="text-white">Configuration de la Plateforme</CardTitle></CardHeader>
                                     <CardContent className="space-y-4">
                                         <FormField control={form.control} name="platform.maintenanceMode" render={({ field }) => (
-                                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"><div className="space-y-0.5"><FormLabel>Mode Maintenance</FormLabel><FormDescription>Coupe l'accès public au site et affiche une page de maintenance.</FormDescription></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                                            <FormItem className="flex flex-row items-center justify-between rounded-lg border border-slate-700 p-3 shadow-sm bg-slate-800/50"><div className="space-y-0.5"><FormLabel className="text-slate-200">Mode Maintenance</FormLabel><FormDescription className="text-slate-400">Coupe l'accès public au site et affiche une page de maintenance.</FormDescription></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                                         )} />
                                         <FormField control={form.control} name="platform.allowInstructorSignup" render={({ field }) => (
-                                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"><div className="space-y-0.5"><FormLabel>Inscriptions des Instructeurs</FormLabel><FormDescription>Autoriser ou non les nouvelles candidatures d'instructeurs.</FormDescription></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                                            <FormItem className="flex flex-row items-center justify-between rounded-lg border border-slate-700 p-3 shadow-sm bg-slate-800/50"><div className="space-y-0.5"><FormLabel className="text-slate-200">Inscriptions des Instructeurs</FormLabel><FormDescription className="text-slate-400">Autoriser ou non les nouvelles candidatures d'instructeurs.</FormDescription></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
                                         )} />
                                         <FormField control={form.control} name="platform.announcementMessage" render={({ field }) => (
-                                            <FormItem><FormLabel>Message d'annonce global</FormLabel><FormControl><Textarea {...field} rows={2}/></FormControl><FormDescription>Ce message s'affichera en bandeau sur tout le site (si le thème le supporte).</FormDescription><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">Message d'annonce global</FormLabel><FormControl><Textarea {...field} rows={2} className="bg-slate-700 border-slate-600 text-white"/></FormControl><FormDescription className="text-slate-400">Ce message s'affichera en bandeau sur tout le site (si le thème le supporte).</FormDescription><FormMessage /></FormItem>
                                         )} />
                                     </CardContent>
                                     <CardFooter className="justify-end">
@@ -306,15 +313,15 @@ export default function AdminSettingsPage() {
                             </Card>
                         </TabsContent>
                          <TabsContent value="legal">
-                            <Card>
+                            <Card className="bg-[#1e293b] border-slate-700">
                                 <form onSubmit={form.handleSubmit(onLegalSubmit)}>
-                                    <CardHeader><CardTitle>Contenu Légal & Sécurité</CardTitle></CardHeader>
+                                    <CardHeader><CardTitle className="text-white">Contenu Légal & Sécurité</CardTitle></CardHeader>
                                     <CardContent className="space-y-4">
                                         <FormField control={form.control} name="legal.termsOfService" render={({ field }) => (
-                                            <FormItem><FormLabel>Conditions Générales d'Utilisation</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormDescription>Le contenu de votre page CGU.</FormDescription><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">Conditions Générales d'Utilisation</FormLabel><FormControl><Textarea {...field} rows={10} className="bg-slate-700 border-slate-600 text-white"/></FormControl><FormDescription className="text-slate-400">Le contenu de votre page CGU.</FormDescription><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="legal.privacyPolicy" render={({ field }) => (
-                                            <FormItem><FormLabel>Politique de Confidentialité</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormDescription>Le contenu de votre page de politique de confidentialité.</FormDescription><FormMessage /></FormItem>
+                                            <FormItem><FormLabel className="text-slate-300">Politique de Confidentialité</FormLabel><FormControl><Textarea {...field} rows={10} className="bg-slate-700 border-slate-600 text-white"/></FormControl><FormDescription className="text-slate-400">Le contenu de votre page de politique de confidentialité.</FormDescription><FormMessage /></FormItem>
                                         )} />
                                     </CardContent>
                                     <CardFooter className="justify-end">
@@ -332,3 +339,5 @@ export default function AdminSettingsPage() {
         </Form>
     );
 }
+
+    
