@@ -48,6 +48,14 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 
+interface Enrollment {
+  id: string;
+  studentId: string;
+  courseId: string;
+  instructorId: string;
+  progress: number;
+}
+
 interface StudentData {
   id: string; // Unique enrollment ID
   studentId: string;
@@ -103,7 +111,7 @@ export default function MyStudentsPage() {
         return;
       }
 
-      const enrollmentData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      const enrollmentData = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as Enrollment[];
 
       const studentIds = [...new Set(enrollmentData.map(e => e.studentId))];
       const courseIds = [...new Set(enrollmentData.map(e => e.courseId))];
@@ -129,7 +137,7 @@ export default function MyStudentsPage() {
           isOnline: studentInfo?.isOnline || false,
           lastSeen: studentInfo?.lastSeen?.toDate() || new Date(),
           avatar: studentInfo?.profilePictureURL,
-          initials: name.split(' ').map(n => n[0]).join(''),
+          initials: name.split(' ').map((n:string) => n[0]).join(''),
         };
       });
 
@@ -339,3 +347,5 @@ export default function MyStudentsPage() {
     </div>
   );
 }
+
+    
