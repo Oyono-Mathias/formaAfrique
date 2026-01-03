@@ -168,8 +168,8 @@ service cloud.firestore {
       allow read: if (isStudentEnrolled(resource.data.courseId)) || isCourseOwner(resource.data.courseId) || isAdmin();
       // Le propriétaire du cours ou un admin peut mettre à jour/supprimer.
       allow update, delete: if isCourseOwner(resource.data.courseId) || isAdmin();
-       // Une requête de liste doit être filtrée par courseId
-      allow list: if request.query.where.courseId == resource.data.courseId;
+       // Une requête de liste doit être filtrée par courseId pour que la lecture soit permise.
+      allow list: if isSignedIn() && request.query.keys().hasAny(['courseId']);
     }
 
 
@@ -182,8 +182,7 @@ service cloud.firestore {
         allow read, write: if isSignedIn() && get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]);
       }
     }
-
-    // --- Règles pour la configuration globale ---
+     // --- Règles pour la configuration globale ---
     match /settings/{docId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
