@@ -18,9 +18,12 @@ import { Badge } from '@/components/ui/badge';
 import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
 import { useToast } from '@/hooks/use-toast';
-import { Worker, Viewer } from '@react-pdf-viewer/core';
+import dynamic from 'next/dynamic';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+
+const Worker = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Worker), { ssr: false });
+const Viewer = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Viewer), { ssr: false });
 
 
 const VideoPlayer = ({ videoUrl }: { videoUrl?: string }) => {
