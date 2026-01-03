@@ -162,6 +162,16 @@
           "format": "uri",
           "description": "URL for the course's cover image."
         },
+        "contentType": {
+            "type": "string",
+            "description": "The type of content, e.g., video course or e-book.",
+            "enum": ["video", "ebook"]
+        },
+        "ebookUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL for the e-book PDF file if contentType is 'ebook'."
+        },
         "isPopular": {
             "type": "boolean",
             "description": "Indicates if the course is a popular or featured course."
@@ -641,6 +651,3 @@
     }
   }
 }
-
-    
-    

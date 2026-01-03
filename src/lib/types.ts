@@ -50,6 +50,8 @@ export interface Course {
     targetAudience?: string;
     sections?: Section[];
     isPopular?: boolean;
+    contentType?: 'video' | 'ebook';
+    ebookUrl?: string;
 }
 
 export interface Enrollment {

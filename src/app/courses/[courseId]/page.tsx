@@ -11,13 +11,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Lock, PlayCircle, BookOpen, ArrowLeft, Loader2, FileText } from 'lucide-react';
+import { CheckCircle, Lock, PlayCircle, BookOpen, ArrowLeft, Loader2, FileText, Book } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Course, Section, Lecture, Enrollment } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
 import { useToast } from '@/hooks/use-toast';
+import { Worker } from '@react-pdf-viewer/core';
+import { Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 
 const VideoPlayer = ({ videoUrl }: { videoUrl?: string }) => {
@@ -321,6 +325,8 @@ export default function CoursePlayerPage() {
         return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
     }
 
+    const isEbook = course.contentType === 'ebook';
+
     return (
         <div className="flex flex-col lg:flex-row h-screen bg-slate-50 -m-6">
             <main className="flex-1 flex flex-col p-4 lg:p-6 space-y-6">
@@ -330,10 +336,22 @@ export default function CoursePlayerPage() {
                         Retour aux détails du cours
                     </Button>
                 </div>
-                <VideoPlayer videoUrl={activeLesson?.videoUrl} />
+                 {isEbook ? (
+                    <div className="flex-1 w-full bg-slate-900 rounded-lg overflow-hidden">
+                       <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
+                           {course.ebookUrl ? (
+                                <Viewer fileUrl={course.ebookUrl} />
+                           ) : (
+                                <div className="flex items-center justify-center h-full text-white">Ce livre n'est pas disponible.</div>
+                           )}
+                       </Worker>
+                    </div>
+                ) : (
+                     <VideoPlayer videoUrl={activeLesson?.videoUrl} />
+                )}
                 <div className="mt-4">
-                    <h1 className="text-xl lg:text-2xl font-bold">{activeLesson?.title || course.title}</h1>
-                    {activeLesson ? (
+                     <h1 className="text-xl lg:text-2xl font-bold">{isEbook ? course.title : activeLesson?.title || course.title}</h1>
+                    {activeLesson && !isEbook ? (
                         <div className="flex justify-between items-center mt-2">
                             <p className="text-slate-500 text-sm">Leçon actuelle</p>
                             <Button onClick={handleLessonCompletion} size="sm" disabled={completedLessons.includes(activeLesson.id)}>
@@ -341,23 +359,27 @@ export default function CoursePlayerPage() {
                                 {completedLessons.includes(activeLesson.id) ? 'Terminée' : 'Marquer comme terminée'}
                             </Button>
                         </div>
-                    ) : <p className="text-slate-500 text-sm">Bienvenue dans votre cours</p>}
+                    ) : <p className="text-slate-500 text-sm">{isEbook ? 'Livre Électronique' : 'Bienvenue dans votre cours'}</p>}
                 </div>
-                <div className="mt-6 flex-grow bg-white p-6 rounded-2xl shadow-inner">
-                  <CourseContentTabs courseId={courseId as string}/>
-                </div>
+                {!isEbook && (
+                    <div className="mt-6 flex-grow bg-white p-6 rounded-2xl shadow-inner">
+                      <CourseContentTabs courseId={courseId as string}/>
+                    </div>
+                )}
             </main>
-            <aside className="w-full lg:w-96 lg:h-screen border-t lg:border-t-0 lg:border-l shrink-0 bg-white">
-                <div className="p-4 h-full overflow-y-auto">
-                   <CourseSidebar 
-                        courseId={courseId as string} 
-                        activeLesson={activeLesson} 
-                        onLessonClick={setActiveLesson} 
-                        isEnrolled={isEnrolled}
-                        completedLessons={completedLessons}
-                    />
-                </div>
-            </aside>
+            {!isEbook && (
+                <aside className="w-full lg:w-96 lg:h-screen border-t lg:border-t-0 lg:border-l shrink-0 bg-white">
+                    <div className="p-4 h-full overflow-y-auto">
+                       <CourseSidebar 
+                            courseId={courseId as string} 
+                            activeLesson={activeLesson} 
+                            onLessonClick={setActiveLesson} 
+                            isEnrolled={isEnrolled}
+                            completedLessons={completedLessons}
+                        />
+                    </div>
+                </aside>
+            )}
         </div>
     );
 }

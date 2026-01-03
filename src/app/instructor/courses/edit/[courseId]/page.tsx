@@ -18,8 +18,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Sparkles, PlusCircle, Trash2 } from 'lucide-react';
+import { Loader2, Sparkles, PlusCircle, Trash2, Video, Book } from 'lucide-react';
 import type { Course } from '@/lib/types';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const courseEditSchema = z.object({
   title: z.string().min(5, 'Le titre doit contenir au moins 5 caractères.'),
@@ -29,6 +30,8 @@ const courseEditSchema = z.object({
   learningObjectives: z.array(z.object({ value: z.string().min(1, "L'objectif ne peut pas être vide.") })).optional(),
   prerequisites: z.array(z.object({ value: z.string().min(1, "Le prérequis ne peut pas être vide.") })).optional(),
   targetAudience: z.string().optional(),
+  contentType: z.enum(['video', 'ebook']).default('video'),
+  ebookUrl: z.string().url("Veuillez entrer une URL de PDF valide.").optional().or(z.literal('')),
 });
 
 type CourseEditFormValues = z.infer<typeof courseEditSchema>;
@@ -58,6 +61,8 @@ export default function EditCoursePage() {
       learningObjectives: [],
       prerequisites: [],
       targetAudience: '',
+      contentType: 'video',
+      ebookUrl: '',
     },
   });
   
@@ -71,6 +76,8 @@ export default function EditCoursePage() {
     name: "prerequisites",
   });
 
+  const contentType = form.watch('contentType');
+
   useEffect(() => {
     if (course) {
       form.reset({
@@ -81,6 +88,8 @@ export default function EditCoursePage() {
         learningObjectives: course.learningObjectives?.map((obj: string) => ({ value: obj })) || [],
         prerequisites: course.prerequisites?.map((pre: string) => ({ value: pre })) || [],
         targetAudience: course.targetAudience,
+        contentType: course.contentType || 'video',
+        ebookUrl: course.ebookUrl || '',
       });
     }
   }, [course, form]);
@@ -180,6 +189,58 @@ export default function EditCoursePage() {
               <CardTitle className="text-xl dark:text-white">Informations Générales</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 p-6">
+              <FormField
+                control={form.control}
+                name="contentType"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Type de contenu</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col sm:flex-row gap-4"
+                      >
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <RadioGroupItem value="video" id="video" className="sr-only" />
+                          </FormControl>
+                          <FormLabel htmlFor="video" className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                            <Video className="mb-3 h-6 w-6" />
+                            Cours Vidéo
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <RadioGroupItem value="ebook" id="ebook" className="sr-only" />
+                          </FormControl>
+                           <FormLabel htmlFor="ebook" className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                            <Book className="mb-3 h-6 w-6" />
+                            E-book (PDF)
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {contentType === 'ebook' && (
+                <FormField
+                  control={form.control}
+                  name="ebookUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-slate-300 font-medium">URL du PDF de l'E-book</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://example.com/mon-ebook.pdf" {...field} className="dark:bg-slate-700 dark:border-slate-600" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <FormField
               control={form.control}
               name="title"

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -11,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CreditCard, Info, BookOpen, Gift, Loader2, Check, Star, AlertTriangle, MessageSquarePlus, MessageSquare, Video, PlayCircle, Lock, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { CreditCard, Info, BookOpen, Gift, Loader2, Check, Star, AlertTriangle, MessageSquarePlus, MessageSquare, Video, PlayCircle, Lock, ChevronRight, ChevronDown, ChevronUp, Book } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -373,7 +374,7 @@ export default function CourseDetailsClient() {
   const isEnrolled = useMemo(() => (enrollments?.length ?? 0) > 0, [enrollments]);
 
   useEffect(() => {
-    if (!courseId) return;
+    if (!courseId || course?.contentType === 'ebook') return;
 
     const fetchStats = async () => {
         const sectionsQuery = query(collection(db, 'courses', courseId, 'sections'));
@@ -396,7 +397,7 @@ export default function CourseDetailsClient() {
     };
 
     fetchStats();
-  }, [courseId, db]);
+  }, [courseId, db, course?.contentType]);
 
 
   const handlePurchase = () => {
@@ -508,6 +509,19 @@ export default function CourseDetailsClient() {
   };
 
   const isFree = course.price === 0;
+  const isEbook = course.contentType === 'ebook';
+
+  const getButtonText = () => {
+    if(isEnrolled) return isEbook ? "Lire l'E-book" : "Aller au cours";
+    if(isFree) return isEbook ? "Obtenir l'E-book Gratuitement" : "S'inscrire Gratuitement";
+    return isEbook ? "Acheter l'E-book" : "Acheter le Cours";
+  }
+
+  const handleMainAction = () => {
+    if(isEnrolled) router.push(`/courses/${courseId}`);
+    else if(isFree) handleFreeEnrollment();
+    else handlePurchase();
+  }
 
   return (
     <>
@@ -537,7 +551,7 @@ export default function CourseDetailsClient() {
                     {isDescriptionExpanded ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
                 </Button>
                 <div className="flex items-center gap-4 text-sm flex-wrap">
-                  <Badge variant="secondary" className="bg-white/10 text-white hover:bg-white/20">{course.category}</Badge>
+                  <Badge variant="secondary" className="bg-white/10 text-white hover:bg-white/20">{isEbook ? 'E-book' : course.category}</Badge>
                   <div className="flex items-center gap-2">
                     <StarRating rating={4.5} />
                     <span className="text-slate-400">(1,234 avis)</span>
@@ -556,22 +570,24 @@ export default function CourseDetailsClient() {
         <div className="container mx-auto py-8 px-4 lg:px-8">
           <div className="lg:grid lg:grid-cols-3 lg:gap-8">
               <main className="lg:col-span-2 space-y-12">
-                <Card className="mb-8 rounded-3xl shadow-lg bg-slate-50 dark:bg-[#1e293b] dark:border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="dark:text-white"><h2>Ce que vous apprendrez</h2></CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 list-inside text-slate-700 dark:text-slate-300">
-                          {course.learningObjectives?.map((obj: string, i: number) => (
-                             <li key={i} className="flex items-start"><Check className="w-5 h-5 mr-2 mt-1 text-primary flex-shrink-0" /><span>{obj}</span></li>
-                          )) ||  <li className="flex items-start"><Check className="w-5 h-5 mr-2 mt-1 text-primary flex-shrink-0" /><span>Les fondamentaux de ce sujet.</span></li>}
-                      </ul>
-                  </CardContent>
-                </Card>
+                {!isEbook && (
+                    <Card className="mb-8 rounded-3xl shadow-lg bg-slate-50 dark:bg-[#1e293b] dark:border-slate-700">
+                    <CardHeader>
+                        <CardTitle className="dark:text-white"><h2>Ce que vous apprendrez</h2></CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 list-inside text-slate-700 dark:text-slate-300">
+                            {course.learningObjectives?.map((obj: string, i: number) => (
+                                <li key={i} className="flex items-start"><Check className="w-5 h-5 mr-2 mt-1 text-primary flex-shrink-0" /><span>{obj}</span></li>
+                            )) ||  <li className="flex items-start"><Check className="w-5 h-5 mr-2 mt-1 text-primary flex-shrink-0" /><span>Les fondamentaux de ce sujet.</span></li>}
+                        </ul>
+                    </CardContent>
+                    </Card>
+                )}
 
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold dark:text-white">Programme du cours</h2>
-                  <CourseCurriculum courseId={courseId} isEnrolled={isEnrolled} />
+                  {isEbook ? <h2 className="text-2xl font-bold dark:text-white">Aperçu du livre</h2> : <h2 className="text-2xl font-bold dark:text-white">Programme du cours</h2>}
+                  {!isEbook && <CourseCurriculum courseId={courseId} isEnrolled={isEnrolled} />}
 
                   <h2 className="text-2xl font-bold dark:text-white">Prérequis</h2>
                    <ul className="list-disc list-inside space-y-1 dark:text-slate-300">
@@ -615,44 +631,43 @@ export default function CourseDetailsClient() {
                                 height={450}
                                 className="rounded-t-3xl aspect-video object-cover w-full"
                             />
-                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Button size="icon" variant="secondary" className="h-16 w-16 rounded-full"><PlayCircle className="h-8 w-8 text-primary"/></Button>
-                             </div>
-                             <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity">Voir la présentation</p>
+                            {!isEbook && (
+                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button size="icon" variant="secondary" className="h-16 w-16 rounded-full"><PlayCircle className="h-8 w-8 text-primary"/></Button>
+                                 </div>
+                             )}
                         </div>
                         <CardContent className="p-6 space-y-4">
                             <h2 className="text-3xl font-bold text-center dark:text-white">
                                 {isFree ? 'Gratuit' : `${course.price.toLocaleString('fr-FR')} XOF`}
                             </h2>
 
-                             {isEnrolled ? (
-                                  <Button className="w-full" size="lg" asChild>
-                                      <Link href={`/courses/${courseId}`}>
-                                          <BookOpen className="mr-2 h-5 w-5" />
-                                          Aller au cours
-                                      </Link>
-                                  </Button>
-                              ) : isFree ? (
-                                <Button className="w-full" size="lg" onClick={handleFreeEnrollment} disabled={isEnrolling}>
-                                    {isEnrolling ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Gift className="mr-2 h-5 w-5" />}
-                                    {isEnrolling ? 'Inscription en cours...' : "S'inscrire Gratuitement"}
-                                </Button>
-                            ) : (
-                                <Button className="w-full" size="lg" onClick={handlePurchase}>
-                                    <CreditCard className="mr-2 h-5 w-5" />
-                                    Acheter le Cours
-                                </Button>
-                            )}
+                            <Button className="w-full" size="lg" onClick={handleMainAction} disabled={isEnrolling}>
+                                {isEnrolling ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : 
+                                 isEbook ? <BookOpen className="mr-2 h-5 w-5" /> : 
+                                 <CreditCard className="mr-2 h-5 w-5" />}
+                                {isEnrolling ? 'Traitement...' : getButtonText()}
+                            </Button>
+                            
                             <p className="text-xs text-muted-foreground text-center">Garantie satisfait ou remboursé 30 jours</p>
 
                              <div className="space-y-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                <h3 className="font-semibold dark:text-white">Ce cours inclut :</h3>
+                                <h3 className="font-semibold dark:text-white">Ce produit inclut :</h3>
                                 <ul className="space-y-2 text-sm text-muted-foreground">
-                                    <li className="flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> {(courseStats.totalDuration / 60).toFixed(1)} heures de vidéo à la demande</li>
-                                    <li className="flex items-center gap-2"><Info className="h-4 w-4 text-primary" /> {courseStats.lessonCount} leçons</li>
-                                    <li className="flex items-center gap-2"><CreditCard className="h-4 w-4 text-primary" /> Accès sur mobile et TV</li>
-                                    <li className="flex items-center gap-2"><Gift className="h-4 w-4 text-primary" /> Accès complet à vie</li>
-                                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Certificat de réussite</li>
+                                    {isEbook ? (
+                                        <>
+                                            <li className="flex items-center gap-2"><Book className="h-4 w-4 text-primary" /> Format PDF</li>
+                                            <li className="flex items-center gap-2"><Info className="h-4 w-4 text-primary" /> Accès immédiat après achat</li>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <li className="flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> {(courseStats.totalDuration / 60).toFixed(1)} heures de vidéo à la demande</li>
+                                            <li className="flex items-center gap-2"><Info className="h-4 w-4 text-primary" /> {courseStats.lessonCount} leçons</li>
+                                            <li className="flex items-center gap-2"><CreditCard className="h-4 w-4 text-primary" /> Accès sur mobile et TV</li>
+                                            <li className="flex items-center gap-2"><Gift className="h-4 w-4 text-primary" /> Accès complet à vie</li>
+                                            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Certificat de réussite</li>
+                                        </>
+                                    )}
                                 </ul>
                             </div>
                         </CardContent>
@@ -664,9 +679,9 @@ export default function CourseDetailsClient() {
               {!isEnrolled && (
                    <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-4 border-t border-slate-200 dark:border-slate-700">
                       <p className="font-bold text-xl mb-2 dark:text-white">{isFree ? 'Gratuit' : `${course.price.toLocaleString('fr-FR')} XOF`}</p>
-                      <Button className="w-full" size="lg" onClick={isFree ? handleFreeEnrollment : handlePurchase} disabled={isEnrolling}>
+                      <Button className="w-full" size="lg" onClick={handleMainAction} disabled={isEnrolling}>
                           {isEnrolling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          S'inscrire maintenant
+                          {getButtonText()}
                       </Button>
                   </div>
               )}
@@ -676,5 +691,3 @@ export default function CourseDetailsClient() {
     </>
   );
 }
-
-    

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, getFirestore, getDocs, limit, orderBy } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
-import { Star, Frown, Clock, Medal, Download, Search } from "lucide-react";
+import { Star, Frown, BookText, Video } from "lucide-react";
 import Image from 'next/image';
 import { useMemo, useState, useEffect } from 'react';
 import { Skeleton } from '../ui/skeleton';
@@ -23,6 +23,7 @@ const StarRating = ({ rating, reviewCount }: { rating: number, reviewCount: numb
 );
 
 const CourseCard = ({ course, instructor }: { course: Course, instructor: Partial<FormaAfriqueUser> | null }) => {
+    const isEbook = course.contentType === 'ebook';
     return (
         <div className="w-full">
             <Link href={`/course/${course.id}`} className="block group">
@@ -35,7 +36,10 @@ const CourseCard = ({ course, instructor }: { course: Course, instructor: Partia
                             height={170}
                             className="aspect-video object-cover w-full"
                         />
-                         <Badge variant="secondary" className="absolute top-3 left-3 bg-white/80 backdrop-blur-sm">{course.category || 'Non classé'}</Badge>
+                         <Badge variant="secondary" className="absolute top-3 left-3 bg-white/80 backdrop-blur-sm flex items-center gap-1.5">
+                            {isEbook ? <BookText className="h-3 w-3" /> : <Video className="h-3 w-3" />}
+                            {isEbook ? 'E-book' : 'Vidéo'}
+                         </Badge>
                     </div>
                     <div className="p-4 space-y-2">
                         <h3 className="font-bold text-sm text-slate-800 line-clamp-2 h-10">{course.title}</h3>
