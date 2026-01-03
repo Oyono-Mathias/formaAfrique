@@ -88,7 +88,7 @@ export function AdminSidebar() {
 
       <footer className="p-4 mt-auto space-y-2 border-t border-slate-700/50">
         <Button variant="outline" className="w-full justify-center bg-slate-700 border-slate-600 hover:bg-slate-600 text-white" onClick={() => switchRole('student')}>
-            <LogOut className="mr-2"/>
+            <LogOut className="mr-2 h-4 w-4"/>
             Quitter Admin
         </Button>
       </footer>

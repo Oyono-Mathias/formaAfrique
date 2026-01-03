@@ -151,7 +151,7 @@ export default function EditCoursePage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Card className="bg-white rounded-2xl shadow-sm">
+        <Card className="bg-white dark:bg-[#1e293b] dark:border-slate-700 rounded-2xl shadow-sm">
           <CardHeader>
             <Skeleton className="h-8 w-1/2" />
           </CardHeader>
@@ -166,7 +166,7 @@ export default function EditCoursePage() {
   }
 
   if (!course) {
-    return <div className="text-center p-12 text-foreground">Cours non trouvé.</div>;
+    return <div className="text-center p-12 text-foreground dark:text-white">Cours non trouvé.</div>;
   }
   
   const canEdit = formaAfriqueUser && (course.instructorId === formaAfriqueUser.uid || formaAfriqueUser.role === 'admin');
@@ -176,189 +176,177 @@ export default function EditCoursePage() {
   }
 
   return (
-    <Tabs defaultValue="info">
-        <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="info">Informations</TabsTrigger>
-            <TabsTrigger value="program">Programme</TabsTrigger>
-        </TabsList>
-        <TabsContent value="info" className="mt-6">
-            <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <Card className="bg-white rounded-2xl shadow-sm border-gray-200/80 transition-shadow hover:shadow-md">
-                <CardHeader>
-                    <CardTitle className="text-xl">Informations Générales</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6 p-6">
-                    <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">Titre du cours</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Ex: Introduction à Next.js 14" {...field} className="border-gray-200 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary" />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel className="flex justify-between items-center text-gray-700 font-medium">
-                            <span>Description</span>
-                            <Button type="button" variant="outline" size="sm" onClick={handleAiAssist} disabled={isAiLoading}>
-                            {isAiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2 text-yellow-500" />}
-                            Assistance IA
-                            </Button>
-                        </FormLabel>
-                        <FormControl>
-                            <Textarea placeholder="Décrivez votre cours en détail..." {...field} rows={6} className="border-gray-200 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary"/>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                     <FormField
-                        control={form.control}
-                        name="imageUrl"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel className="text-gray-700 font-medium">URL de l'image de couverture</FormLabel>
-                            <FormControl>
-                                <Input placeholder="https://picsum.photos/seed/..." {...field} className="border-gray-200 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary" />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                    <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">Catégorie</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Développement Web" {...field} className="border-gray-200 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary"/>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                </CardContent>
-                </Card>
-                
-                <Card className="bg-white rounded-2xl shadow-sm border-gray-200/80 transition-shadow hover:shadow-md">
-                <CardHeader>
-                    <CardTitle className="text-xl">Objectifs Pédagogiques</CardTitle>
-                    <CardDescription>Que vont apprendre les étudiants dans ce cours ? (Ce que vous apprendrez)</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 p-6">
-                    {objectivesFields.map((field, index) => (
-                        <FormField
-                        key={field.id}
-                        control={form.control}
-                        name={`learningObjectives.${index}.value`}
-                        render={({ field }) => (
-                            <FormItem>
-                            <div className="flex items-center gap-2">
-                                <FormControl>
-                                <Input {...field} placeholder={`Objectif #${index + 1}`} className="border-gray-200 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary"/>
-                                </FormControl>
-                                <Button type="button" variant="ghost" size="icon" onClick={() => removeObjective(index)} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10">
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Supprimer l'objectif</span>
-                                </Button>
-                            </div>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                    ))}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full border-dashed border-2 hover:bg-accent hover:border-solid"
-                        size="sm"
-                        onClick={() => appendObjective({ value: "" })}
-                    >
-                        <PlusCircle className="h-4 w-4 mr-2" />
-                        Ajouter un objectif
-                    </Button>
-                </CardContent>
-                </Card>
-                
-                <Card className="bg-white rounded-2xl shadow-sm border-gray-200/80 transition-shadow hover:shadow-md">
-                <CardHeader>
-                    <CardTitle className="text-xl">Prérequis</CardTitle>
-                    <CardDescription>Quelles sont les connaissances nécessaires pour suivre ce cours ?</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 p-6">
-                    {prereqFields.map((field, index) => (
-                        <FormField
-                        key={field.id}
-                        control={form.control}
-                        name={`prerequisites.${index}.value`}
-                        render={({ field }) => (
-                            <FormItem>
-                            <div className="flex items-center gap-2">
-                                <FormControl>
-                                <Input {...field} placeholder={`Prérequis #${index + 1}`} className="border-gray-200 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary"/>
-                                </FormControl>
-                                <Button type="button" variant="ghost" size="icon" onClick={() => removePrereq(index)} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10">
-                                <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                    ))}
-                    <Button type="button" variant="outline" className="w-full border-dashed border-2 hover:bg-accent hover:border-solid" size="sm" onClick={() => appendPrereq({ value: "" })}>
-                        <PlusCircle className="h-4 w-4 mr-2" />
-                        Ajouter un prérequis
-                    </Button>
-                </CardContent>
-                </Card>
-                
-                <Card className="bg-white rounded-2xl shadow-sm border-gray-200/80 transition-shadow hover:shadow-md">
-                <CardHeader>
-                    <CardTitle className="text-xl">Public Cible</CardTitle>
-                    <CardDescription>À qui s'adresse ce cours ?</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6">
-                    <FormField
-                    control={form.control}
-                    name="targetAudience"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormControl>
-                            <Textarea placeholder="Ex: Développeurs débutants, chefs de projet, étudiants en marketing..." {...field} rows={4} className="border-gray-200 focus-visible:ring-4 focus-visible:ring-primary/10 focus-visible:border-primary"/>
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                </CardContent>
-                </Card>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <Card className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border-gray-200/80 dark:border-slate-700 transition-shadow hover:shadow-md">
+          <CardHeader>
+              <CardTitle className="text-xl dark:text-white">Informations Générales</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 p-6">
+              <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel className="text-gray-700 dark:text-slate-300 font-medium">Titre du cours</FormLabel>
+                  <FormControl>
+                      <Input placeholder="Ex: Introduction à Next.js 14" {...field} className="dark:bg-slate-700 dark:border-slate-600" />
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+              />
+              <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel className="flex justify-between items-center text-gray-700 dark:text-slate-300 font-medium">
+                      <span>Description</span>
+                      <Button type="button" variant="outline" size="sm" onClick={handleAiAssist} disabled={isAiLoading}>
+                      {isAiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2 text-yellow-500" />}
+                      Assistance IA
+                      </Button>
+                  </FormLabel>
+                  <FormControl>
+                      <Textarea placeholder="Décrivez votre cours en détail..." {...field} rows={6} className="dark:bg-slate-700 dark:border-slate-600"/>
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+              />
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                      <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-slate-300 font-medium">URL de l'image de couverture</FormLabel>
+                      <FormControl>
+                          <Input placeholder="https://picsum.photos/seed/..." {...field} className="dark:bg-slate-700 dark:border-slate-600" />
+                      </FormControl>
+                      <FormMessage />
+                      </FormItem>
+                  )}
+                  />
+              <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel className="text-gray-700 dark:text-slate-300 font-medium">Catégorie</FormLabel>
+                  <FormControl>
+                      <Input placeholder="Développement Web" {...field} className="dark:bg-slate-700 dark:border-slate-600"/>
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+              />
+          </CardContent>
+          </Card>
+          
+          <Card className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border-gray-200/80 dark:border-slate-700 transition-shadow hover:shadow-md">
+          <CardHeader>
+              <CardTitle className="text-xl dark:text-white">Objectifs Pédagogiques</CardTitle>
+              <CardDescription className="dark:text-slate-400">Que vont apprendre les étudiants dans ce cours ? (Ce que vous apprendrez)</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 p-6">
+              {objectivesFields.map((field, index) => (
+                  <FormField
+                  key={field.id}
+                  control={form.control}
+                  name={`learningObjectives.${index}.value`}
+                  render={({ field }) => (
+                      <FormItem>
+                      <div className="flex items-center gap-2">
+                          <FormControl>
+                          <Input {...field} placeholder={`Objectif #${index + 1}`} className="dark:bg-slate-700 dark:border-slate-600"/>
+                          </FormControl>
+                          <Button type="button" variant="ghost" size="icon" onClick={() => removeObjective(index)} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Supprimer l'objectif</span>
+                          </Button>
+                      </div>
+                      <FormMessage />
+                      </FormItem>
+                  )}
+                  />
+              ))}
+              <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-dashed border-2 hover:bg-accent dark:hover:bg-slate-800 dark:border-slate-600 dark:text-slate-300 hover:border-solid"
+                  size="sm"
+                  onClick={() => appendObjective({ value: "" })}
+              >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Ajouter un objectif
+              </Button>
+          </CardContent>
+          </Card>
+          
+          <Card className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border-gray-200/80 dark:border-slate-700 transition-shadow hover:shadow-md">
+          <CardHeader>
+              <CardTitle className="text-xl dark:text-white">Prérequis</CardTitle>
+              <CardDescription className="dark:text-slate-400">Quelles sont les connaissances nécessaires pour suivre ce cours ?</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 p-6">
+              {prereqFields.map((field, index) => (
+                  <FormField
+                  key={field.id}
+                  control={form.control}
+                  name={`prerequisites.${index}.value`}
+                  render={({ field }) => (
+                      <FormItem>
+                      <div className="flex items-center gap-2">
+                          <FormControl>
+                          <Input {...field} placeholder={`Prérequis #${index + 1}`} className="dark:bg-slate-700 dark:border-slate-600"/>
+                          </FormControl>
+                          <Button type="button" variant="ghost" size="icon" onClick={() => removePrereq(index)} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                          <Trash2 className="h-4 w-4" />
+                          </Button>
+                      </div>
+                      <FormMessage />
+                      </FormItem>
+                  )}
+                  />
+              ))}
+              <Button type="button" variant="outline" className="w-full border-dashed border-2 hover:bg-accent dark:hover:bg-slate-800 dark:border-slate-600 dark:text-slate-300 hover:border-solid" size="sm" onClick={() => appendPrereq({ value: "" })}>
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Ajouter un prérequis
+              </Button>
+          </CardContent>
+          </Card>
+          
+          <Card className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm border-gray-200/80 dark:border-slate-700 transition-shadow hover:shadow-md">
+          <CardHeader>
+              <CardTitle className="text-xl dark:text-white">Public Cible</CardTitle>
+              <CardDescription className="dark:text-slate-400">À qui s'adresse ce cours ?</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+              <FormField
+              control={form.control}
+              name="targetAudience"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormControl>
+                      <Textarea placeholder="Ex: Développeurs débutants, chefs de projet, étudiants en marketing..." {...field} rows={4} className="dark:bg-slate-700 dark:border-slate-600"/>
+                  </FormControl>
+                  <FormMessage />
+                  </FormItem>
+              )}
+              />
+          </CardContent>
+          </Card>
 
 
-                {/* Sticky footer for mobile, regular for desktop */}
-                <div className="fixed bottom-0 left-0 right-0 md:relative bg-white/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none border-t md:border-none p-4 md:p-0 md:flex md:justify-end md:gap-4 z-50">
-                <Button type="submit" disabled={isSaving} className="w-full md:w-auto">
-                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Enregistrer les informations
-                </Button>
-                </div>
-            </form>
-            </Form>
-        </TabsContent>
-        <TabsContent value="program" className="mt-6">
-            <CourseContentPage />
-        </TabsContent>
-    </Tabs>
+          {/* Sticky footer for mobile, regular for desktop */}
+          <div className="fixed bottom-0 left-0 right-0 md:relative bg-white/80 dark:bg-slate-900/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none border-t dark:border-slate-700 md:border-none p-4 md:p-0 md:flex md:justify-end md:gap-4 z-50">
+          <Button type="submit" disabled={isSaving} className="w-full md:w-auto">
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Enregistrer les informations
+          </Button>
+          </div>
+      </form>
+    </Form>
   );
 }
-

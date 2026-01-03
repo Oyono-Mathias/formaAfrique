@@ -75,7 +75,7 @@ function getPageTitle(pathname: string): string {
 
 function ApprovalPendingScreen() {
     return (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center h-full p-4">
             <Card className="w-full max-w-md text-center">
                 <CardHeader>
                     <CardTitle>Compte en attente d'approbation</CardTitle>
@@ -92,7 +92,7 @@ function ApprovalPendingScreen() {
 function AdminAccessRequiredScreen() {
     const router = useRouter();
     return (
-        <div className="flex flex-col items-center justify-center h-full text-center">
+        <div className="flex flex-col items-center justify-center h-full text-center p-4">
              <ShieldAlert className="w-16 h-16 text-destructive mb-4" />
             <h1 className="text-2xl font-bold">Accès Interdit</h1>
             <p className="text-muted-foreground">Vous n'avez pas les autorisations nécessaires pour accéder à cette page.</p>
@@ -104,9 +104,9 @@ function AdminAccessRequiredScreen() {
 }
 
 const BottomNavItem = ({ href, icon: Icon, label, isActive }: { href: string; icon: React.ElementType; label: string; isActive: boolean; }) => (
-    <Link href={href} className="flex flex-col items-center justify-center flex-1 gap-1">
-        <Icon className={cn("h-5 w-5", isActive ? 'text-primary' : 'text-gray-500')} strokeWidth={isActive ? 2.5 : 2} />
-        <span className={cn("text-xs", isActive ? 'font-bold text-primary' : 'text-gray-600')}>{label}</span>
+    <Link href={href} className="flex flex-col items-center justify-center flex-1 gap-1 p-1">
+        <Icon className={cn("h-5 w-5", isActive ? 'text-primary' : 'text-slate-500')} strokeWidth={isActive ? 2.5 : 2} />
+        <span className={cn("text-xs", isActive ? 'font-bold text-primary' : 'text-slate-600')}>{label}</span>
     </Link>
 );
 
@@ -121,7 +121,7 @@ const BottomNavBar = () => {
         { href: '/account', icon: User, label: 'Compte' },
     ];
     return (
-        <div className="fixed bottom-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-sm border-t border-gray-200/80 flex md:hidden z-40">
+        <div className="fixed bottom-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-sm border-t border-slate-200/80 flex md:hidden z-40">
             {items.map(item => (
                 <BottomNavItem key={item.href} {...item} isActive={pathname === item.href} />
             ))}
@@ -185,16 +185,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
 
-  const requestNotificationPermission = () => {
-    // In a real app, this would use Firebase Cloud Messaging (FCM)
-    console.log('Requesting notification permission...');
-    toast({
-      title: "Notifications",
-      description: "Vous serez maintenant notifié des événements importants.",
-    });
-    // Placeholder for Notification.requestPermission();
-  };
-
   const handleResendVerification = async () => {
     if (user) {
       setIsSendingVerification(true);
@@ -224,8 +214,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   
   if (isUserLoading || isRoleLoading) {
     return (
-      <div className="flex min-h-screen w-full bg-background">
-        <div className="hidden md:flex flex-col gap-4 border-r bg-white p-4 w-64">
+      <div className="flex min-h-screen w-full bg-background dark:bg-[#0f172a]">
+        <div className="hidden md:flex flex-col gap-4 border-r bg-white dark:bg-[#1e293b] dark:border-slate-700 p-4 w-64">
           <div className="flex items-center gap-2 p-2">
             <Skeleton className="h-8 w-8 rounded-full" />
             <Skeleton className="h-6 w-32" />
@@ -238,7 +228,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <main className="flex-1">
-           <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
+           <header className="flex h-14 items-center gap-4 border-b bg-card dark:bg-[#1e293b] dark:border-slate-700 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
              <Skeleton className="h-8 w-8 md:hidden" />
              <Skeleton className="h-8 w-48" />
            </header>
@@ -267,21 +257,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const showBottomNav = (role === 'student') && isMobile;
 
   return (
-    <div className='flex flex-col min-h-screen'>
+    <div className='dark flex flex-col min-h-screen bg-background-alt dark:bg-[#0f172a]'>
         <div className="flex flex-1">
             <aside className={cn("hidden md:flex", isFullScreenPage && "md:hidden")}>
               {renderSidebar()}
             </aside>
             <div className="flex flex-col flex-1">
-              <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
+              <header className="flex h-14 items-center gap-4 border-b bg-card dark:bg-[#1e293b] dark:border-slate-700 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
                   <Sheet>
                     <SheetTrigger asChild>
                       <Button variant="ghost" size="icon" className={cn("shrink-0 md:hidden", isFullScreenPage && "hidden")}>
-                        <PanelLeft />
+                        <PanelLeft className="text-foreground"/>
                         <span className="sr-only">Toggle Menu</span>
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-64">
+                    <SheetContent side="left" className="p-0 w-64 dark:bg-[#1e293b] border-r-0">
                        <SheetHeader>
                         <SheetTitle className="sr-only">Menu principal</SheetTitle>
                         <SheetDescription className="sr-only">Navigation pour le profil utilisateur.</SheetDescription>
@@ -290,11 +280,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     </SheetContent>
                   </Sheet>
                   <div className="flex-1">
-                      <h1 className="text-lg font-semibold md:text-xl text-card-foreground">
+                      <h1 className="text-lg font-semibold md:text-xl text-card-foreground dark:text-white">
                           {isInstructorAndNotApproved ? "Approbation en attente" : getPageTitle(pathname)}
                       </h1>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')} className="text-card-foreground relative">
+                  <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')} className="text-card-foreground dark:text-white relative">
                       <Bell className="h-4 w-4" />
                        {hasUnreadNotifications && (
                           <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
@@ -306,7 +296,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </Button>
               </header>
               <main className={cn("flex-1 overflow-y-auto w-full", !isFullScreenPage && "p-4 sm:p-6", showBottomNav ? "pb-20" : "")}>
-                  <div className="mx-auto max-w-7xl">
+                  <div className={cn("mx-auto", !isFullScreenPage && "max-w-7xl")}>
                     {!isUserLoading && user && !user.emailVerified && !isFullScreenPage && (
                       <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-md" role="alert">
                         <p className="font-bold">Vérifiez votre adresse e-mail</p>

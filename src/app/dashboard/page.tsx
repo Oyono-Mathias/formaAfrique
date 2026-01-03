@@ -18,10 +18,11 @@ export default function DashboardPage() {
             </header>
             <div className="space-y-6">
                 <Skeleton className="h-6 w-1/3" />
-                <div className="flex space-x-4">
-                  <Skeleton className="h-64 w-60 rounded-xl" />
-                  <Skeleton className="h-64 w-60 rounded-xl" />
-                  <Skeleton className="h-64 w-60 rounded-xl hidden md:block" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <Skeleton className="h-64 w-full rounded-xl" />
+                  <Skeleton className="h-64 w-full rounded-xl" />
+                  <Skeleton className="h-64 w-full rounded-xl hidden sm:block" />
+                  <Skeleton className="h-64 w-full rounded-xl hidden lg:block" />
                 </div>
             </div>
              <div className="space-y-6">

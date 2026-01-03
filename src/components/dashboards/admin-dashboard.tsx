@@ -24,13 +24,13 @@ interface ActivityItem {
 }
 
 const StatCard = ({ title, value, icon: Icon, isLoading, accentColor }: { title: string, value: string, icon: React.ElementType, isLoading: boolean, accentColor?: string }) => (
-    <Card className={cn("border-l-4", accentColor)}>
+    <Card className={cn("border-l-4 dark:bg-[#1e293b] dark:border-slate-700", accentColor)}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            <CardTitle className="text-sm font-medium dark:text-slate-400">{title}</CardTitle>
             <Icon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-            {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold">{value}</div>}
+            {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold dark:text-white">{value}</div>}
         </CardContent>
     </Card>
 );
@@ -134,8 +134,8 @@ export function AdminDashboard() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-3xl font-bold">Tableau de bord Administrateur</h1>
-        <p className="text-muted-foreground">Vue d'ensemble de la plateforme FormaAfrique.</p>
+        <h1 className="text-3xl font-bold dark:text-white">Tableau de bord Administrateur</h1>
+        <p className="text-muted-foreground dark:text-slate-400">Vue d'ensemble de la plateforme FormaAfrique.</p>
       </header>
 
       <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -169,35 +169,35 @@ export function AdminDashboard() {
       </section>
       
       <section>
-        <h2 className="text-2xl font-semibold mb-4">Activités Récentes</h2>
-        <Card>
+        <h2 className="text-2xl font-semibold mb-4 dark:text-white">Activités Récentes</h2>
+        <Card className="dark:bg-[#1e293b] dark:border-slate-700">
             <CardContent className="pt-6">
                 {isLoading ? (
                     <div className="space-y-4">
-                        {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+                        {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full dark:bg-slate-700" />)}
                     </div>
                 ) : activities.length > 0 ? (
                     <div className="space-y-4">
                         {activities.map(activity => (
-                            <div key={activity.id} className="flex items-center gap-4">
+                            <div key={activity.id} className="flex items-center gap-4 p-2 rounded-md hover:bg-slate-800/50">
                                 <Avatar className="h-9 w-9">
                                     <AvatarImage src={activity.userAvatar} />
                                     <AvatarFallback>{activity.userName.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 space-y-1">
-                                    <p className="text-sm font-medium leading-none">
+                                    <p className="text-sm font-medium leading-none dark:text-slate-200">
                                         <span className="font-semibold">{activity.userName}</span> a acheté le cours <span className="font-semibold">"{activity.courseTitle}"</span>.
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-xs text-muted-foreground dark:text-slate-400">
                                         {format(activity.date, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}
                                     </p>
                                 </div>
-                                <div className="ml-auto font-medium text-sm">{formatCurrency(activity.amount)}</div>
+                                <div className="ml-auto font-medium text-sm dark:text-white">{formatCurrency(activity.amount)}</div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-10 text-muted-foreground">
+                    <div className="text-center py-10 text-muted-foreground dark:text-slate-500">
                         <ShoppingCart className="h-10 w-10 mx-auto mb-2"/>
                         <p>Aucune activité de paiement récente.</p>
                     </div>

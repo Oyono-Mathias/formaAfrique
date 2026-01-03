@@ -21,18 +21,18 @@ interface RevenueDataPoint {
 }
 
 const StatCard = ({ title, value, icon: Icon, isLoading, change, accentColor }: { title: string, value: string, icon: React.ElementType, isLoading: boolean, change?: string, accentColor?: string }) => (
-    <Card className={cn("border-t-4", accentColor)}>
+    <Card className={cn("border-t-4 dark:bg-[#1e293b] dark:border-slate-700", accentColor)}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            <CardTitle className="text-sm font-medium dark:text-slate-400">{title}</CardTitle>
             <Icon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
             {isLoading ? (
-                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-8 w-3/4 dark:bg-slate-700" />
             ) : (
                 <>
-                    <div className="text-2xl font-bold">{value}</div>
-                    {change && <p className="text-xs text-muted-foreground">{change}</p>}
+                    <div className="text-2xl font-bold dark:text-white">{value}</div>
+                    {change && <p className="text-xs text-muted-foreground dark:text-slate-500">{change}</p>}
                 </>
             )}
         </CardContent>
@@ -176,8 +176,8 @@ export function InstructorDashboard() {
     return (
         <div className="space-y-8">
             <header>
-                <h1 className="text-3xl font-bold">Tableau de bord</h1>
-                <p className="text-muted-foreground">Bienvenue, {instructor?.fullName || 'Instructeur'}! Voici un aperçu de vos activités.</p>
+                <h1 className="text-3xl font-bold dark:text-white">Tableau de bord</h1>
+                <p className="text-muted-foreground dark:text-slate-400">Bienvenue, {instructor?.fullName || 'Instructeur'}! Voici un aperçu de vos activités.</p>
             </header>
 
             <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -213,20 +213,21 @@ export function InstructorDashboard() {
 
             <section className="grid lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                    <h2 className="text-2xl font-semibold mb-4">Tendance des revenus</h2>
-                    <Card>
+                    <h2 className="text-2xl font-semibold mb-4 dark:text-white">Tendance des revenus</h2>
+                    <Card className="dark:bg-[#1e293b] dark:border-slate-700">
                         <CardContent className="pt-6">
-                            {isLoading ? <Skeleton className="h-72 w-full" /> : (
+                            {isLoading ? <Skeleton className="h-72 w-full dark:bg-slate-700" /> : (
                                 <ChartContainer config={chartConfig} className="h-72 w-full">
                                     <ResponsiveContainer>
                                         <BarChart data={revenueTrendData}>
-                                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                                            <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} />
-                                            <YAxis tickFormatter={(value) => `${Number(value) / 1000}k`} />
+                                            <CartesianGrid vertical={false} strokeDasharray="3 3" className="dark:stroke-slate-700" />
+                                            <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} className="dark:fill-slate-400" />
+                                            <YAxis tickFormatter={(value) => `${Number(value) / 1000}k`} className="dark:fill-slate-400"/>
                                             <ChartTooltip
                                                 cursor={false}
                                                 content={<ChartTooltipContent
                                                     indicator="dot"
+                                                    className="dark:bg-slate-800 dark:border-slate-600"
                                                 />}
                                             />
                                             <Bar dataKey="revenue" fill="var(--color-revenue)" radius={8} />
@@ -238,26 +239,26 @@ export function InstructorDashboard() {
                     </Card>
                 </div>
                 <div>
-                     <h2 className="text-2xl font-semibold mb-4">Top 5 des Cours</h2>
-                      <Card>
+                     <h2 className="text-2xl font-semibold mb-4 dark:text-white">Top 5 des Cours</h2>
+                      <Card className="dark:bg-[#1e293b] dark:border-slate-700">
                         <CardContent className="p-0">
                             <Table>
                                 <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Cours</TableHead>
-                                        <TableHead className="text-right">Inscriptions</TableHead>
+                                    <TableRow className="dark:border-slate-700">
+                                        <TableHead className="dark:text-slate-400">Cours</TableHead>
+                                        <TableHead className="text-right dark:text-slate-400">Inscriptions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {isLoading ? [...Array(5)].map((_, i) => (
-                                        <TableRow key={i}>
-                                            <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                                            <TableCell className="text-right"><Skeleton className="h-5 w-10" /></TableCell>
+                                        <TableRow key={i} className="dark:border-slate-700">
+                                            <TableCell><Skeleton className="h-5 w-32 dark:bg-slate-700" /></TableCell>
+                                            <TableCell className="text-right"><Skeleton className="h-5 w-10 dark:bg-slate-700" /></TableCell>
                                         </TableRow>
                                     )) : topCourses.map(course => (
-                                        <TableRow key={course.id}>
-                                            <TableCell className="font-medium truncate max-w-xs">{course.title}</TableCell>
-                                            <TableCell className="text-right font-bold">{course.enrollmentCount}</TableCell>
+                                        <TableRow key={course.id} className="dark:border-slate-700 dark:hover:bg-slate-800/50">
+                                            <TableCell className="font-medium truncate max-w-xs dark:text-slate-200">{course.title}</TableCell>
+                                            <TableCell className="text-right font-bold dark:text-white">{course.enrollmentCount}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
