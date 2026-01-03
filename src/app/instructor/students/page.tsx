@@ -117,10 +117,10 @@ export default function MyStudentsPage() {
       const courseIds = [...new Set(enrollmentData.map(e => e.courseId))];
 
       const userDocs = studentIds.length > 0 ? await getDocs(query(collection(db, 'users'), where('uid', 'in', studentIds.slice(0,30)))) : { docs: [] };
-      const courseDocs = courseIds.length > 0 ? await getDocs(query(collection(db, 'courses'), where('courseId', 'in', courseIds.slice(0,30)))) : { docs: [] };
+      const courseDocs = courseIds.length > 0 ? await getDocs(query(collection(db, 'courses'), where('__name__', 'in', courseIds.slice(0,30)))) : { docs: [] };
       
       const usersMap = new Map(userDocs.docs.map(d => [d.data().uid, d.data()]));
-      const coursesMap = new Map(courseDocs.docs.map(d => [d.data().courseId, d.data()]));
+      const coursesMap = new Map(courseDocs.docs.map(d => [d.id, d.data()]));
 
       const studentsList: StudentData[] = enrollmentData.map(enrollment => {
         const studentInfo = usersMap.get(enrollment.studentId);
@@ -172,7 +172,7 @@ export default function MyStudentsPage() {
         }
     });
     
-    let chatIdToRedirect = existingChatId;
+    let chatIdToRedirect: string | null = existingChatId;
 
     if (!existingChatId) {
         // Create a new chat if one doesn't exist
@@ -187,7 +187,7 @@ export default function MyStudentsPage() {
     }
     
     // Redirect to the new unified messages page, which will open the correct chat
-    router.push(`/messages?contact=${studentId}`);
+    router.push(`/messages/${chatIdToRedirect}`);
   };
 
   const handleSave = () => {
@@ -347,5 +347,3 @@ export default function MyStudentsPage() {
     </div>
   );
 }
-
-    
