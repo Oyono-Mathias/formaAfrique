@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CreditCard, Info, BookOpen, Gift, Loader2, Check, Star, AlertTriangle, MessageSquarePlus, MessageSquare, Video, PlayCircle, Lock, ChevronRight } from 'lucide-react';
+import { CreditCard, Info, BookOpen, Gift, Loader2, Check, Star, AlertTriangle, MessageSquarePlus, MessageSquare, Video, PlayCircle, Lock, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -340,6 +340,7 @@ export default function CourseDetailsClient() {
   const { user, isUserLoading } = useRole();
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [courseStats, setCourseStats] = useState({ totalDuration: 0, lessonCount: 0 });
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const courseRef = useMemoFirebase(() => courseId ? doc(db, 'courses', courseId) : null, [db, courseId]);
   const { data: course, isLoading: courseLoading } = useDoc<Course>(courseRef);
@@ -498,7 +499,7 @@ export default function CourseDetailsClient() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="bg-background-alt dark:bg-background">
+      <div className="bg-background-alt dark:bg-[#0f172a]">
         <div className="bg-slate-800 text-white py-12">
           <div className="container mx-auto px-4 lg:px-8">
               <div className="text-sm mb-4">
@@ -509,7 +510,16 @@ export default function CourseDetailsClient() {
             <div className="grid lg:grid-cols-3 gap-8 items-center">
               <div className="lg:col-span-2 space-y-4">
                 <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight">{course.title}</h1>
-                <p className="text-lg text-slate-300 leading-relaxed">{course.description}</p>
+                <div className="relative overflow-hidden">
+                    <p className={cn("text-lg text-slate-300 leading-relaxed", !isDescriptionExpanded && "line-clamp-5")}>
+                        {course.description}
+                    </p>
+                    {!isDescriptionExpanded && <div className="absolute bottom-0 h-12 w-full bg-gradient-to-t from-slate-800 to-transparent"></div>}
+                </div>
+                 <Button variant="link" onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)} className="text-white p-0 h-auto">
+                    {isDescriptionExpanded ? "Voir moins" : "Lire la suite"}
+                    {isDescriptionExpanded ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
+                </Button>
                 <div className="flex items-center gap-4 text-sm flex-wrap">
                   <Badge variant="secondary" className="bg-white/10 text-white hover:bg-white/20">{course.category}</Badge>
                   <div className="flex items-center gap-2">
@@ -530,7 +540,7 @@ export default function CourseDetailsClient() {
         <div className="container mx-auto py-8 px-4 lg:px-8">
           <div className="lg:grid lg:grid-cols-3 lg:gap-8">
               <main className="lg:col-span-2 space-y-12">
-                <Card className="mb-8 rounded-3xl shadow-lg dark:bg-[#1e293b] dark:border-slate-700">
+                <Card className="mb-8 rounded-3xl shadow-lg bg-slate-50 dark:bg-[#1e293b] dark:border-slate-700">
                   <CardHeader>
                     <CardTitle className="dark:text-white"><h2>Ce que vous apprendrez</h2></CardTitle>
                   </CardHeader>
@@ -560,7 +570,7 @@ export default function CourseDetailsClient() {
                 {instructor && (
                   <div>
                     <h2 className="text-2xl font-bold mb-4 dark:text-white">À propos de l'instructeur</h2>
-                    <Link href={`/instructor/${instructor.id}`} className="flex items-start gap-4 p-4 bg-white dark:bg-[#1e293b] rounded-3xl shadow-lg hover:shadow-2xl transition-shadow dark:border dark:border-slate-700">
+                    <Link href={`/instructor/${instructor.id}`} className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-[#1e293b] rounded-3xl shadow-lg hover:shadow-2xl transition-shadow dark:border dark:border-slate-700">
                       <Avatar className="h-16 w-16">
                           <AvatarImage src={instructor.profilePictureURL} />
                           <AvatarFallback className="text-white">{instructor.fullName.charAt(0)}</AvatarFallback>
