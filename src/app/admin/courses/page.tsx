@@ -99,7 +99,7 @@ const CourseCard = ({
       <Card className="overflow-hidden transition-shadow duration-300 hover:shadow-xl rounded-xl border-slate-200 bg-white flex flex-col">
         <div className="relative">
           <Image
-            src={course.imageUrl || `https://picsum.photos/seed/${course.id}/600/400`}
+            src={course.imageUrl || `https://picsum.photos/seed/${course.id}/600/338`}
             alt={course.title}
             width={600}
             height={338}
@@ -108,7 +108,7 @@ const CourseCard = ({
            <Badge
             variant={getStatusBadgeVariant(course.status)}
             className={cn(
-              "absolute top-3 right-3 text-xs",
+              "absolute top-2 right-2 text-xs",
               course.status === 'Published' && "bg-green-100 text-green-800 border-green-200",
               course.status === 'Pending Review' && "bg-blue-100 text-blue-800 border-blue-200",
             )}
@@ -116,12 +116,12 @@ const CourseCard = ({
             {getStatusBadgeText(course.status)}
           </Badge>
         </div>
-        <CardContent className="p-4 flex flex-col flex-grow">
-          <h3 className="font-bold text-base truncate text-slate-900 mb-1">{course.title}</h3>
-          <p className="text-xs text-slate-500 mb-3">Par {instructor?.fullName || '...'}</p>
+        <CardContent className="p-3 flex flex-col flex-grow">
+          <h3 className="font-bold text-sm truncate text-slate-900 mb-1 h-5">{course.title}</h3>
+          <p className="text-xs text-slate-500 mb-2">Par {instructor?.fullName || '...'}</p>
           <div className="flex-grow"></div>
-          <div className="flex items-center justify-between mt-2">
-            <p className="font-bold text-lg text-slate-900">
+          <div className="flex items-center justify-between mt-1">
+            <p className="font-semibold text-base text-slate-900">
               {course.price > 0 ? `${course.price.toLocaleString('fr-FR')} XOF` : 'Gratuit'}
             </p>
             <DropdownMenu>
@@ -269,10 +269,10 @@ export default function AdminCoursesPage() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-72 w-full rounded-xl" />)}
+          {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-60 w-full rounded-xl" />)}
         </div>
       ) : courses && courses.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {courses.map(course => (
             <CourseCard
               key={course.id}
@@ -295,3 +295,5 @@ export default function AdminCoursesPage() {
     </div>
   );
 }
+
+    
