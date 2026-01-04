@@ -1,45 +1,20 @@
 
 'use server';
 
-import * as admin from 'firebase-admin';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-
-// Function to initialize Firebase Admin SDK safely
-function initializeAdminApp() {
-    if (!admin.apps.length) {
-        try {
-            // IMPORTANT: Make sure your environment variables are set in your Vercel project settings
-            admin.initializeApp({
-                credential: admin.credential.cert({
-                    projectId: process.env.FIREBASE_PROJECT_ID,
-                    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-                }),
-            });
-        } catch (error: any) {
-            console.error('Firebase admin initialization error', error.stack);
-            throw new Error('Failed to initialize Firebase Admin SDK. Check server logs.');
-        }
-    }
-}
-
+import { adminAuth, adminDb } from '@/firebase/admin';
 
 export async function deleteUserAccount({ userId, idToken }: { userId: string, idToken: string }): Promise<{ success: boolean, error?: string }> {
-    // Ensure Firebase Admin is initialized on every call
-    initializeAdminApp();
-
     if (!idToken) {
         return { success: false, error: "Aucun token d'authentification." };
     }
     
     try {
         // 1. Verify the token of the user making the request (the admin)
-        const decodedToken = await getAuth().verifyIdToken(idToken);
+        const decodedToken = await adminAuth.verifyIdToken(idToken);
         const adminUid = decodedToken.uid;
 
         // 2. Verify that the user making the request is an admin
-        const adminUserDoc = await getFirestore().collection('users').doc(adminUid).get();
+        const adminUserDoc = await adminDb.collection('users').doc(adminUid).get();
         if (!adminUserDoc.exists || adminUserDoc.data()?.role !== 'admin') {
             return { success: false, error: 'Accès non autorisé. Seuls les administrateurs peuvent supprimer des utilisateurs.' };
         }
@@ -50,10 +25,10 @@ export async function deleteUserAccount({ userId, idToken }: { userId: string, i
         }
 
         // 3. Delete user from Firebase Authentication
-        await getAuth().deleteUser(userId);
+        await adminAuth.deleteUser(userId);
 
         // 4. Delete user document from Firestore
-        await getFirestore().collection('users').doc(userId).delete();
+        await adminDb.collection('users').doc(userId).delete();
 
         return { success: true };
 
