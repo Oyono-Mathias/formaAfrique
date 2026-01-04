@@ -4,7 +4,6 @@
 import * as admin from 'firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
-import { headers } from 'next/headers';
 import { firebaseConfig } from '@/firebase/config';
 
 // Initialize Firebase Admin SDK
@@ -24,10 +23,7 @@ if (!admin.apps.length) {
 }
 
 
-export async function deleteUserAccount({ userId, headers: customHeaders }: { userId: string, headers?: { Authorization: string } }): Promise<{ success: boolean, error?: string }> {
-    const headersList = customHeaders ? new Headers(customHeaders) : headers();
-    const idToken = headersList.get('Authorization')?.split('Bearer ')[1];
-
+export async function deleteUserAccount({ userId, idToken }: { userId: string, idToken: string }): Promise<{ success: boolean, error?: string }> {
     if (!idToken) {
         return { success: false, error: "Aucun token d'authentification." };
     }
@@ -60,6 +56,9 @@ export async function deleteUserAccount({ userId, headers: customHeaders }: { us
         console.error("Error deleting user:", error);
         if (error.code === 'auth/user-not-found') {
             return { success: false, error: "L'utilisateur n'existe pas dans Firebase Authentication." };
+        }
+         if (error.code === 'auth/id-token-expired') {
+            return { success: false, error: "Le token a expiré. Veuillez vous reconnecter." };
         }
         return { success: false, error: error.message || 'Une erreur inconnue est survenue.' };
     }
