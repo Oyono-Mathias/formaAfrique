@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRole } from '@/context/RoleContext';
@@ -24,7 +24,7 @@ import type { Course } from '@/lib/types';
 import type { FormaAfriqueUser } from '@/context/RoleContext';
 
 interface WishlistItem {
-  id: string; // This is the ID of the document in the wishlist subcollection
+  id: string; // ID du document dans la sous-collection wishlist
   courseId: string;
 }
 
@@ -34,7 +34,6 @@ interface WishlistCourse extends Course {
 }
 
 const WishlistCard = ({ course, onRemove }: { course: WishlistCourse, onRemove: (wishlistItemId: string) => void }) => {
-  const { toast } = useToast();
   
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -115,7 +114,8 @@ export default function WishlistPage() {
         return;
       }
 
-      // Firestore 'in' query is limited to 30 items. Batching needed for >30 wishlist items.
+      // Firestore 'in' query est limité à 30 items. 
+      // Si tu as plus de 30 cours, il faudrait faire plusieurs requêtes, mais on simplifie ici.
       const coursesRef = collection(db, 'courses');
       const coursesQuery = query(coursesRef, where('__name__', 'in', courseIds.slice(0, 30)));
       
@@ -124,12 +124,14 @@ export default function WishlistPage() {
       
       const instructorIds = [...new Set(coursesSnapshot.docs.map(d => d.data().instructorId).filter(Boolean))];
       const instructorsMap = new Map<string, FormaAfriqueUser>();
+      
       if (instructorIds.length > 0) {
         const instructorsQuery = query(collection(db, 'users'), where('uid', 'in', instructorIds.slice(0, 30)));
         const instructorsSnapshot = await getDocs(instructorsQuery);
         instructorsSnapshot.forEach(doc => instructorsMap.set(doc.data().uid, doc.data() as FormaAfriqueUser));
       }
 
+      // CORRECTION ICI : Utilisation explicite du Type Guard pour TypeScript
       const populatedCourses: WishlistCourse[] = wishlistItems
         .map(item => {
             const course = coursesData.get(item.courseId);
@@ -139,7 +141,7 @@ export default function WishlistPage() {
                 ...course,
                 wishlistItemId: item.id,
                 instructorName: instructor?.fullName,
-                id: course.id // Assure-toi que l'ID est bien présent
+                id: course.id
             };
         })
         .filter((course): course is WishlistCourse => course !== null);
@@ -148,13 +150,12 @@ export default function WishlistPage() {
       setIsLoading(false);
     }, (error) => {
       console.error("Error fetching wishlist (permissions?): ", error);
-      // If there's a permission error, just show the empty state.
       setWishlistCourses([]);
       setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, [user, isUserLoading, db, toast]);
+  }, [user, isUserLoading, db]);
 
   const handleRemoveFromWishlist = async (wishlistItemId: string) => {
     if (!user?.uid) return;
