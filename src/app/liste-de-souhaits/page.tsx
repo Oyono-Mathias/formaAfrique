@@ -132,14 +132,15 @@ export default function WishlistPage() {
 
       const populatedCourses: WishlistCourse[] = wishlistItems
         .map(item => {
-          const course = coursesData.get(item.courseId);
-          if (!course) return null;
-          const instructor = instructorsMap.get(course.instructorId);
-          return {
-            ...course,
-            wishlistItemId: item.id,
-            instructorName: instructor?.fullName
-          };
+            const course = coursesData.get(item.courseId);
+            if (!course) return null;
+            const instructor = instructorsMap.get(course.instructorId);
+            return {
+                ...course,
+                wishlistItemId: item.id,
+                instructorName: instructor?.fullName,
+                id: course.id // Assure-toi que l'ID est bien présent
+            };
         })
         .filter((course): course is WishlistCourse => course !== null);
 
