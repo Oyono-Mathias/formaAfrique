@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useRole } from '@/context/RoleContext';
 import { useCollection, useMemoFirebase } from '@/firebase';
 import { getFirestore, collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import {
   Table,
   TableBody,
@@ -111,8 +112,19 @@ const UserActions = ({ user }: { user: FormaAfriqueUser }) => {
 
     const handleDeleteUser = async () => {
         setIsSubmitting(true);
+        const auth = getAuth();
+        const adminUser = auth.currentUser;
+
+        if (!adminUser) {
+            toast({ variant: "destructive", title: "Erreur d'authentification", description: "Administrateur non connecté." });
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
-            const result = await deleteUserAccount({ userId: user.uid });
+            const token = await adminUser.getIdToken();
+            const result = await deleteUserAccount({ userId: user.uid, headers: { Authorization: `Bearer ${token}` } });
+            
             if (result.success) {
                 toast({ title: "Utilisateur supprimé", description: `${user.fullName} a été définitivement supprimé.` });
                 setIsDeleteAlertOpen(false);

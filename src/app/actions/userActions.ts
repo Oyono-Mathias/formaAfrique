@@ -1,3 +1,4 @@
+
 'use server';
 
 import * as admin from 'firebase-admin';
@@ -23,8 +24,8 @@ if (!admin.apps.length) {
 }
 
 
-export async function deleteUserAccount({ userId }: { userId: string }): Promise<{ success: boolean, error?: string }> {
-    const headersList = headers();
+export async function deleteUserAccount({ userId, headers: customHeaders }: { userId: string, headers?: { Authorization: string } }): Promise<{ success: boolean, error?: string }> {
+    const headersList = customHeaders ? new Headers(customHeaders) : headers();
     const idToken = headersList.get('Authorization')?.split('Bearer ')[1];
 
     if (!idToken) {
