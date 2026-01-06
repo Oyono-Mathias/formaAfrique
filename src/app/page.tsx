@@ -63,6 +63,7 @@ export default function AuthPage() {
   });
 
   useEffect(() => {
+    document.body.classList.add('auth-page');
     // Simple detection based on browser language
     const userLang = navigator.language || (navigator as any).userLanguage; // e.g., fr-FR, en-US
     if (userLang) {
@@ -72,6 +73,10 @@ export default function AuthPage() {
         registerForm.setValue('countryCurrent', countryCode);
       }
     }
+     // Cleanup function to remove the class
+    return () => {
+      document.body.classList.remove('auth-page');
+    };
   }, [registerForm]);
 
   const onLoginSubmit = async (values: z.infer<typeof loginSchema>) => {
@@ -153,7 +158,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 p-4">
+    <div className="min-h-screen w-full flex items-center justify-center p-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-lg">
         <TabsList className="grid w-full grid-cols-2 h-12 rounded-t-xl rounded-b-none p-0 border-b bg-slate-100">
           <TabsTrigger 

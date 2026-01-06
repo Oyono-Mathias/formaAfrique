@@ -83,4 +83,31 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
+
+  /* Styles for the authentication page background */
+  @keyframes gradient-breathe {
+    0% {
+        background-position: 0% 50%;
+        opacity: 1;
+    }
+    50% {
+        background-position: 100% 50%;
+        opacity: 0.9;
+    }
+    100% {
+        background-position: 0% 50%;
+        opacity: 1;
+    }
+  }
+
+  body.auth-page {
+      background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://img.freepik.com/free-vector/dark-low-poly-background_1048-7971.jpg');
+      background-size: 200% 200%; /* Larger size for movement */
+      background-position: center;
+      animation: gradient-breathe 15s ease-in-out infinite;
+  }
+  
+  .auth-page > div {
+    background-color: transparent !important;
+  }
 }
