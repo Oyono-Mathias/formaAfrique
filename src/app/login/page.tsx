@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function RegisterPage() {
+export default function LoginPage() {
     const router = useRouter();
     useEffect(() => {
-        router.replace('/?initialTab=register');
+        router.replace('/');
     }, [router]);
 
     return null;
