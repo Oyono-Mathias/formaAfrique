@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import { africanCountries } from '@/lib/countries'; // Assurez-vous que ce fichier existe
+import { africanCountries } from '@/lib/countries';
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState('login');
@@ -56,7 +56,7 @@ export default function AuthPage() {
           </TabsTrigger>
         </TabsList>
         
-        <Card className="rounded-t-none rounded-b-xl shadow-lg">
+        <Card className="bg-white rounded-t-none rounded-b-xl shadow-lg">
           <TabsContent value="login">
             <CardHeader>
               <CardTitle className="text-3xl font-bold">Se connecter</CardTitle>
@@ -66,11 +66,11 @@ export default function AuthPage() {
               <form onSubmit={handleLoginSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email</Label>
-                  <Input id="login-email" type="email" placeholder="votre.email@exemple.com" required />
+                  <Input id="login-email" type="email" placeholder="votre.email@exemple.com" required className="bg-white border-slate-200" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="login-password">Mot de passe</Label>
-                  <Input id="login-password" type="password" required />
+                  <Input id="login-password" type="password" required className="bg-white border-slate-200" />
                 </div>
                 <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-11 text-base" disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -98,26 +98,26 @@ export default function AuthPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstname">Prénom</Label>
-                    <Input id="firstname" placeholder="John" required />
+                    <Input id="firstname" placeholder="John" required className="bg-white border-slate-200"/>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastname">Nom</Label>
-                    <Input id="lastname" placeholder="Doe" required />
+                    <Input id="lastname" placeholder="Doe" required className="bg-white border-slate-200"/>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="register-email">Email</Label>
-                  <Input id="register-email" type="email" placeholder="votre.email@exemple.com" required />
+                  <Input id="register-email" type="email" placeholder="votre.email@exemple.com" required className="bg-white border-slate-200"/>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="register-password">Mot de passe</Label>
-                  <Input id="register-password" type="password" required />
+                  <Input id="register-password" type="password" required className="bg-white border-slate-200"/>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="country-origin">Pays d'origine</Label>
                     <Select>
-                      <SelectTrigger id="country-origin">
+                      <SelectTrigger id="country-origin" className="bg-white border-slate-200">
                         <SelectValue placeholder="Sélectionnez un pays" />
                       </SelectTrigger>
                       <SelectContent>
@@ -130,7 +130,7 @@ export default function AuthPage() {
                   <div className="space-y-2">
                     <Label htmlFor="country-current">Pays actuel</Label>
                      <Select defaultValue={detectedCountry}>
-                      <SelectTrigger id="country-current">
+                      <SelectTrigger id="country-current" className="bg-white border-slate-200">
                         <SelectValue placeholder="Sélectionnez un pays" />
                       </SelectTrigger>
                       <SelectContent>
@@ -161,3 +161,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+    
