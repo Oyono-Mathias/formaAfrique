@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -81,14 +81,14 @@ export default function AuthPage() {
                 </Button>
               </form>
             </CardContent>
-            <CardFooter className="p-6 pt-0 text-center text-sm">
+            <CardContent className="p-6 pt-0 text-center text-sm">
                 <p className="text-slate-700 mx-auto">
                     Vous n'avez pas de compte ?{' '}
                     <button onClick={() => setActiveTab('register')} className="font-semibold text-blue-600 hover:underline">
                         S'inscrire
                     </button>
                 </p>
-            </CardFooter>
+            </CardContent>
           </TabsContent>
           
           <TabsContent value="register" className="m-0">
@@ -98,15 +98,13 @@ export default function AuthPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleRegisterSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstname" className="text-slate-900">Prénom</Label>
-                    <Input id="firstname" placeholder="Mathias" required className="bg-white border-slate-300 text-slate-900"/>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastname" className="text-slate-900">Nom</Label>
-                    <Input id="lastname" placeholder="OYONO" required className="bg-white border-slate-300 text-slate-900"/>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="firstname" className="text-slate-900">Prénom</Label>
+                  <Input id="firstname" placeholder="Mathias" required className="bg-white border-slate-300 text-slate-900"/>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastname" className="text-slate-900">Nom</Label>
+                  <Input id="lastname" placeholder="OYONO" required className="bg-white border-slate-300 text-slate-900"/>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="register-email" className="text-slate-900">Email</Label>
@@ -116,33 +114,31 @@ export default function AuthPage() {
                   <Label htmlFor="register-password" className="text-slate-900">Mot de passe</Label>
                   <Input id="register-password" type="password" placeholder="********" required className="bg-white border-slate-300 text-slate-900"/>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="country-origin" className="text-slate-900">Pays d'origine</Label>
-                    <Select>
-                      <SelectTrigger id="country-origin" className="bg-white border-slate-300 text-slate-900">
-                        <SelectValue placeholder="Sélectionner" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {africanCountries.map(country => (
-                          <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="country-current" className="text-slate-900">Pays actuel</Label>
-                     <Select defaultValue={detectedCountry}>
-                      <SelectTrigger id="country-current" className="bg-white border-slate-300 text-slate-900">
-                        <SelectValue placeholder="Cameroun" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {africanCountries.map(country => (
-                          <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="country-origin" className="text-slate-900">Pays d'origine</Label>
+                  <Select>
+                    <SelectTrigger id="country-origin" className="bg-white border-slate-300 text-slate-900">
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {africanCountries.map(country => (
+                        <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="country-current" className="text-slate-900">Pays actuel</Label>
+                   <Select defaultValue={detectedCountry}>
+                    <SelectTrigger id="country-current" className="bg-white border-slate-300 text-slate-900">
+                      <SelectValue placeholder="Cameroun" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {africanCountries.map(country => (
+                        <SelectItem key={country.code} value={country.code}>{country.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-11 text-base" disabled={isLoading}>
                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -150,14 +146,14 @@ export default function AuthPage() {
                 </Button>
               </form>
             </CardContent>
-             <CardFooter className="p-6 pt-0 text-center text-sm">
+             <CardContent className="p-6 pt-0 text-center text-sm">
                 <p className="text-slate-700 mx-auto">
                     Déjà un compte ?{' '}
                     <button onClick={() => setActiveTab('login')} className="font-semibold text-blue-600 hover:underline">
                         Se connecter
                     </button>
                 </p>
-            </CardFooter>
+            </CardContent>
           </TabsContent>
         </Card>
       </Tabs>
