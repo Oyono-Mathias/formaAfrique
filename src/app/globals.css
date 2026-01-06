@@ -90,11 +90,19 @@
   }
 
   .auth-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+  
+  .auth-card .form-label-white {
+    color: #FFFFFF;
+  }
+  
+  .auth-card h1, .auth-card h2, .auth-card h3, .auth-card p, .auth-card span {
+      color: #FFFFFF;
   }
 
   @keyframes breathingBackground {

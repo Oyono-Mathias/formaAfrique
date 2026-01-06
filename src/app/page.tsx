@@ -177,16 +177,16 @@ export default function AuthPage() {
      <div className="auth-page-container" style={containerStyle}>
       <div className="min-h-screen w-full flex items-center justify-center p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-lg">
-          <TabsList className="grid w-full grid-cols-2 h-12 rounded-t-xl rounded-b-none p-0 border-b bg-slate-100">
+          <TabsList className="grid w-full grid-cols-2 h-12 rounded-t-xl rounded-b-none p-0 border-b bg-slate-100/10">
             <TabsTrigger 
               value="login" 
-              className="text-base h-full rounded-tl-xl rounded-b-none data-[state=active]:bg-white data-[state=active]:shadow-none data-[state=inactive]:bg-slate-100 data-[state=inactive]:text-slate-500"
+              className="text-base h-full rounded-tl-xl rounded-b-none data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-300 text-white"
             >
               Se connecter
             </TabsTrigger>
             <TabsTrigger 
               value="register" 
-              className="text-base h-full rounded-tr-xl rounded-b-none data-[state=active]:bg-white data-[state=active]:shadow-none data-[state=inactive]:bg-slate-100 data-[state=inactive]:text-slate-500"
+              className="text-base h-full rounded-tr-xl rounded-b-none data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-300 text-white"
             >
               Inscription
             </TabsTrigger>
@@ -195,17 +195,17 @@ export default function AuthPage() {
           <Card className="auth-card rounded-t-none rounded-b-xl shadow-lg">
             <TabsContent value="login" className="m-0">
               <CardHeader>
-                <CardTitle className="text-3xl font-bold text-slate-900">Se connecter</CardTitle>
-                <CardDescription>Accédez à votre tableau de bord.</CardDescription>
+                <CardTitle className="text-3xl font-bold text-white">Se connecter</CardTitle>
+                <CardDescription className="text-slate-300">Accédez à votre tableau de bord.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...loginForm}>
                   <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
                     <FormField control={loginForm.control} name="email" render={({ field }) => (
-                      <FormItem><FormLabel className="text-slate-900">Email</FormLabel><FormControl><Input placeholder="votre.email@exemple.com" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel className="text-white">Email</FormLabel><FormControl><Input placeholder="votre.email@exemple.com" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={loginForm.control} name="password" render={({ field }) => (
-                      <FormItem><FormLabel className="text-slate-900">Mot de passe</FormLabel><FormControl><Input type="password" required {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel className="text-white">Mot de passe</FormLabel><FormControl><Input type="password" required {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
                     )} />
                     <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-11 text-base" disabled={isLoading}>
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -215,9 +215,9 @@ export default function AuthPage() {
                 </Form>
               </CardContent>
               <CardContent className="p-6 pt-0 text-center text-sm">
-                  <p className="text-slate-700">
+                  <p className="text-slate-300">
                       Vous n'avez pas de compte ?{' '}
-                      <button onClick={() => setActiveTab('register')} className="font-semibold text-blue-600 hover:underline">
+                      <button onClick={() => setActiveTab('register')} className="font-semibold text-blue-400 hover:underline">
                           S'inscrire
                       </button>
                   </p>
@@ -226,35 +226,35 @@ export default function AuthPage() {
             
             <TabsContent value="register" className="m-0">
               <CardHeader>
-                <CardTitle className="text-3xl font-bold text-slate-900">Créer un compte</CardTitle>
-                <CardDescription>Rejoignez la plus grande communauté d'apprenants d'Afrique.</CardDescription>
+                <CardTitle className="text-3xl font-bold text-white">Créer un compte</CardTitle>
+                <CardDescription className="text-slate-300">Rejoignez la plus grande communauté d'apprenants d'Afrique.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...registerForm}>
                     <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={registerForm.control} name="firstName" render={({ field }) => (
-                            <FormItem><FormLabel className="text-slate-900">Prénom</FormLabel><FormControl><Input placeholder="Mathias" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel className="text-white">Prénom</FormLabel><FormControl><Input placeholder="Mathias" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={registerForm.control} name="lastName" render={({ field }) => (
-                            <FormItem><FormLabel className="text-slate-900">Nom</FormLabel><FormControl><Input placeholder="OYONO" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel className="text-white">Nom</FormLabel><FormControl><Input placeholder="OYONO" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
                         )} />
                       </div>
                       <FormField control={registerForm.control} name="email" render={({ field }) => (
-                          <FormItem><FormLabel className="text-slate-900">Email</FormLabel><FormControl><Input placeholder="nom@exemple.com" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                          <FormItem><FormLabel className="text-white">Email</FormLabel><FormControl><Input placeholder="nom@exemple.com" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={registerForm.control} name="password" render={({ field }) => (
-                          <FormItem><FormLabel className="text-slate-900">Mot de passe</FormLabel><FormControl><Input type="password" placeholder="********" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                          <FormItem><FormLabel className="text-white">Mot de passe</FormLabel><FormControl><Input type="password" placeholder="********" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
                       )} />
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField control={registerForm.control} name="countryOrigin" render={({ field }) => (
-                            <FormItem><FormLabel className="text-slate-900">Pays d'origine</FormLabel>
+                            <FormItem><FormLabel className="text-white">Pays d'origine</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="bg-white border-slate-300 text-slate-900"><SelectValue placeholder="Sélectionner" /></SelectTrigger></FormControl>
                                 <SelectContent>{africanCountries.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
                               </Select><FormMessage /></FormItem>
                           )} />
                           <FormField control={registerForm.control} name="countryCurrent" render={({ field }) => (
-                            <FormItem><FormLabel className="text-slate-900">Pays actuel</FormLabel>
+                            <FormItem><FormLabel className="text-white">Pays actuel</FormLabel>
                               <Select onValueChange={field.onChange} value={field.value} defaultValue={detectedCountry}>
                                 <FormControl><SelectTrigger className="bg-white border-slate-300 text-slate-900"><SelectValue placeholder="Sélectionner" /></SelectTrigger></FormControl>
                                 <SelectContent>{africanCountries.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
@@ -269,9 +269,9 @@ export default function AuthPage() {
                 </Form>
               </CardContent>
               <CardContent className="p-6 pt-0 text-center text-sm">
-                  <p className="text-slate-700">
+                  <p className="text-slate-300">
                       Déjà un compte ?{' '}
-                      <button onClick={() => setActiveTab('login')} className="font-semibold text-blue-600 hover:underline">
+                      <button onClick={() => setActiveTab('login')} className="font-semibold text-blue-400 hover:underline">
                           Se connecter
                       </button>
                   </p>
