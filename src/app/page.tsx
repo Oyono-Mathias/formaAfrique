@@ -26,6 +26,7 @@ import { errorEmitter } from '@/firebase';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { cn } from '@/lib/utils';
 import type { FormaAfriqueUser } from '@/context/RoleContext';
+import Link from 'next/link';
 
 
 // Schemas for form validation
@@ -228,27 +229,33 @@ export default function AuthPage() {
                     <FormField control={loginForm.control} name="password" render={({ field }) => (
                       <FormItem><FormLabel className="text-white">Mot de passe</FormLabel><FormControl><Input type="password" required {...field} className="bg-white border-slate-300 text-slate-900 h-9" /></FormControl><FormMessage /></FormItem>
                     )} />
-                    <FormField
-                        control={loginForm.control}
-                        name="rememberMe"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                    <Checkbox
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                        className="border-slate-300"
-                                    />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                    <FormLabel className="text-sm text-slate-300 font-normal">
-                                    Se souvenir de moi
+                    
+                    <div className="flex items-center justify-between">
+                        <FormField
+                            control={loginForm.control}
+                            name="rememberMe"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                            className="border-slate-300 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                                            id="rememberMe"
+                                        />
+                                    </FormControl>
+                                    <FormLabel htmlFor="rememberMe" className="text-sm text-slate-300 font-normal">
+                                        Se souvenir de moi
                                     </FormLabel>
-                                </div>
-                            </FormItem>
-                        )}
-                    />
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-10 text-base" disabled={isLoading}>
+                                </FormItem>
+                            )}
+                        />
+                        <Link href="#" className="text-sm font-semibold text-blue-400 hover:underline">
+                            Mot de passe oublié ?
+                        </Link>
+                    </div>
+
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-10 text-base !mt-5" disabled={isLoading}>
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Se connecter
                     </Button>
