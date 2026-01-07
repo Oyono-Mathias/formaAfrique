@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -47,6 +48,8 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [detectedCountry, setDetectedCountry] = useState('');
   const [loginBackground, setLoginBackground] = useState<string | null>(null);
+  const [siteName, setSiteName] = useState('FormaAfrique');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
   const db = getFirestore();
@@ -74,9 +77,15 @@ export default function AuthPage() {
         const settingsRef = doc(db, 'settings', 'global');
         const settingsSnap = await getDoc(settingsRef);
         if (settingsSnap.exists()) {
-            const settingsData = settingsSnap.data();
-            if (settingsData?.general?.loginBackgroundImage) {
-                setLoginBackground(settingsData.general.loginBackgroundImage);
+            const settingsData = settingsSnap.data()?.general;
+            if (settingsData?.loginBackgroundImage) {
+                setLoginBackground(settingsData.loginBackgroundImage);
+            }
+            if (settingsData?.logoUrl) {
+                setLogoUrl(settingsData.logoUrl);
+            }
+            if (settingsData?.siteName) {
+                setSiteName(settingsData.siteName);
             }
         }
     };
@@ -203,7 +212,8 @@ export default function AuthPage() {
           
           <Card className="auth-card rounded-t-none rounded-b-xl shadow-lg">
             <TabsContent value="login" className="m-0">
-              <CardHeader>
+              <CardHeader className="items-center">
+                 {logoUrl && <Image src={logoUrl} alt={siteName} width={48} height={48} className="mb-4" />}
                 <CardTitle className="text-3xl font-bold text-white">Se connecter</CardTitle>
                 <CardDescription className="text-slate-300">Accédez à votre tableau de bord.</CardDescription>
               </CardHeader>
@@ -234,7 +244,8 @@ export default function AuthPage() {
             </TabsContent>
             
             <TabsContent value="register" className="m-0">
-              <CardHeader>
+              <CardHeader className="items-center">
+                {logoUrl && <Image src={logoUrl} alt={siteName} width={48} height={48} className="mb-4" />}
                 <CardTitle className="text-3xl font-bold text-white">Créer un compte</CardTitle>
                 <CardDescription className="text-slate-300">Rejoignez la plus grande communauté d'apprenants d'Afrique.</CardDescription>
               </CardHeader>
