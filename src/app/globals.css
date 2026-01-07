@@ -83,9 +83,10 @@
     width: 100vw;
     overflow: hidden;
     position: relative;
-    background: linear-gradient(rgba(10, 10, 20, 0.8), rgba(0, 0, 0, 0.9));
-    background-size: cover;
+    background-color: #020b18; /* Dark navy fallback */
+    background-size: contain;
     background-position: center;
+    background-repeat: no-repeat;
     animation: breathingBackground 20s ease-in-out infinite alternate;
   }
 
