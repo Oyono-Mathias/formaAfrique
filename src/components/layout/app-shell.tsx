@@ -275,15 +275,39 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, isRoleLoading, formaAfriqueUser, role, switchRole, isAdminRoute]);
 
+  const isLoading = isUserLoading || isRoleLoading;
 
   if (isAuthPage) {
     return <>{children}</>;
   }
 
+  // Show loading skeleton while determining maintenance mode status
+  if (isLoading) {
+      return (
+        <div className="flex min-h-screen w-full bg-background dark:bg-[#0f172a]">
+          <div className="hidden md:flex flex-col gap-4 border-r bg-white dark:bg-[#1e293b] dark:border-slate-700 p-4 w-64">
+            <div className="flex items-center gap-2 p-2">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-6 w-32" />
+            </div>
+            <div className="space-y-2 mt-4 px-2">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-1/2" />
+            </div>
+          </div>
+          <main className="flex-1 p-6">
+            <Skeleton className="h-full w-full" />
+          </main>
+        </div>
+      );
+  }
+
+  // Once loading is complete, check for maintenance mode.
   if (siteSettings.maintenanceMode && formaAfriqueUser?.role !== 'admin') {
     return <MaintenancePage />;
   }
-
 
   const handleResendVerification = async () => {
     if (user) {
@@ -313,36 +337,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   };
   
-  if (isUserLoading || isRoleLoading) {
-    return (
-      <div className="flex min-h-screen w-full bg-background dark:bg-[#0f172a]">
-        <div className="hidden md:flex flex-col gap-4 border-r bg-white dark:bg-[#1e293b] dark:border-slate-700 p-4 w-64">
-          <div className="flex items-center gap-2 p-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <Skeleton className="h-6 w-32" />
-          </div>
-          <div className="space-y-2 mt-4 px-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-1/2" />
-          </div>
-        </div>
-        <main className="flex-1">
-           <header className="flex h-14 items-center gap-4 border-b bg-card dark:bg-[#1e293b] dark:border-slate-700 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
-             <Skeleton className="h-8 w-8 md:hidden" />
-             <Skeleton className="h-8 w-48" />
-           </header>
-           <div className="p-4 sm:p-6 space-y-6">
-             <Skeleton className="h-32 w-full" />
-             <Skeleton className="h-64 w-full" />
-           </div>
-        </main>
-      </div>
-    );
-  }
-  
   if (!user) {
+    // This can happen briefly during redirects, return null to avoid flashing content.
     return null;
   }
   
