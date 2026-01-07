@@ -146,17 +146,17 @@ export function InstructorSidebar() {
           className="w-full justify-center"
           onClick={() => switchRole('student')}
         >
-          <LogIn className="mr-2" />
+          <LogIn className="mr-2 h-4 w-4" />
           Mode Étudiant
         </Button>
         {isAdmin && (
              <Button variant="secondary" className="w-full justify-center" onClick={() => switchRole('admin')}>
-                <Shield className="mr-2" />
+                <Shield className="mr-2 h-4 w-4" />
                 Mode Admin
             </Button>
         )}
         <Button variant="destructive" className="w-full justify-center" onClick={handleLogout}>
-          <LogOut className="mr-2" />
+          <LogOut className="mr-2 h-4 w-4" />
           Déconnexion
         </Button>
       </footer>

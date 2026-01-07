@@ -139,7 +139,7 @@ export function StudentSidebar() {
                 Mode Admin
             </Button>
         )}
-        <Button variant="ghost" className="w-full justify-center" onClick={handleLogout}>
+        <Button variant="destructive" className="w-full justify-center" onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           Déconnexion
         </Button>
