@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -324,17 +325,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isChatPage = pathname.startsWith('/messages/') || pathname.startsWith('/questions-reponses/');
   const showBottomNav = (role === 'student') && isMobile;
 
+  // This handles the full-screen layout for chat pages on mobile.
+  if (isMobile && isChatPage) {
+    return <main className="h-screen w-screen">{children}</main>;
+  }
+
+
   return (
     <div className='dark flex flex-col min-h-screen bg-background-alt dark:bg-[#0f172a]'>
         <div className="flex flex-1">
-            <aside className={cn("hidden md:flex", (isFullScreenPage || isChatPage) && "md:hidden")}>
+            <aside className={cn("hidden md:flex", isFullScreenPage && "md:hidden")}>
               {renderSidebar()}
             </aside>
             <div className="flex flex-col flex-1">
               <header className="flex h-14 items-center gap-4 border-b bg-card dark:bg-[#1e293b] dark:border-slate-700 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
                   <Sheet>
                     <SheetTrigger asChild>
-                      <Button variant="ghost" size="icon" className={cn("shrink-0 md:hidden", (isFullScreenPage || isChatPage) && "hidden")}>
+                      <Button variant="ghost" size="icon" className={cn("shrink-0 md:hidden", isFullScreenPage && "hidden")}>
                         <PanelLeft className="text-foreground"/>
                         <span className="sr-only">Toggle Menu</span>
                       </Button>
@@ -368,8 +375,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 isChatPage ? "h-full" : "p-4 sm:p-6", 
                 showBottomNav ? "pb-20" : "")
               }>
-                  <div className={cn(isChatPage ? "h-full" : "", !isFullScreenPage && !isChatPage && "w-full")}>
-                    {!isUserLoading && user && !user.emailVerified && !isFullScreenPage && !isChatPage && (
+                  <div className={cn(isChatPage ? "h-full" : "", !isFullScreenPage && "w-full")}>
+                    {!isUserLoading && user && !user.emailVerified && !isFullScreenPage && (
                       <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-md" role="alert">
                         <p className="font-bold">Vérifiez votre adresse e-mail</p>
                         <p className="text-sm">
@@ -389,9 +396,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </div>
               </main>
               {showBottomNav && <BottomNavBar />}
-              {!isFullScreenPage && !isChatPage && !showBottomNav && <Footer />}
+              {!isFullScreenPage && <Footer />}
             </div>
         </div>
     </div>
   );
 }
+

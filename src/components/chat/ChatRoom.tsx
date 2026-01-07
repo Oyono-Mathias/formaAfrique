@@ -17,12 +17,13 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Loader2, Send, ShieldAlert, Shield } from 'lucide-react';
+import { Loader2, Send, Shield, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { errorEmitter } from '@/firebase';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { Badge } from '../ui/badge';
 import type { FormaAfriqueUser, UserRole } from '@/context/RoleContext';
+import { useRouter } from 'next/navigation';
 
 interface Message {
   id: string;
@@ -40,12 +41,12 @@ interface ParticipantDetails {
 export function ChatRoom({ chatId }: { chatId: string }) {
   const { user } = useRole();
   const db = getFirestore();
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [otherParticipant, setOtherParticipant] = useState<ParticipantDetails | null>(null);
   const [otherParticipantId, setOtherParticipantId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
 
@@ -56,14 +57,12 @@ export function ChatRoom({ chatId }: { chatId: string }) {
 
     const chatDocRef = doc(db, "chats", chatId);
 
-    // Mark chat as read when it's opened
     const markAsRead = async () => {
         try {
             const chatDoc = await getDoc(chatDocRef);
             if (chatDoc.exists()) {
                 const data = chatDoc.data();
                 const unreadBy = data.unreadBy || [];
-                // Mark as read only if current user is in the unread list
                 if (unreadBy.includes(user.uid)) {
                     const batch = writeBatch(db);
                     batch.update(chatDocRef, {
@@ -124,7 +123,7 @@ export function ChatRoom({ chatId }: { chatId: string }) {
 
   // Auto-scroll to the bottom
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: 'end' });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
 
@@ -142,19 +141,17 @@ export function ChatRoom({ chatId }: { chatId: string }) {
     try {
         const batch = writeBatch(db);
         
-        // 1. Add new message to the subcollection
         batch.set(messageDocRef, {
             text: textToSend,
             senderId: user.uid,
             createdAt: serverTimestamp(),
         });
         
-        // 2. Update the parent chat document for sorting, preview and unread status
         batch.update(chatDocRef, {
             lastMessage: textToSend,
             updatedAt: serverTimestamp(),
             lastSenderId: user.uid,
-            unreadBy: [otherParticipantId] // Mark as unread for the other person
+            unreadBy: [otherParticipantId]
         });
 
         await batch.commit();
@@ -176,45 +173,53 @@ export function ChatRoom({ chatId }: { chatId: string }) {
     };
 
     return (
-        <Badge className={cn('ml-2 capitalize', styles[role])}>
+        <Badge className={cn('ml-2 capitalize text-xs', styles[role])}>
             <Shield className="h-3 w-3 mr-1"/>
             {role}
         </Badge>
     );
 };
 
-
   if (isLoading) {
     return (
-        <div className="flex h-full w-full items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center bg-slate-100">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-card">
-        {/* Messages Area - takes up remaining space and is scrollable */}
-        <ScrollArea className="flex-1" ref={scrollAreaRef}>
+    <div className="flex flex-col h-full bg-slate-100">
+        <header className="flex items-center p-3 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+            <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.push('/messages')}>
+                <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <Avatar className="h-10 w-10">
+                <AvatarImage src={otherParticipant?.profilePictureURL} />
+                <AvatarFallback>{otherParticipant?.fullName?.charAt(0) || '?'}</AvatarFallback>
+            </Avatar>
+            <div className="ml-3">
+                <h2 className="font-bold text-base flex items-center">
+                    {otherParticipant?.fullName || "Utilisateur"}
+                    <RoleBadge role={otherParticipant?.role} />
+                </h2>
+            </div>
+        </header>
+
+        <ScrollArea className="flex-1">
             <div className="p-4 sm:p-6 space-y-4">
                 {messages.map((msg) => {
                     const isMe = msg.senderId === user?.uid;
                     return (
                         <div 
                             key={msg.id} 
-                            className={cn("flex items-end gap-2", isMe && "justify-end")}
+                            className={cn("flex items-end gap-2 max-w-[85%]", isMe ? "ml-auto" : "mr-auto")}
                         >
-                            {!isMe && (
-                                <Avatar className="h-6 w-6 border">
-                                    <AvatarImage src={otherParticipant?.profilePictureURL} />
-                                    <AvatarFallback>{otherParticipant?.fullName?.charAt(0) || '?'}</AvatarFallback>
-                                </Avatar>
-                            )}
                             <div className={cn(
-                                "rounded-2xl px-4 py-2 max-w-[75%] text-sm shadow-sm",
+                                "rounded-xl px-3 py-2 text-[15px] shadow-sm",
                                 isMe 
-                                    ? "bg-primary text-primary-foreground rounded-br-none" 
-                                    : "bg-background border rounded-bl-none text-card-foreground"
+                                    ? "bg-[#dcf8c6] text-slate-900 rounded-br-none" 
+                                    : "bg-white text-slate-900 rounded-bl-none"
                             )}>
                                 {msg.text}
                             </div>
@@ -225,17 +230,16 @@ export function ChatRoom({ chatId }: { chatId: string }) {
             </div>
         </ScrollArea>
 
-        {/* Sticky Input Bar at the bottom */}
-        <div className="p-4 border-t bg-background shadow-t-lg">
+        <div className="p-2 border-t bg-white/80 backdrop-blur-sm sticky bottom-0">
             <form onSubmit={handleSend} className="flex items-center gap-2">
                 <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Écrivez votre message..."
-                    className="flex-1"
+                    className="flex-1 h-11 rounded-full bg-white border-slate-300 focus-visible:ring-primary text-base"
                 />
-                <Button type="submit" size="icon" disabled={!newMessage.trim()} className="shrink-0">
-                    <Send className="h-4 w-4" />
+                <Button type="submit" size="icon" disabled={!newMessage.trim()} className="shrink-0 h-11 w-11 rounded-full bg-primary hover:bg-primary/90">
+                    <Send className="h-5 w-5" />
                     <span className="sr-only">Envoyer</span>
                 </Button>
             </form>
