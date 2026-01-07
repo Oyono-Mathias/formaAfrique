@@ -122,7 +122,7 @@ export function InstructorSidebar({ siteName, logoUrl }: { siteName?: string, lo
     <div className="w-64 h-full bg-white border-r border-slate-200 flex flex-col shadow-sm">
       <header className="p-4 border-b border-slate-100">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <Image src={logoUrl || "/icon.svg"} width={32} height={32} alt={`${siteName} Logo`} />
+          <Image src={logoUrl || "/icon.svg"} width={32} height={32} alt={`${siteName} Logo`} className="rounded-full" />
           <span className="font-bold text-lg text-primary">
             {siteName || 'FormaAfrique'}
           </span>

@@ -75,7 +75,7 @@ export function AdminSidebar({ siteName, logoUrl }: { siteName?: string, logoUrl
     <div className="w-64 h-full bg-[#1e293b] border-r border-slate-700 flex flex-col shadow-sm">
        <header className="p-4 border-b border-slate-700/50">
         <Link href="/dashboard" className="flex items-center gap-2">
-            <Image src={logoUrl || "/icon.svg"} width={32} height={32} alt={`${siteName} Logo`} />
+            <Image src={logoUrl || "/icon.svg"} width={32} height={32} alt={`${siteName} Logo`} className="rounded-full" />
             <span className="font-bold text-lg text-white">{siteName || 'Admin Panel'}</span>
         </Link>
       </header>
