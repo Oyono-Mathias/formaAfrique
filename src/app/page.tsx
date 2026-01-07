@@ -213,7 +213,7 @@ export default function AuthPage() {
           <Card className="auth-card rounded-t-none rounded-b-xl shadow-lg">
             <TabsContent value="login" className="m-0">
               <CardHeader className="items-center">
-                 {logoUrl && <Image src={logoUrl} alt={siteName} width={48} height={48} className="mb-4" />}
+                 {logoUrl && <Image src={logoUrl} alt={siteName} width={48} height={48} className="mb-4 rounded-full" />}
                 <CardTitle className="text-3xl font-bold text-white">Se connecter</CardTitle>
                 <CardDescription className="text-slate-300">Accédez à votre tableau de bord.</CardDescription>
               </CardHeader>
@@ -245,7 +245,7 @@ export default function AuthPage() {
             
             <TabsContent value="register" className="m-0">
               <CardHeader className="items-center">
-                {logoUrl && <Image src={logoUrl} alt={siteName} width={48} height={48} className="mb-4" />}
+                {logoUrl && <Image src={logoUrl} alt={siteName} width={48} height={48} className="mb-4 rounded-full" />}
                 <CardTitle className="text-3xl font-bold text-white">Créer un compte</CardTitle>
                 <CardDescription className="text-slate-300">Rejoignez la plus grande communauté d'apprenants d'Afrique.</CardDescription>
               </CardHeader>
