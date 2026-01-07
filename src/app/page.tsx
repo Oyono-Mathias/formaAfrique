@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -250,7 +249,7 @@ export default function AuthPage() {
                                 </FormItem>
                             )}
                         />
-                        <Link href="#" className="text-sm font-semibold text-blue-400 hover:underline">
+                        <Link href="/forgot-password" className="text-sm font-semibold text-blue-400 hover:underline">
                             Mot de passe oublié ?
                         </Link>
                     </div>
