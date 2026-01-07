@@ -190,7 +190,7 @@ const AnnouncementBanner = () => {
     return (
         <div className="bg-primary text-primary-foreground px-4 py-2 flex items-center gap-4 text-sm font-medium relative overflow-hidden">
             <Megaphone className="h-5 w-5 flex-shrink-0" />
-            <div className="flex-1 overflow-hidden whitespace-nowrap">
+            <div className="flex-1 overflow-hidden">
                 <span className="inline-block animate-marquee-fast pr-8 whitespace-nowrap">{message}</span>
                 <span className="inline-block animate-marquee-fast pr-8 whitespace-nowrap">{message}</span>
             </div>
@@ -298,7 +298,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const isInstructorAndNotApproved = role === 'instructor' && formaAfriqueUser && !formaAfriqueUser.isInstructorApproved;
-  const userIsNotAdmin = formaAfriqueUser && formaAfriqueUser.role !== 'admin';
+  const userIsNotAdmin = formaAfriqueir;
   const showAdminAccessRequired = isAdminRoute && userIsNotAdmin;
   const isFullScreenPage = pathname.startsWith('/courses/') || pathname.startsWith('/messages/') || pathname.startsWith('/questions-reponses/') || pathname.startsWith('/course/');
   const showBottomNav = (role === 'student') && isMobile;
@@ -344,7 +344,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </header>
               <AnnouncementBanner />
               <main className={cn("flex-1 overflow-y-auto w-full", !isFullScreenPage && "p-4 sm:p-6", showBottomNav ? "pb-20" : "")}>
-                  <div className={cn("mx-auto", !isFullScreenPage && "max-w-7xl")}>
+                  <div className={cn(!isFullScreenPage && "mx-auto w-full max-w-7xl")}>
                     {!isUserLoading && user && !user.emailVerified && !isFullScreenPage && (
                       <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-md" role="alert">
                         <p className="font-bold">Vérifiez votre adresse e-mail</p>
