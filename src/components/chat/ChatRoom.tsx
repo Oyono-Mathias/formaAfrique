@@ -204,7 +204,7 @@ export function ChatRoom({ chatId }: { chatId: string }) {
                 <AvatarFallback>{otherParticipant?.fullName?.charAt(0) || '?'}</AvatarFallback>
             </Avatar>
             <div className="ml-3">
-                <h2 className="font-bold text-base flex items-center">
+                <h2 className="font-bold text-base flex items-center text-black">
                     {otherParticipant?.fullName || "Utilisateur"}
                     <RoleBadge role={otherParticipant?.role} />
                 </h2>
@@ -223,8 +223,8 @@ export function ChatRoom({ chatId }: { chatId: string }) {
                             <div className={cn(
                                 "rounded-lg px-3 py-2 text-[15px] shadow-sm",
                                 isMe 
-                                    ? "bg-[#DCF8C6] text-slate-900 rounded-br-none" 
-                                    : "bg-white text-slate-900 rounded-bl-none"
+                                    ? "bg-[#DCF8C6] text-black rounded-br-none" 
+                                    : "bg-white text-black rounded-bl-none"
                             )}>
                                 {msg.text}
                             </div>

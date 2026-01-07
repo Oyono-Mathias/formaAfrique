@@ -370,7 +370,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       <span className="sr-only">Notifications</span>
                   </Button>
               </header>
-              <AnnouncementBanner />
+              
               <main className={cn("flex-1 overflow-y-auto", 
                 isChatPage ? "h-full" : "p-4 sm:p-6", 
                 showBottomNav ? "pb-20" : "")
@@ -402,4 +402,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
