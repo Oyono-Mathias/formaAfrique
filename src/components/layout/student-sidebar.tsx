@@ -85,7 +85,7 @@ const SidebarItem = ({ href, icon: Icon, label }: { href: string, icon: React.El
 };
 
 
-export function StudentSidebar() {
+export function StudentSidebar({ siteName, logoUrl }: { siteName?: string, logoUrl?: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const { switchRole, availableRoles } = useRole();
@@ -103,8 +103,8 @@ export function StudentSidebar() {
     <div className="w-64 h-full bg-white border-r border-slate-200 flex flex-col shadow-sm">
       <header className="p-4 border-b border-slate-100">
         <Link href="/dashboard" className="flex items-center gap-2">
-            <Image src="/icon.svg" width={32} height={32} alt="FormaAfrique Logo" />
-            <span className="font-bold text-lg text-primary">FormaAfrique</span>
+            <Image src={logoUrl || "/icon.svg"} width={32} height={32} alt={`${siteName} Logo`} />
+            <span className="font-bold text-lg text-primary">{siteName || 'FormaAfrique'}</span>
         </Link>
       </header>
 

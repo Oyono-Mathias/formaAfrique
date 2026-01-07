@@ -211,7 +211,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [isSendingVerification, setIsSendingVerification] = useState(false);
   const isAuthPage = pathname === '/' || pathname === '/register';
   const hasUnreadNotifications = useUnreadNotifications(user?.uid);
+  const [siteSettings, setSiteSettings] = useState({ siteName: 'FormaAfrique', logoUrl: '/icon.svg' });
+  const db = getFirestore();
   
+  useEffect(() => {
+    const fetchSettings = async () => {
+        const settingsRef = doc(db, 'settings', 'global');
+        const settingsSnap = await getDoc(settingsRef);
+        if (settingsSnap.exists()) {
+            const settingsData = settingsSnap.data()?.general;
+            if (settingsData) {
+                setSiteSettings({
+                    siteName: settingsData.siteName || 'FormaAfrique',
+                    logoUrl: settingsData.logoUrl || '/icon.svg',
+                });
+            }
+        }
+    };
+    fetchSettings();
+  }, [db]);
+
   React.useEffect(() => {
     if (!isAuthPage && !isUserLoading && !user) {
       router.push('/');
@@ -247,15 +266,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   const renderSidebar = () => {
+    const props = { siteName: siteSettings.siteName, logoUrl: siteSettings.logoUrl };
     switch (role) {
       case 'student':
-        return <StudentSidebar />;
+        return <StudentSidebar {...props} />;
       case 'instructor':
-        return <InstructorSidebar />;
+        return <InstructorSidebar {...props} />;
       case 'admin':
-        return <AdminSidebar />;
+        return <AdminSidebar {...props} />;
       default:
-        return <StudentSidebar />;
+        return <StudentSidebar {...props} />;
     }
   };
   

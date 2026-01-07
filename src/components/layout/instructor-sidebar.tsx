@@ -105,7 +105,7 @@ const SidebarItem = ({ href, icon: Icon, label }: { href: string, icon: React.El
   );
 };
 
-export function InstructorSidebar() {
+export function InstructorSidebar({ siteName, logoUrl }: { siteName?: string, logoUrl?: string }) {
   const router = useRouter();
   const { switchRole, formaAfriqueUser, availableRoles } = useRole();
   const { toast } = useToast();
@@ -122,9 +122,9 @@ export function InstructorSidebar() {
     <div className="w-64 h-full bg-white border-r border-slate-200 flex flex-col shadow-sm">
       <header className="p-4 border-b border-slate-100">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <Image src="/icon.svg" width={32} height={32} alt="FormaAfrique Logo" />
+          <Image src={logoUrl || "/icon.svg"} width={32} height={32} alt={`${siteName} Logo`} />
           <span className="font-bold text-lg text-primary">
-            FormaAfrique
+            {siteName || 'FormaAfrique'}
           </span>
         </Link>
       </header>
