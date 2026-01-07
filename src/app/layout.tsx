@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 import { RoleProvider } from "@/context/RoleContext";
+import { LanguageProvider } from "@/context/LanguageContext"; // Import LanguageProvider
 import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
@@ -32,8 +33,10 @@ export default function RootLayout({
        <body className={cn("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
         <FirebaseClientProvider>
           <RoleProvider>
-            <AppShell>{children}</AppShell>
-            <Toaster />
+            <LanguageProvider>
+              <AppShell>{children}</AppShell>
+              <Toaster />
+            </LanguageProvider>
           </RoleProvider>
         </FirebaseClientProvider>
       </body>

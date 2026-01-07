@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { sendEmailVerification } from 'firebase/auth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { collection, query, where, onSnapshot, getFirestore, writeBatch, doc, getDoc } from 'firebase/firestore';
+import { LanguageSelector } from './language-selector'; // Import the new component
 
 const pageTitles: { [key: string]: string } = {
     '/dashboard': 'Sélection',
@@ -461,16 +462,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             {isInstructorAndNotApproved ? "Approbation en attente" : getPageTitle(pathname)}
                         </h1>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')} className="text-card-foreground dark:text-white relative">
-                        <Bell className="h-4 w-4" />
-                         {hasUnreadNotifications && (
-                            <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                            </span>
-                         )}
-                        <span className="sr-only">Notifications</span>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <LanguageSelector />
+                        <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')} className="text-card-foreground dark:text-white relative">
+                            <Bell className="h-4 w-4" />
+                            {hasUnreadNotifications && (
+                                <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                                </span>
+                            )}
+                            <span className="sr-only">Notifications</span>
+                        </Button>
+                    </div>
                 </header>
               )}
               
