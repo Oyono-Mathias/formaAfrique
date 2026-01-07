@@ -194,7 +194,7 @@ export default function AuthPage() {
   return (
      <div className="auth-page-container" style={containerStyle}>
       <div className="min-h-screen w-full flex items-center justify-center p-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-sm">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-md">
           <TabsList className="grid w-full grid-cols-2 h-12 rounded-t-xl rounded-b-none p-0 border-b bg-slate-100/10">
             <TabsTrigger 
               value="login" 
@@ -217,16 +217,16 @@ export default function AuthPage() {
                 <CardTitle className="text-2xl font-bold text-white">Se connecter</CardTitle>
                 <CardDescription className="text-slate-300">Accédez à votre tableau de bord.</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-4">
                 <Form {...loginForm}>
                   <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                     <FormField control={loginForm.control} name="email" render={({ field }) => (
-                      <FormItem><FormLabel className="text-white">Email</FormLabel><FormControl><Input placeholder="votre.email@exemple.com" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel className="text-white">Email</FormLabel><FormControl><Input placeholder="votre.email@exemple.com" {...field} className="bg-white border-slate-300 text-slate-900 h-9" /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={loginForm.control} name="password" render={({ field }) => (
-                      <FormItem><FormLabel className="text-white">Mot de passe</FormLabel><FormControl><Input type="password" required {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel className="text-white">Mot de passe</FormLabel><FormControl><Input type="password" required {...field} className="bg-white border-slate-300 text-slate-900 h-9" /></FormControl><FormMessage /></FormItem>
                     )} />
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-10 text-base" disabled={isLoading}>
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-9 text-base" disabled={isLoading}>
                       {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Se connecter
                     </Button>
@@ -247,41 +247,41 @@ export default function AuthPage() {
               <CardHeader className="items-center pb-4">
                 {logoUrl && <Image src={logoUrl} alt={siteName} width={40} height={40} className="mb-2 rounded-full" />}
                 <CardTitle className="text-2xl font-bold text-white">Créer un compte</CardTitle>
-                <CardDescription className="text-slate-300">Rejoignez la plus grande communauté d'apprenants d'Afrique.</CardDescription>
+                <CardDescription className="text-slate-300">Rejoignez la communauté.</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pb-4">
                 <Form {...registerForm}>
-                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
                         <FormField control={registerForm.control} name="firstName" render={({ field }) => (
-                            <FormItem><FormLabel className="text-white">Prénom</FormLabel><FormControl><Input placeholder="Mathias" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel className="text-white">Prénom</FormLabel><FormControl><Input placeholder="Mathias" {...field} className="bg-white border-slate-300 text-slate-900 h-9" /></FormControl><FormMessage /></FormItem>
                         )} />
                         <FormField control={registerForm.control} name="lastName" render={({ field }) => (
-                            <FormItem><FormLabel className="text-white">Nom</FormLabel><FormControl><Input placeholder="OYONO" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel className="text-white">Nom</FormLabel><FormControl><Input placeholder="OYONO" {...field} className="bg-white border-slate-300 text-slate-900 h-9" /></FormControl><FormMessage /></FormItem>
                         )} />
                       </div>
                       <FormField control={registerForm.control} name="email" render={({ field }) => (
-                          <FormItem><FormLabel className="text-white">Email</FormLabel><FormControl><Input placeholder="nom@exemple.com" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                          <FormItem><FormLabel className="text-white">Email</FormLabel><FormControl><Input placeholder="nom@exemple.com" {...field} className="bg-white border-slate-300 text-slate-900 h-9" /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={registerForm.control} name="password" render={({ field }) => (
-                          <FormItem><FormLabel className="text-white">Mot de passe</FormLabel><FormControl><Input type="password" placeholder="********" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
+                          <FormItem><FormLabel className="text-white">Mot de passe</FormLabel><FormControl><Input type="password" placeholder="********" {...field} className="bg-white border-slate-300 text-slate-900 h-9" /></FormControl><FormMessage /></FormItem>
                       )} />
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                           <FormField control={registerForm.control} name="countryOrigin" render={({ field }) => (
                             <FormItem><FormLabel className="text-white">Pays d'origine</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="bg-white border-slate-300 text-slate-900"><SelectValue placeholder="Sélectionner" /></SelectTrigger></FormControl>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="bg-white border-slate-300 text-slate-900 h-9"><SelectValue placeholder="Sélectionner" /></SelectTrigger></FormControl>
                                 <SelectContent>{africanCountries.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
                               </Select><FormMessage /></FormItem>
                           )} />
                           <FormField control={registerForm.control} name="countryCurrent" render={({ field }) => (
                             <FormItem><FormLabel className="text-white">Pays actuel</FormLabel>
                               <Select onValueChange={field.onChange} value={field.value} defaultValue={detectedCountry}>
-                                <FormControl><SelectTrigger className="bg-white border-slate-300 text-slate-900"><SelectValue placeholder="Sélectionner" /></SelectTrigger></FormControl>
+                                <FormControl><SelectTrigger className="bg-white border-slate-300 text-slate-900 h-9"><SelectValue placeholder="Sélectionner" /></SelectTrigger></FormControl>
                                 <SelectContent>{africanCountries.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}</SelectContent>
                               </Select><FormMessage /></FormItem>
                           )} />
                       </div>
-                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-10 text-base" disabled={isLoading}>
+                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-9 text-base" disabled={isLoading}>
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Créer un compte
                       </Button>
