@@ -23,6 +23,7 @@ const generalSchema = z.object({
   siteName: z.string().min(1, 'Le nom du site est requis.'),
   siteDescription: z.string().optional(),
   contactEmail: z.string().email('Veuillez entrer un email valide.'),
+  supportPhone: z.string().optional(),
   logoUrl: z.string().url('Veuillez entrer une URL valide.').optional().or(z.literal('')),
   loginBackgroundImage: z.string().url("Veuillez entrer une URL d'image valide.").optional().or(z.literal('')),
 });
@@ -138,7 +139,7 @@ export default function AdminSettingsPage() {
     const form = useForm<SettingsFormValues>({
         resolver: zodResolver(settingsSchema),
         defaultValues: {
-            general: { siteName: 'FormaAfrique', siteDescription: '', contactEmail: '', logoUrl: '', loginBackgroundImage: '' },
+            general: { siteName: 'FormaAfrique', siteDescription: '', contactEmail: '', supportPhone: '', logoUrl: '', loginBackgroundImage: '' },
             commercial: { commissionRate: 20, minimumPayout: 5000, enableMobileMoney: true },
             platform: { maintenanceMode: false, allowInstructorSignup: true, announcementMessage: '' },
             legal: { 
@@ -254,6 +255,9 @@ export default function AdminSettingsPage() {
                                         )} />
                                         <FormField control={form.control} name="general.contactEmail" render={({ field }) => (
                                             <FormItem><FormLabel className="text-slate-300">Email de contact</FormLabel><FormControl><Input {...field} className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormMessage /></FormItem>
+                                        )} />
+                                        <FormField control={form.control} name="general.supportPhone" render={({ field }) => (
+                                            <FormItem><FormLabel className="text-slate-300">Numéro de téléphone du support (WhatsApp)</FormLabel><FormControl><Input {...field} placeholder="+2376XXXXXXXX" className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormDescription className="text-slate-400">Inclure l'indicatif du pays.</FormDescription><FormMessage /></FormItem>
                                         )} />
                                         <FormField control={form.control} name="general.siteDescription" render={({ field }) => (
                                             <FormItem><FormLabel className="text-slate-300">Description SEO</FormLabel><FormControl><Textarea {...field} rows={3} className="bg-slate-700 border-slate-600 text-white" /></FormControl><FormMessage /></FormItem>

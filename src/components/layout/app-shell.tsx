@@ -278,7 +278,7 @@ const SupportButton = () => {
         <Popover>
             <PopoverTrigger asChild>
                  <Button
-                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white"
+                    className="fixed bottom-24 md:bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white"
                     aria-label="Support"
                 >
                     <HelpCircle className="h-8 w-8" />
@@ -502,7 +502,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {!isFullScreenPage && !isChatPage && (
                 <>
                   <SupportButton />
-                  <Footer />
                 </>
               )}
             </div>
