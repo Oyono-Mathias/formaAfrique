@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { getFirestore, doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, serverTimestamp, getDoc, collection, addDoc } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 import { useToast } from '@/hooks/use-toast';
 
@@ -140,6 +141,46 @@ export default function AuthPage() {
       setIsLoading(false);
     }
   };
+  
+  const createWelcomeChat = async (studentId: string) => {
+    // This ID should be a dedicated admin/support account in your production app
+    const FORMAAFRIQUE_ADMIN_UID = 'ADMIN_USER_ID_PLACEHOLDER';
+    
+    // In a real app, you would fetch this from a configuration or have a dedicated support user.
+    // For now, we'll assume a placeholder. If you have a known admin UID, replace it here.
+    if (FORMAAFRIQUE_ADMIN_UID === 'ADMIN_USER_ID_PLACEHOLDER') {
+        console.warn("Action requise: Remplacez 'ADMIN_USER_ID_PLACEHOLDER' par un vrai UID d'administrateur pour envoyer les messages de bienvenue.");
+        return;
+    }
+
+    const chatDocRef = doc(collection(db, 'chats'));
+    const messageCollectionRef = collection(chatDocRef, 'messages');
+    const welcomeMessage = "Bienvenue sur FormaAfrique ! 🌍 Nous sommes ravis de t'accompagner dans ta formation. Si tu as des questions, n'hésite pas à les poser ici.";
+
+    try {
+      // Create chat document
+      await setDoc(chatDocRef, {
+        participants: [studentId, FORMAAFRIQUE_ADMIN_UID].sort(),
+        lastMessage: welcomeMessage,
+        updatedAt: serverTimestamp(),
+        createdAt: serverTimestamp(),
+        lastSenderId: FORMAAFRIQUE_ADMIN_UID,
+        unreadBy: [studentId], // Mark as unread for the new student
+      });
+
+      // Add the first message
+      await addDoc(messageCollectionRef, {
+        senderId: FORMAAFRIQUE_ADMIN_UID,
+        text: welcomeMessage,
+        createdAt: serverTimestamp(),
+        status: 'sent',
+      });
+    } catch (error) {
+       console.error("Failed to create welcome chat:", error);
+       // We don't show a toast here to not interrupt the user's main flow
+    }
+  };
+
 
   const onRegisterSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
@@ -153,19 +194,22 @@ export default function AuthPage() {
 
       const userDocRef = doc(db, 'users', user.uid);
       
-      const newUserPayload = {
+      const newUserPayload: Omit<FormaAfriqueUser, 'availableRoles' | 'status'> = {
         uid: user.uid,
-        email: user.email,
+        email: user.email || '',
         fullName: fullName,
         role: 'student',
         isInstructorApproved: false,
-        createdAt: serverTimestamp(),
+        createdAt: serverTimestamp() as any, // Cast for serverTimestamp
         profilePictureURL: user.photoURL || `https://api.dicebear.com/8.x/initials/svg?seed=${fullName}`,
         countryOrigin: values.countryOrigin,
         countryCurrent: values.countryCurrent,
       };
 
       await setDoc(userDocRef, newUserPayload);
+
+      // After user is created, create the welcome chat
+      await createWelcomeChat(user.uid);
 
       toast({ title: 'Inscription réussie !', description: 'Bienvenue sur FormaAfrique.' });
       router.push('/dashboard'); // All new users are students, so redirect to student dashboard

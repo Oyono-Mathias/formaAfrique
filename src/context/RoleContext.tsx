@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import type { Dispatch, SetStateAction, ReactNode } from 'react';
 import { useUser } from '@/firebase/provider';
-import { doc, onSnapshot, getFirestore } from 'firebase/firestore';
+import { doc, onSnapshot, getFirestore, Timestamp } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 
 export type UserRole = 'student' | 'instructor' | 'admin';
@@ -45,7 +45,10 @@ export interface FormaAfriqueUser {
         motivation: string;
         verificationDocUrl: string;
         submittedAt: Date;
-    }
+    };
+    createdAt?: Timestamp; // Add createdAt to the type
+    countryOrigin?: string;
+    countryCurrent?: string;
 }
 
 interface RoleContextType {
