@@ -180,13 +180,13 @@ export default function AuthPage() {
           <TabsList className="grid w-full grid-cols-2 h-12 rounded-t-xl rounded-b-none p-0 border-b bg-slate-100/10">
             <TabsTrigger 
               value="login" 
-              className="text-base h-full rounded-tl-xl rounded-b-none data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-300 text-white"
+              className="text-base h-full rounded-tl-xl rounded-b-none data-[state=active]:bg-white/10 data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-300 text-white"
             >
               Se connecter
             </TabsTrigger>
             <TabsTrigger 
               value="register" 
-              className="text-base h-full rounded-tr-xl rounded-b-none data-[state=active]:bg-white/10 data-[state=active]:shadow-none data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-300 text-white"
+              className="text-base h-full rounded-tr-xl rounded-b-none data-[state=active]:bg-white/10 data-[state=inactive]:bg-transparent data-[state=inactive]:text-slate-300 text-white"
             >
               Inscription
             </TabsTrigger>
