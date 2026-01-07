@@ -232,7 +232,7 @@ export default function AuthPage() {
               <CardContent>
                 <Form {...registerForm}>
                     <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <FormField control={registerForm.control} name="firstName" render={({ field }) => (
                             <FormItem><FormLabel className="text-white">Prénom</FormLabel><FormControl><Input placeholder="Mathias" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
                         )} />
@@ -246,7 +246,7 @@ export default function AuthPage() {
                       <FormField control={registerForm.control} name="password" render={({ field }) => (
                           <FormItem><FormLabel className="text-white">Mot de passe</FormLabel><FormControl><Input type="password" placeholder="********" {...field} className="bg-white border-slate-300 text-slate-900" /></FormControl><FormMessage /></FormItem>
                       )} />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                           <FormField control={registerForm.control} name="countryOrigin" render={({ field }) => (
                             <FormItem><FormLabel className="text-white">Pays d'origine</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="bg-white border-slate-300 text-slate-900"><SelectValue placeholder="Sélectionner" /></SelectTrigger></FormControl>
