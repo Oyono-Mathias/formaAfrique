@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -179,13 +180,8 @@ const AnnouncementBanner = () => {
     const isChatPage = pathname.startsWith('/messages/');
 
     useEffect(() => {
-        if (isChatPage) {
-            setIsVisible(false);
-            return;
-        }
-
-        const settingsRef = doc(db, 'settings', 'global');
         const fetchSettings = async () => {
+            const settingsRef = doc(db, 'settings', 'global');
             const docSnap = await getDoc(settingsRef);
             if (docSnap.exists()) {
                 const announcementMessage = docSnap.data().platform?.announcementMessage;
@@ -195,18 +191,20 @@ const AnnouncementBanner = () => {
                         setMessage(announcementMessage);
                         setIsVisible(true);
                     }
+                } else {
+                  setIsVisible(false);
                 }
             }
         };
         fetchSettings();
-    }, [db, isChatPage]);
+    }, [db, pathname]);
     
     const handleDismiss = () => {
         setIsVisible(false);
         sessionStorage.setItem(`announcement_${message}`, 'true');
     };
 
-    if (!isVisible || !message) {
+    if (!isVisible || !message || isChatPage) {
         return null;
     }
 
@@ -357,42 +355,44 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className='dark flex flex-col min-h-screen bg-background-alt dark:bg-[#0f172a]'>
         <AnnouncementBanner />
         <div className="flex flex-1">
-            <aside className={cn("hidden md:flex", isFullScreenPage && "md:hidden")}>
+            <aside className={cn("hidden", isMobile ? "hidden" : "md:flex", isFullScreenPage && "md:hidden", isChatPage && role !== 'admin' && "md:hidden lg:flex")}>
               {renderSidebar()}
             </aside>
-            <div className="flex flex-col flex-1">
-              <header className="flex h-14 items-center gap-4 border-b bg-card dark:bg-[#1e293b] dark:border-slate-700 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <Button variant="ghost" size="icon" className={cn("shrink-0 md:hidden", isFullScreenPage && "hidden")}>
-                        <PanelLeft className="text-foreground"/>
-                        <span className="sr-only">Toggle Menu</span>
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="p-0 w-64 dark:bg-[#1e293b] border-r-0">
-                       <SheetHeader>
-                        <SheetTitle className="sr-only">Menu principal</SheetTitle>
-                        <SheetDescription className="sr-only">Navigation pour le profil utilisateur.</SheetDescription>
-                      </SheetHeader>
-                      {renderSidebar()}
-                    </SheetContent>
-                  </Sheet>
-                  <div className="flex-1">
-                      <h1 className="text-lg font-semibold md:text-xl text-card-foreground dark:text-white">
-                          {isInstructorAndNotApproved ? "Approbation en attente" : getPageTitle(pathname)}
-                      </h1>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')} className="text-card-foreground dark:text-white relative">
-                      <Bell className="h-4 w-4" />
-                       {hasUnreadNotifications && (
-                          <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                          </span>
-                       )}
-                      <span className="sr-only">Notifications</span>
-                  </Button>
-              </header>
+            <div className={cn("flex flex-col flex-1", isChatPage && "lg:grid lg:grid-cols-[1fr,2fr] xl:grid-cols-[1fr,3fr]")}>
+              {!isChatPage && (
+                <header className="flex h-14 items-center gap-4 border-b bg-card dark:bg-[#1e293b] dark:border-slate-700 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon" className={cn("shrink-0 md:hidden", isFullScreenPage && "hidden")}>
+                          <PanelLeft className="text-foreground"/>
+                          <span className="sr-only">Toggle Menu</span>
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="left" className="p-0 w-64 dark:bg-[#1e293b] border-r-0">
+                         <SheetHeader>
+                          <SheetTitle className="sr-only">Menu principal</SheetTitle>
+                          <SheetDescription className="sr-only">Navigation pour le profil utilisateur.</SheetDescription>
+                        </SheetHeader>
+                        {renderSidebar()}
+                      </SheetContent>
+                    </Sheet>
+                    <div className="flex-1">
+                        <h1 className="text-lg font-semibold md:text-xl text-card-foreground dark:text-white">
+                            {isInstructorAndNotApproved ? "Approbation en attente" : getPageTitle(pathname)}
+                        </h1>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')} className="text-card-foreground dark:text-white relative">
+                        <Bell className="h-4 w-4" />
+                         {hasUnreadNotifications && (
+                            <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                            </span>
+                         )}
+                        <span className="sr-only">Notifications</span>
+                    </Button>
+                </header>
+              )}
               
               <main className={cn("flex-1 overflow-y-auto", 
                 isChatPage ? "h-full" : "p-4 sm:p-6", 

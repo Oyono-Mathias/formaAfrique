@@ -19,9 +19,10 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquareDashed } from 'lucide-react';
+import { MessageSquareDashed, Search } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { usePathname } from 'next/navigation';
+import { Input } from '@/components/ui/input';
 
 // --- INTERFACES ---
 interface Chat {
@@ -42,6 +43,7 @@ export default function MessagesPage() {
   
   const [chatList, setChatList] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Listen for user's conversations in real-time
   useEffect(() => {
@@ -92,6 +94,12 @@ export default function MessagesPage() {
 
     return () => unsubscribe();
   }, [user?.uid, db, isUserLoading]);
+  
+  const filteredChatList = chatList.filter(chat => {
+    const otherId = chat.participants.find(p => p !== user?.uid);
+    const other = otherId ? chat.participantDetails[otherId] : null;
+    return other?.fullName?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   if (isLoading) {
     return (
@@ -110,15 +118,24 @@ export default function MessagesPage() {
 
 
   return (
-    <Card className="dark:bg-slate-900 dark:border-slate-800">
-        <CardHeader>
+    <Card className="dark:bg-slate-900 dark:border-slate-800 flex flex-col h-full">
+        <CardHeader className="border-b dark:border-slate-800">
             <CardTitle className="dark:text-white">Messagerie</CardTitle>
+             <div className="relative pt-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                    placeholder="Rechercher une discussion..."
+                    className="pl-10 h-9 rounded-full bg-slate-800 border-slate-700 text-white"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
         </CardHeader>
-        <CardContent className="p-0">
-             <ScrollArea className="h-[calc(100vh-250px)]">
-                {chatList.length > 0 ? (
-                    <div className="space-y-1">
-                        {chatList.map(chat => {
+        <CardContent className="p-0 flex-1">
+             <ScrollArea className="h-full">
+                {filteredChatList.length > 0 ? (
+                    <div className="space-y-0">
+                        {filteredChatList.map(chat => {
                             const otherId = chat.participants.find(p => p !== user?.uid);
                             const other = otherId ? chat.participantDetails[otherId] : null;
                             const isUnread = chat.lastSenderId !== user?.uid && (chat.unreadBy ? chat.unreadBy.includes(user?.uid || '') : true);
@@ -130,15 +147,15 @@ export default function MessagesPage() {
                                     href={`/messages/${chat.id}`}
                                     className={cn(
                                         "block p-3 flex items-center gap-4 transition-all border-b dark:border-slate-800",
-                                        isActive ? "bg-primary/10 dark:bg-slate-800" : "hover:bg-muted/50 dark:hover:bg-slate-800/50"
+                                        isActive ? "bg-primary/10 dark:bg-slate-800" : "hover:bg-slate-800/50"
                                     )}
                                 >
                                     <div className="relative">
-                                      <Avatar className="h-12 w-12 border-2 border-white dark:border-slate-700">
+                                      <Avatar className="h-12 w-12 border-2 dark:border-slate-700">
                                           <AvatarImage src={other?.profilePictureURL} alt={other?.fullName}/>
                                           <AvatarFallback className="dark:bg-slate-700 dark:text-slate-300">{other?.fullName?.charAt(0) || '?'}</AvatarFallback>
                                       </Avatar>
-                                      {other?.isOnline && <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-slate-900" />}
+                                      {other?.isOnline && <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-slate-900" />}
                                     </div>
 
                                     <div className="flex-1 overflow-hidden">
@@ -147,22 +164,24 @@ export default function MessagesPage() {
                                               {other?.fullName || "Utilisateur"}
                                             </p>
                                             {chat.updatedAt && (
-                                                <span className="text-[11px] text-muted-foreground dark:text-slate-400 whitespace-nowrap ml-2">
+                                                <span className="text-[11px] text-slate-400 whitespace-nowrap ml-2">
                                                     {formatDistanceToNow(chat.updatedAt.toDate(), { addSuffix: true, locale: fr })}
                                                 </span>
                                             )}
                                         </div>
-                                        <p className={cn("text-sm truncate leading-relaxed", isUnread ? "font-semibold text-foreground dark:text-slate-300" : "text-muted-foreground dark:text-slate-400")}>
-                                            {chat.lastMessage || "Cliquez pour lire les messages"}
-                                        </p>
+                                        <div className="flex justify-between items-center">
+                                            <p className={cn("text-sm truncate leading-relaxed", isUnread ? "font-medium text-slate-300" : "text-slate-400")}>
+                                                {chat.lastMessage || "Cliquez pour lire les messages"}
+                                            </p>
+                                            {isUnread && <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>}
+                                        </div>
                                     </div>
-                                    {isUnread && <div className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0"></div>}
                                 </Link>
                             );
                         })}
                     </div>
                 ) : (
-                    <div className="p-8 text-center text-muted-foreground h-full flex flex-col justify-center items-center">
+                    <div className="p-8 text-center text-slate-500 h-full flex flex-col justify-center items-center">
                         <MessageSquareDashed className="mx-auto mb-4 h-12 w-12 opacity-50" />
                         <h3 className="font-semibold text-lg">Aucune conversation</h3>
                         <p className="text-sm">Commencez une nouvelle discussion pour la voir apparaître ici.</p>
