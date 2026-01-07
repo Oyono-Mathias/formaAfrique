@@ -10,6 +10,9 @@ import {
   orderBy,
   onSnapshot,
   getDocs,
+  setDoc,
+  doc,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,10 +22,19 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquareDashed, Search } from 'lucide-react';
+import { MessageSquareDashed, Search, Plus } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from '@/components/ui/dialog';
+import type { FormaAfriqueUser } from '@/context/RoleContext';
 
 // --- INTERFACES ---
 interface Chat {
@@ -40,10 +52,15 @@ export default function MessagesPage() {
   const { user, isUserLoading } = useRole();
   const pathname = usePathname();
   const db = getFirestore();
+  const router = useRouter();
   
   const [chatList, setChatList] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
+  const [allStudents, setAllStudents] = useState<FormaAfriqueUser[]>([]);
+  const [modalSearchTerm, setModalSearchTerm] = useState('');
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
 
   // Listen for user's conversations in real-time
   useEffect(() => {
@@ -68,7 +85,6 @@ export default function MessagesPage() {
         const detailsMap: Record<string, any> = {};
         const usersRef = collection(db, 'users');
 
-        // Firestore 'in' query is limited to 30 items. Batching for larger scale apps would be needed.
         for (let i = 0; i < allParticipantIds.length; i += 30) {
             const batchIds = allParticipantIds.slice(i, i + 30);
             if (batchIds.length === 0) continue;
@@ -95,11 +111,59 @@ export default function MessagesPage() {
     return () => unsubscribe();
   }, [user?.uid, db, isUserLoading]);
   
+  // Fetch all students when opening the new chat modal
+  useEffect(() => {
+    if (isNewChatModalOpen && allStudents.length === 0) {
+        const fetchStudents = async () => {
+            const studentsQuery = query(collection(db, 'users'), where('role', '==', 'student'));
+            const snapshot = await getDocs(studentsQuery);
+            const studentList = snapshot.docs.map(doc => doc.data() as FormaAfriqueUser);
+            setAllStudents(studentList);
+        };
+        fetchStudents();
+    }
+  }, [isNewChatModalOpen, allStudents.length, db]);
+  
+  const handleStartChat = async (studentId: string) => {
+    if (!user || user.uid === studentId) return;
+    setIsCreatingChat(true);
+
+    const chatsRef = collection(db, 'chats');
+    const sortedParticipants = [user.uid, studentId].sort();
+    
+    const q = query(chatsRef, where('participants', '==', sortedParticipants));
+    
+    try {
+        const querySnapshot = await getDocs(q);
+        let chatId: string | null = null;
+        if (!querySnapshot.empty) {
+            chatId = querySnapshot.docs[0].id;
+        } else {
+            const newChatRef = doc(collection(db, 'chats'));
+            await setDoc(newChatRef, {
+                participants: sortedParticipants,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                lastMessage: `Conversation initiée.`,
+            });
+            chatId = newChatRef.id;
+        }
+        setIsNewChatModalOpen(false);
+        router.push(`/messages/${chatId}`);
+    } catch (error) {
+        console.error("Error starting chat:", error);
+    } finally {
+        setIsCreatingChat(false);
+    }
+  };
+
   const filteredChatList = chatList.filter(chat => {
     const otherId = chat.participants.find(p => p !== user?.uid);
     const other = otherId ? chat.participantDetails[otherId] : null;
     return other?.fullName?.toLowerCase().includes(searchTerm.toLowerCase());
   });
+  
+  const filteredStudents = allStudents.filter(student => student.fullName.toLowerCase().includes(modalSearchTerm.toLowerCase()));
 
   if (isLoading) {
     return (
@@ -118,6 +182,7 @@ export default function MessagesPage() {
 
 
   return (
+    <>
     <Card className="dark:bg-slate-900 dark:border-slate-800 flex flex-col h-full">
         <CardHeader className="border-b dark:border-slate-800">
             <CardTitle className="dark:text-white">Messagerie</CardTitle>
@@ -173,7 +238,7 @@ export default function MessagesPage() {
                                             <p className={cn("text-sm truncate leading-relaxed", isUnread ? "font-medium text-slate-300" : "text-slate-400")}>
                                                 {chat.lastMessage || "Cliquez pour lire les messages"}
                                             </p>
-                                            {isUnread && <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>}
+                                            {isUnread && <div className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0"></div>}
                                         </div>
                                     </div>
                                 </Link>
@@ -190,5 +255,42 @@ export default function MessagesPage() {
             </ScrollArea>
         </CardContent>
     </Card>
+    
+    <Dialog open={isNewChatModalOpen} onOpenChange={setIsNewChatModalOpen}>
+        <DialogContent className="dark:bg-slate-900 dark:border-slate-800">
+            <DialogHeader>
+                <DialogTitle>Démarrer une nouvelle discussion</DialogTitle>
+                <DialogDescription>Sélectionnez un étudiant pour commencer à discuter.</DialogDescription>
+            </DialogHeader>
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input 
+                    placeholder="Rechercher un étudiant..." 
+                    className="pl-10 dark:bg-slate-800 dark:border-slate-700" 
+                    value={modalSearchTerm}
+                    onChange={e => setModalSearchTerm(e.target.value)}
+                />
+            </div>
+            <ScrollArea className="h-72">
+                <div className="space-y-1 pr-4">
+                    {filteredStudents.map(student => (
+                        <button key={student.uid} onClick={() => handleStartChat(student.uid)} disabled={isCreatingChat} className="w-full text-left flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 disabled:opacity-50">
+                            <Avatar className="h-9 w-9">
+                                <AvatarImage src={student.profilePictureURL} />
+                                <AvatarFallback>{student.fullName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium text-sm">{student.fullName}</span>
+                        </button>
+                    ))}
+                </div>
+            </ScrollArea>
+        </DialogContent>
+    </Dialog>
+
+    <Button onClick={() => setIsNewChatModalOpen(true)} className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center">
+        <Plus className="h-8 w-8" />
+        <span className="sr-only">Nouveau Message</span>
+    </Button>
+    </>
   );
 }
