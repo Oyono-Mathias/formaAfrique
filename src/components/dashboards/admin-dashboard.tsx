@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import type { FormaAfriqueUser } from '@/context/RoleContext';
 import type { Course } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 
 
 interface ActivityItem {
@@ -41,6 +42,7 @@ const formatCurrency = (amount: number) => {
 
 
 export function AdminDashboard() {
+  const { t } = useLanguage();
   const [stats, setStats] = useState({
     userCount: 0,
     courseCount: 0,
@@ -134,34 +136,34 @@ export function AdminDashboard() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-3xl font-bold dark:text-white">Tableau de bord Administrateur</h1>
+        <h1 className="text-3xl font-bold dark:text-white">{t('dashboardTitle')}</h1>
         <p className="text-muted-foreground dark:text-slate-400">Vue d'ensemble de la plateforme FormaAfrique.</p>
       </header>
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-            title="Revenus Totaux" 
+            title={t('totalRevenue')}
             value={formatCurrency(stats.totalRevenue)} 
             icon={DollarSign} 
             isLoading={isLoading}
             accentColor="border-green-500"
         />
         <StatCard 
-            title="Utilisateurs Totaux" 
+            title={t('totalUsers')}
             value={stats.userCount.toLocaleString('fr-FR')} 
             icon={Users} 
             isLoading={isLoading} 
             accentColor="border-blue-500"
         />
         <StatCard 
-            title="Cours Publiés" 
+            title={t('publishedCourses')}
             value={stats.courseCount.toLocaleString('fr-FR')}
             icon={BookOpen} 
             isLoading={isLoading} 
             accentColor="border-purple-500"
         />
         <StatCard 
-            title="Revenus (ce mois-ci)" 
+            title={t('monthlyRevenue')}
             value={formatCurrency(stats.monthlyRevenue)}
             icon={DollarSign} 
             isLoading={isLoading}

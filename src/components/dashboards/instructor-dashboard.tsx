@@ -2,6 +2,7 @@
 'use client';
 
 import { useRole } from '@/context/RoleContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { collection, query, where, getFirestore, onSnapshot, Timestamp } from 'firebase/firestore';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -42,6 +43,7 @@ const StatCard = ({ title, value, icon: Icon, isLoading, change, accentColor }: 
 
 export function InstructorDashboard() {
     const { formaAfriqueUser: instructor, loading: roleLoading } = useRole();
+    const { t } = useLanguage();
     const db = getFirestore();
 
     const [stats, setStats] = useState({
@@ -176,7 +178,7 @@ export function InstructorDashboard() {
     return (
         <div className="space-y-8">
             <header>
-                <h1 className="text-3xl font-bold dark:text-white">Tableau de bord</h1>
+                <h1 className="text-3xl font-bold dark:text-white">{t('dashboardTitle')}</h1>
                 <p className="text-muted-foreground dark:text-slate-400">Bienvenue, {instructor?.fullName || 'Instructeur'}! Voici un aperçu de vos activités.</p>
             </header>
 
@@ -196,14 +198,14 @@ export function InstructorDashboard() {
                     change={stats.totalReviews > 0 ? `Basé sur ${stats.totalReviews} avis` : "En attente d'avis"}
                 />
                 <StatCard 
-                    title="Cours Publiés" 
+                    title={t('publishedCourses')}
                     value={stats.publishedCourses.toString()} 
                     icon={BookOpen} 
                     isLoading={isLoading}
                     accentColor="border-purple-500"
                 />
                 <StatCard 
-                    title="Revenus (ce mois-ci)" 
+                    title={t('monthlyRevenue')}
                     value={`${stats.monthlyRevenue.toLocaleString('fr-FR')} XOF`} 
                     icon={DollarSign} 
                     isLoading={isLoading}

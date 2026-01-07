@@ -63,6 +63,11 @@ interface Translations {
   navCertificates: string;
   navResources: string;
   navSettings: string;
+  // Admin Dashboard
+  totalRevenue: string;
+  totalUsers: string;
+  publishedCourses: string;
+  monthlyRevenue: string;
 }
 
 // Define the supported languages
@@ -133,6 +138,10 @@ const translations: Record<Language, Translations> = {
     navCertificates: "Certificates",
     navResources: "Resources",
     navSettings: "Settings",
+    totalRevenue: 'Total Revenue',
+    totalUsers: 'Total Users',
+    publishedCourses: 'Published Courses',
+    monthlyRevenue: 'Revenue (this month)',
   },
   fr: {
     welcomeMessage: "Bienvenue sur FormaAfrique ! 🌍 Nous sommes ravis de t'accompagner dans ta formation. Si tu as des questions, n'hésite pas à les poser ici.",
@@ -190,13 +199,17 @@ const translations: Record<Language, Translations> = {
     navCertificates: "Certificats",
     navResources: "Ressources",
     navSettings: "Paramètres",
+    totalRevenue: 'Revenus Totaux',
+    totalUsers: 'Utilisateurs Totaux',
+    publishedCourses: 'Cours Publiés',
+    monthlyRevenue: 'Revenus (ce mois-ci)',
   },
   sg: {
     welcomeMessage: "Bara ala FormaAfrique! E yeke na ngia ti mû maboko na mo na yâ ti formation ti mo. Tongana mo yeke na kionde, hunda ni ge.",
     loginButton: "Gango",
     registerButton: "S'inscrire", // Keeping it simple for now
-    dashboardTitle: "Tableau de bord",
-    exploreCourses: "Explorer les cours",
+    dashboardTitle: "Tableau ti kua",
+    exploreCourses: "Diko acours",
     loginTitle: "Gango na yâ ni",
     loginDescription: "Gango na tableau ti mo.",
     emailLabel: "Email",
@@ -247,6 +260,10 @@ const translations: Record<Language, Translations> = {
     navCertificates: "Certificat",
     navResources: "Ressource",
     navSettings: "Paramètre",
+    totalRevenue: 'Wara ti nani',
+    totalUsers: 'Wara ti azo',
+    publishedCourses: 'Mbeti ti mandango ye',
+    monthlyRevenue: 'Wara ti nze so',
   },
 };
 

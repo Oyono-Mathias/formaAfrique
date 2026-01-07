@@ -434,7 +434,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className='dark flex flex-col min-h-screen bg-background-alt dark:bg-[#0f172a]'>
-        <AnnouncementBanner />
         <div className="flex flex-1">
             <aside className={cn("hidden", isMobile ? "hidden" : "md:flex", isFullScreenPage && "md:hidden", isChatPage && role !== 'admin' && "md:hidden lg:flex")}>
               {renderSidebar()}
