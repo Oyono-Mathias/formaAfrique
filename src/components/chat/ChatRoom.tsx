@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -18,7 +17,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Loader2, Send, Shield, ArrowLeft, Video, Phone } from 'lucide-react';
+import { Loader2, Send, Shield, ArrowLeft, Video, Phone, Check, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { errorEmitter } from '@/firebase';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -31,6 +30,7 @@ interface Message {
   senderId: string;
   text: string;
   createdAt?: any;
+  status?: 'sent' | 'delivered' | 'read';
 }
 
 interface ParticipantDetails {
@@ -49,6 +49,38 @@ export function ChatRoom({ chatId }: { chatId: string }) {
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Sound effect
+  useEffect(() => {
+    audioRef.current = new Audio('/sounds/notification.mp3');
+  }, []);
+
+  // Effect to handle new messages (sound, title change)
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.senderId !== user?.uid && lastMessage.status !== 'read') {
+        if (document.hidden) {
+          document.title = '(1) Nouveau message | FormaAfrique';
+          audioRef.current?.play().catch(e => console.log("Audio play failed:", e));
+        } else {
+            audioRef.current?.play().catch(e => console.log("Audio play failed:", e));
+        }
+      }
+    }
+  }, [messages, user?.uid]);
+
+  // Effect to clear title when tab is focused
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        document.title = 'FormaAfrique | Messagerie';
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
 
   // Fetch chat details, listen for messages, and mark as read
@@ -57,32 +89,25 @@ export function ChatRoom({ chatId }: { chatId: string }) {
     setIsLoading(true);
 
     const chatDocRef = doc(db, "chats", chatId);
+    const messagesCollectionRef = collection(chatDocRef, "messages");
 
     const markAsRead = async () => {
-        try {
-            const chatDoc = await getDoc(chatDocRef);
-            if (chatDoc.exists()) {
-                const data = chatDoc.data();
-                const unreadBy = data.unreadBy || [];
-                if (unreadBy.includes(user.uid)) {
-                    const batch = writeBatch(db);
-                    batch.update(chatDocRef, {
-                        unreadBy: unreadBy.filter((uid: string) => uid !== user.uid)
-                    });
-                    await batch.commit();
-                }
-            }
-        } catch (error) {
-             errorEmitter.emit('permission-error', new FirestorePermissionError({
-                path: chatDocRef.path,
-                operation: 'update',
-                requestResourceData: { unreadBy: [] }
-            }));
+        const batch = writeBatch(db);
+        const unreadMessagesQuery = query(messagesCollectionRef, where('status', '!=', 'read'), where('senderId', '!=', user.uid));
+        const unreadSnapshot = await getDocs(unreadMessagesQuery);
+        
+        let hasUnread = false;
+        unreadSnapshot.forEach(messageDoc => {
+            batch.update(messageDoc.ref, { status: 'read' });
+            hasUnread = true;
+        });
+
+        if (hasUnread) {
+            await batch.commit();
         }
     };
-    markAsRead();
 
-    // Fetch details of the other participant
+    // Initial fetch and marking as read
     getDoc(chatDocRef).then(async (chatDoc) => {
         if(chatDoc.exists()) {
             const participants = chatDoc.data().participants as string[];
@@ -99,10 +124,7 @@ export function ChatRoom({ chatId }: { chatId: string }) {
     });
 
     // Listen for new messages
-    const q = query(
-      collection(db, "chats", chatId, "messages"),
-      orderBy("createdAt", "asc")
-    );
+    const q = query(messagesCollectionRef, orderBy("createdAt", "asc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({
@@ -111,6 +133,7 @@ export function ChatRoom({ chatId }: { chatId: string }) {
       } as Message));
       setMessages(docs);
       setIsLoading(false);
+      markAsRead(); // Mark as read on new message or initial load
     }, (error) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
             path: `chats/${chatId}/messages`,
@@ -121,6 +144,7 @@ export function ChatRoom({ chatId }: { chatId: string }) {
 
     return () => unsubscribe();
   }, [chatId, user, db]);
+
 
   // Auto-scroll to the bottom
   useEffect(() => {
@@ -151,13 +175,13 @@ export function ChatRoom({ chatId }: { chatId: string }) {
             text: textToSend,
             senderId: user.uid,
             createdAt: serverTimestamp(),
+            status: 'sent', // Initial status
         });
         
         batch.update(chatDocRef, {
             lastMessage: textToSend,
             updatedAt: serverTimestamp(),
             lastSenderId: user.uid,
-            unreadBy: [otherParticipantId]
         });
 
         await batch.commit();
@@ -184,11 +208,21 @@ export function ChatRoom({ chatId }: { chatId: string }) {
             {role}
         </Badge>
     );
-};
+  };
+
+  const ReadReceipt = ({ status }: { status: Message['status'] }) => {
+    if (status === 'read') {
+      return <CheckCheck className="h-4 w-4 text-blue-500" />;
+    }
+    if (status === 'delivered') {
+      return <CheckCheck className="h-4 w-4 text-slate-400" />;
+    }
+    return <Check className="h-4 w-4 text-slate-400" />;
+  };
 
   if (isLoading) {
     return (
-        <div className="flex h-full w-full items-center justify-center bg-[#E5DDD5]">
+        <div className="flex h-full w-full items-center justify-center bg-slate-100">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
     );
@@ -226,12 +260,17 @@ export function ChatRoom({ chatId }: { chatId: string }) {
                             className={cn("flex items-end gap-2 max-w-[85%]", isMe ? "ml-auto flex-row-reverse" : "mr-auto")}
                         >
                             <div className={cn(
-                                "rounded-lg px-3 py-2 text-[15px] shadow-sm",
+                                "rounded-lg px-3 py-2 text-[15px] shadow-sm relative",
                                 isMe 
                                     ? "bg-[#DCF8C6] text-black rounded-br-none" 
                                     : "bg-white text-black rounded-bl-none"
                             )}>
                                 {msg.text}
+                                {isMe && (
+                                  <div className="absolute bottom-1 right-2 flex items-center gap-1">
+                                    <ReadReceipt status={msg.status} />
+                                  </div>
+                                )}
                             </div>
                         </div>
                     );
@@ -239,7 +278,7 @@ export function ChatRoom({ chatId }: { chatId: string }) {
             </div>
         </ScrollArea>
 
-        <div className="p-2 bg-transparent">
+        <div className="p-2 bg-transparent sticky bottom-0">
             <form onSubmit={handleSend} className="flex items-center gap-2 max-w-4xl mx-auto">
                 <Input
                     value={newMessage}
@@ -256,4 +295,3 @@ export function ChatRoom({ chatId }: { chatId: string }) {
     </div>
   );
 }
-

@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -13,7 +11,7 @@ import { AdminSidebar } from './admin-sidebar';
 import { Footer } from './footer';
 import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
-import { ShieldAlert, Bell, PanelLeft, Star, Search, Play, Heart, User, X, Megaphone } from 'lucide-react';
+import { ShieldAlert, Bell, PanelLeft, Star, Search, Play, Heart, User, X, Megaphone, MessageSquare } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -105,27 +103,44 @@ function AdminAccessRequiredScreen() {
     )
 }
 
-const BottomNavItem = ({ href, icon: Icon, label, isActive }: { href: string; icon: React.ElementType; label: string; isActive: boolean; }) => (
-    <Link href={href} className="flex flex-col items-center justify-center flex-1 gap-1 p-1">
+const BottomNavItem = ({ href, icon: Icon, label, isActive, unreadCount }: { href: string; icon: React.ElementType; label: string; isActive: boolean; unreadCount?: number }) => (
+    <Link href={href} className="flex flex-col items-center justify-center flex-1 gap-1 p-1 relative">
         <Icon className={cn("h-5 w-5", isActive ? 'text-primary' : 'text-slate-500')} strokeWidth={isActive ? 2.5 : 2} />
         <span className={cn("text-xs", isActive ? 'font-bold text-primary' : 'text-slate-600')}>{label}</span>
+        {unreadCount !== undefined && unreadCount > 0 && (
+            <span className="absolute top-1 right-3.5 h-4 min-w-[1rem] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unreadCount}</span>
+        )}
     </Link>
 );
 
 
 const BottomNavBar = () => {
     const pathname = usePathname();
+    const { user } = useRole();
+    const [unreadMessages, setUnreadMessages] = useState(0);
+    const db = getFirestore();
+
+    useEffect(() => {
+        if (!user?.uid) return;
+        const q = query(collection(db, 'chats'), where('unreadBy', 'array-contains', user.uid));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setUnreadMessages(snapshot.size);
+        });
+        return () => unsubscribe();
+    }, [user, db]);
+
     const items = [
         { href: '/dashboard', icon: Star, label: 'Sélection' },
-        { href: '/search', icon: Search, label: 'Recherche' },
         { href: '/mes-formations', icon: Play, label: 'Apprentissage' },
+        { href: '/messages', icon: MessageSquare, label: 'Messages', unreadCount: unreadMessages },
         { href: '/liste-de-souhaits', icon: Heart, label: 'Souhaits' },
         { href: '/account', icon: User, label: 'Compte' },
     ];
+
     return (
         <div className="fixed bottom-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-sm border-t border-slate-200/80 flex md:hidden z-40">
             {items.map(item => (
-                <BottomNavItem key={item.href} {...item} isActive={pathname === item.href} />
+                <BottomNavItem key={item.href} {...item} isActive={pathname.startsWith(item.href)} />
             ))}
         </div>
     );
@@ -329,7 +344,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const userIsNotAdmin = formaAfriqueUser?.role !== 'admin';
   const showAdminAccessRequired = isAdminRoute && userIsNotAdmin;
   const isFullScreenPage = pathname.startsWith('/courses/');
-  const isChatPage = pathname.startsWith('/messages/') || pathname.startsWith('/questions-reponses/');
+  const isChatPage = pathname.startsWith('/messages/');
   const showBottomNav = (role === 'student') && isMobile;
 
   // This handles the full-screen layout for chat pages on mobile.
@@ -410,4 +425,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
