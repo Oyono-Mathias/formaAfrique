@@ -47,7 +47,7 @@ export function ChatRoom({ chatId }: { chatId: string }) {
   const [otherParticipantId, setOtherParticipantId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
 
   // Fetch chat details, listen for messages, and mark as read
@@ -123,7 +123,12 @@ export function ChatRoom({ chatId }: { chatId: string }) {
 
   // Auto-scroll to the bottom
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+     if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
+    }
   }, [messages]);
 
 
@@ -189,7 +194,7 @@ export function ChatRoom({ chatId }: { chatId: string }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-slate-100">
+    <div className="flex flex-col h-full bg-[#E5DDD5]">
         <header className="flex items-center p-3 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
             <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.push('/messages')}>
                 <ArrowLeft className="h-5 w-5" />
@@ -206,19 +211,19 @@ export function ChatRoom({ chatId }: { chatId: string }) {
             </div>
         </header>
 
-        <ScrollArea className="flex-1">
-            <div className="p-4 sm:p-6 space-y-4">
+        <ScrollArea className="flex-1" ref={scrollAreaRef}>
+            <div className="p-4 sm:p-6 space-y-4 pb-24">
                 {messages.map((msg) => {
                     const isMe = msg.senderId === user?.uid;
                     return (
                         <div 
                             key={msg.id} 
-                            className={cn("flex items-end gap-2 max-w-[85%]", isMe ? "ml-auto" : "mr-auto")}
+                            className={cn("flex items-end gap-2 max-w-[85%]", isMe ? "ml-auto flex-row-reverse" : "mr-auto")}
                         >
                             <div className={cn(
-                                "rounded-xl px-3 py-2 text-[15px] shadow-sm",
+                                "rounded-lg px-3 py-2 text-[15px] shadow-sm",
                                 isMe 
-                                    ? "bg-[#dcf8c6] text-slate-900 rounded-br-none" 
+                                    ? "bg-[#DCF8C6] text-slate-900 rounded-br-none" 
                                     : "bg-white text-slate-900 rounded-bl-none"
                             )}>
                                 {msg.text}
@@ -226,19 +231,18 @@ export function ChatRoom({ chatId }: { chatId: string }) {
                         </div>
                     );
                 })}
-                <div ref={bottomRef} />
             </div>
         </ScrollArea>
 
-        <div className="p-2 border-t bg-white/80 backdrop-blur-sm sticky bottom-0">
-            <form onSubmit={handleSend} className="flex items-center gap-2">
+        <div className="fixed bottom-0 left-0 w-full p-2 bg-transparent">
+            <form onSubmit={handleSend} className="flex items-center gap-2 max-w-4xl mx-auto">
                 <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Écrivez votre message..."
-                    className="flex-1 h-11 rounded-full bg-white border-slate-300 focus-visible:ring-primary text-base"
+                    className="flex-1 h-12 rounded-full bg-white border-slate-300 focus-visible:ring-primary text-base shadow-md"
                 />
-                <Button type="submit" size="icon" disabled={!newMessage.trim()} className="shrink-0 h-11 w-11 rounded-full bg-primary hover:bg-primary/90">
+                <Button type="submit" size="icon" disabled={!newMessage.trim()} className="shrink-0 h-12 w-12 rounded-full bg-primary hover:bg-primary/90 shadow-md">
                     <Send className="h-5 w-5" />
                     <span className="sr-only">Envoyer</span>
                 </Button>
