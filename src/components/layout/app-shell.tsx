@@ -298,7 +298,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const isInstructorAndNotApproved = role === 'instructor' && formaAfriqueUser && !formaAfriqueUser.isInstructorApproved;
-  const userIsNotAdmin = formaAfriqueir;
+  const userIsNotAdmin = formaAfriqueUser?.role !== 'admin';
   const showAdminAccessRequired = isAdminRoute && userIsNotAdmin;
   const isFullScreenPage = pathname.startsWith('/courses/') || pathname.startsWith('/messages/') || pathname.startsWith('/questions-reponses/') || pathname.startsWith('/course/');
   const showBottomNav = (role === 'student') && isMobile;
@@ -344,7 +344,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </header>
               <AnnouncementBanner />
               <main className={cn("flex-1 overflow-y-auto w-full", !isFullScreenPage && "p-4 sm:p-6", showBottomNav ? "pb-20" : "")}>
-                  <div className={cn(!isFullScreenPage && "mx-auto w-full max-w-7xl")}>
+                  <div className={cn(!isFullScreenPage && "w-full")}>
                     {!isUserLoading && user && !user.emailVerified && !isFullScreenPage && (
                       <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-md" role="alert">
                         <p className="font-bold">Vérifiez votre adresse e-mail</p>
