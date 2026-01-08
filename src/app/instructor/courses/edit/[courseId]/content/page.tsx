@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { doc, getFirestore, collection, query, orderBy, getDocs, writeBatch, deleteDoc, addDoc } from 'firebase/firestore';
 import { useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { useRole } from '@/context/RoleContext';
+import dynamic from 'next/dynamic';
 
 import {
   Accordion,
@@ -27,7 +28,8 @@ import { Plus, GripVertical, Trash2, ArrowLeft, Loader2, PlayCircle, Link as Lin
 import type { Course, Section as SectionType, Lecture as LectureType } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import ReactPlayer from 'react-player/lazy';
+
+const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
 
 
 const VideoPlayer = ({ videoUrl }: { videoUrl?: string }) => {

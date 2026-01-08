@@ -57,11 +57,11 @@ function CourseCard({ course, onDelete }: { course: Course, onDelete: (courseId:
               alt={course.title}
               width={300}
               height={170}
-              className="aspect-video object-cover w-full"
+              className="aspect-video object-cover w-full h-28"
             />
         </Link>
-        <div className="p-2 flex flex-col flex-grow">
-          <h3 className="font-bold text-xs truncate text-slate-800 h-4">{course.title}</h3>
+        <div className="p-2.5 flex flex-col flex-grow">
+          <h3 className="font-bold text-xs text-slate-800 line-clamp-2 h-8">{course.title}</h3>
           <div className="flex-grow"></div>
           <div className="flex items-center justify-between mt-1">
             {loadingCount ? <Skeleton className="h-4 w-16" /> : (
@@ -165,7 +165,7 @@ export default function InstructorCoursesPage() {
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-[220px] w-full rounded-xl bg-slate-100" />
+            <Skeleton key={i} className="h-48 w-full rounded-xl bg-slate-100" />
           ))}
         </div>
       ) : filteredCourses.length > 0 ? (
