@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PlusCircle, Search, Users, BookOpen, Trash2, Edit } from 'lucide-react';
 import type { Course } from '@/lib/types';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
@@ -22,7 +22,7 @@ function CourseCard({ course, onDelete }: { course: Course, onDelete: (courseId:
   const [loadingCount, setLoadingCount] = useState(true);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const db = getFirestore();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const getCount = async () => {
@@ -67,7 +67,7 @@ function CourseCard({ course, onDelete }: { course: Course, onDelete: (courseId:
             {loadingCount ? <Skeleton className="h-4 w-16" /> : (
                 <div className="flex items-center gap-1 text-[11px] text-slate-500">
                     <Users className="w-3 h-3 text-slate-400" />
-                    <span>{enrollmentCount} {t('studentLabel', { count: enrollmentCount })}</span>
+                    <span>{t('studentLabel', { count: enrollmentCount })}</span>
                 </div>
             )}
              <div className="flex items-center gap-0.5">
@@ -105,7 +105,7 @@ function CourseCard({ course, onDelete }: { course: Course, onDelete: (courseId:
 export default function InstructorCoursesPage() {
   const { formaAfriqueUser, isUserLoading } = useRole();
   const db = getFirestore();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
 

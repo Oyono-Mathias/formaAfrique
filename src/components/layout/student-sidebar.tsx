@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useRole } from "@/context/RoleContext";
-import { useLanguage } from "@/context/LanguageContext";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -69,7 +69,7 @@ export function StudentSidebar({ siteName, logoUrl }: { siteName?: string, logoU
   const router = useRouter();
   const { toast } = useToast();
   const { switchRole, availableRoles, user } = useRole();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const isInstructor = availableRoles.includes('instructor');
   const isAdmin = availableRoles.includes('admin');
   const [unreadMessages, setUnreadMessages] = useState(0);

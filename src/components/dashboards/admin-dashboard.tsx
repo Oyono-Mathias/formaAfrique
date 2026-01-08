@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import type { FormaAfriqueUser } from '@/context/RoleContext';
 import type { Course } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 
 interface ActivityItem {
@@ -42,7 +42,7 @@ const formatCurrency = (amount: number) => {
 
 
 export function AdminDashboard() {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     userCount: 0,
     courseCount: 0,

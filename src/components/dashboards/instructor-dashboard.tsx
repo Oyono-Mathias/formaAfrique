@@ -2,7 +2,7 @@
 'use client';
 
 import { useRole } from '@/context/RoleContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { collection, query, where, getFirestore, onSnapshot, Timestamp } from 'firebase/firestore';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -43,7 +43,7 @@ const StatCard = ({ title, value, icon: Icon, isLoading, change, accentColor }: 
 
 export function InstructorDashboard() {
     const { formaAfriqueUser: instructor, loading: roleLoading } = useRole();
-    const { t } = useLanguage();
+    const { t } = useTranslation();
     const db = getFirestore();
 
     const [stats, setStats] = useState({
@@ -171,7 +171,7 @@ export function InstructorDashboard() {
     }, [courses, enrollments]);
 
     const chartConfig = {
-        revenue: { label: 'Revenus', color: 'hsl(var(--primary))' },
+        revenue: { label: t('navMyRevenue'), color: 'hsl(var(--primary))' },
     };
 
 
@@ -184,14 +184,14 @@ export function InstructorDashboard() {
 
             <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard 
-                    title="Étudiants" 
+                    title={t('navMyStudents')}
                     value={stats.totalStudents.toLocaleString()} 
                     icon={Users} 
                     isLoading={isLoading} 
                     accentColor="border-blue-500"
                 />
                 <StatCard 
-                    title="Note Moyenne" 
+                    title={t('navReviews')}
                     value={stats.totalReviews > 0 ? stats.averageRating.toFixed(1) : "N/A"} 
                     icon={Star} 
                     isLoading={isLoading} 

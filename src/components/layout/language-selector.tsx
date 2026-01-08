@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useLanguage, type Language } from '@/context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,9 +13,9 @@ import { Globe } from 'lucide-react';
 import Image from 'next/image';
 
 interface LanguageOption {
-    code: Language;
+    code: string;
     name: string;
-    flag: string; // Path to flag image
+    flag: string;
 }
 
 const languages: LanguageOption[] = [
@@ -25,9 +25,13 @@ const languages: LanguageOption[] = [
 ];
 
 export function LanguageSelector() {
-    const { language, setLanguage } = useLanguage();
+    const { i18n } = useTranslation();
 
-    const selectedLanguage = languages.find(l => l.code === language) || languages[0];
+    const changeLanguage = (lng: string) => {
+        i18n.changeLanguage(lng);
+    };
+
+    const selectedLanguage = languages.find(l => l.code === i18n.language) || languages[0];
 
     return (
         <DropdownMenu>
@@ -42,7 +46,7 @@ export function LanguageSelector() {
                 {languages.map((lang) => (
                     <DropdownMenuItem
                         key={lang.code}
-                        onClick={() => setLanguage(lang.code)}
+                        onClick={() => changeLanguage(lang.code)}
                         className="flex items-center gap-2 cursor-pointer dark:hover:bg-slate-700"
                     >
                         <Image src={lang.flag} alt={lang.name} width={20} height={15} />

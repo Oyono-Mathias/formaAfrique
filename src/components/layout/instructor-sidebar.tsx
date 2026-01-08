@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useRole } from '@/context/RoleContext';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
@@ -79,12 +79,12 @@ export function InstructorSidebar({ siteName, logoUrl }: { siteName?: string, lo
   const router = useRouter();
   const { switchRole, formaAfriqueUser, availableRoles } = useRole();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const isAdmin = availableRoles.includes('admin');
 
   const instructorMenu = [
     {
-      label: 'NAVIGATION',
+      label: t('navInteraction'),
       items: [
         { href: '/dashboard', icon: LayoutDashboard, text: t('navInstructorDashboard') },
         { href: '/instructor/courses', icon: BookOpen, text: t('navMyCourses') },

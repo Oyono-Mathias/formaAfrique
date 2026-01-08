@@ -11,7 +11,7 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, up
 import { getFirestore, doc, setDoc, serverTimestamp, getDoc, collection, addDoc } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 import { useToast } from '@/hooks/use-toast';
-import { useLanguage } from '@/context/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,6 +48,7 @@ const registerSchema = z.object({
 
 
 export default function AuthPage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('login');
   const [isLoading, setIsLoading] = useState(false);
   const [detectedCountry, setDetectedCountry] = useState('');
@@ -57,7 +58,6 @@ export default function AuthPage() {
   const router = useRouter();
   const { toast } = useToast();
   const db = getFirestore();
-  const { t } = useLanguage();
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
