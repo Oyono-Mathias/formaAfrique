@@ -26,7 +26,7 @@ const Worker = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Wo
 const Viewer = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Viewer), { ssr: false });
 
 
-const VideoPlayer = ({ videoUrl }: { videoUrl?: string }) => {
+const VideoPlayer = ({ videoUrl, onEnded }: { videoUrl?: string; onEnded?: () => void }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const playerRef = useRef<Plyr | null>(null);
 
@@ -38,14 +38,18 @@ const VideoPlayer = ({ videoUrl }: { videoUrl?: string }) => {
             playerRef.current = new Plyr(videoRef.current, {
                 // Options here
             });
+             if (onEnded) {
+                playerRef.current.on('ended', onEnded);
+            }
         }
 
         return () => {
             if (playerRef.current) {
+                playerRef.current.off('ended', onEnded);
                 playerRef.current.destroy();
             }
         };
-    }, []);
+    }, [onEnded]);
 
     useEffect(() => {
         if (playerRef.current && videoUrl) {
@@ -89,43 +93,16 @@ const VideoPlayer = ({ videoUrl }: { videoUrl?: string }) => {
 };
 
 
-const CourseSidebar = ({ courseId, activeLesson, onLessonClick, isEnrolled, completedLessons }: { courseId: string, activeLesson: Lecture | null, onLessonClick: (lesson: Lecture) => void, isEnrolled: boolean, completedLessons: string[] }) => {
+const CourseSidebar = ({ courseId, activeLesson, onLessonClick, isEnrolled, completedLessons, allLectures }: { courseId: string, activeLesson: Lecture | null, onLessonClick: (lesson: Lecture) => void, isEnrolled: boolean, completedLessons: string[], allLectures: Map<string, Lecture[]> }) => {
     const db = getFirestore();
     const sectionsQuery = useMemoFirebase(() => query(collection(db, 'courses', courseId, 'sections'), orderBy('order')), [db, courseId]);
     const { data: sections, isLoading: sectionsLoading } = useCollection<Section>(sectionsQuery);
-    const [lectures, setLectures] = useState<Map<string, Lecture[]>>(new Map());
-    const [lecturesLoading, setLecturesLoading] = useState(true);
-
-    useEffect(() => {
-        if (!sections || sections.length === 0) {
-             if(!sectionsLoading) setLecturesLoading(false);
-             return;
-        }
-
-        setLecturesLoading(true);
-        const promises = sections.map(section => {
-            const lecturesQuery = query(collection(db, `courses/${courseId}/sections/${section.id}/lectures`), orderBy('title'));
-            return getDocs(lecturesQuery);
-        });
-
-        Promise.all(promises).then(snapshots => {
-            const lecturesMap = new Map<string, Lecture[]>();
-            snapshots.forEach((snapshot, index) => {
-                const sectionId = sections[index].id;
-                const sectionLectures = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Lecture));
-                lecturesMap.set(sectionId, sectionLectures);
-            });
-            setLectures(lecturesMap);
-            setLecturesLoading(false);
-        });
-
-    }, [sections, sectionsLoading, courseId, db]);
     
     // Effect to set the first lesson as active by default
     useEffect(() => {
-        if (!lecturesLoading && sections && sections.length > 0 && lectures.size > 0 && !activeLesson) {
+        if (sections && sections.length > 0 && allLectures.size > 0 && !activeLesson) {
             const firstSectionId = sections[0].id;
-            const firstSectionLectures = lectures.get(firstSectionId);
+            const firstSectionLectures = allLectures.get(firstSectionId);
             if (firstSectionLectures && firstSectionLectures.length > 0) {
                 const firstLesson = firstSectionLectures[0];
                  if (isEnrolled || firstLesson.isFreePreview) {
@@ -133,9 +110,9 @@ const CourseSidebar = ({ courseId, activeLesson, onLessonClick, isEnrolled, comp
                  }
             }
         }
-    }, [lecturesLoading, sections, lectures, activeLesson, onLessonClick, isEnrolled]);
+    }, [sections, allLectures, activeLesson, onLessonClick, isEnrolled]);
 
-    if (sectionsLoading || lecturesLoading) {
+    if (sectionsLoading) {
         return <Skeleton className="h-full w-full" />;
     }
     
@@ -150,8 +127,8 @@ const CourseSidebar = ({ courseId, activeLesson, onLessonClick, isEnrolled, comp
     }
     
     let totalLessons = 0;
-    sections.forEach(section => {
-        totalLessons += (lectures.get(section.id) || []).length;
+    allLectures.forEach(sectionLectures => {
+        totalLessons += sectionLectures.length;
     });
 
     return (
@@ -166,7 +143,7 @@ const CourseSidebar = ({ courseId, activeLesson, onLessonClick, isEnrolled, comp
                         <AccordionItem value={section.id} key={section.id}>
                             <AccordionTrigger className="px-3 text-sm font-semibold hover:no-underline">{section.title}</AccordionTrigger>
                             <AccordionContent className="p-1 space-y-1">
-                                {(lectures.get(section.id) || []).map(lesson => {
+                                {(allLectures.get(section.id) || []).map(lesson => {
                                     const isLocked = !isEnrolled && !lesson.isFreePreview;
                                     const isActive = activeLesson?.id === lesson.id;
                                     const isCompleted = completedLessons.includes(lesson.id);
@@ -245,10 +222,15 @@ export default function CoursePlayerPage() {
     const { toast } = useToast();
 
     const [activeLesson, setActiveLesson] = useState<Lecture | null>(null);
+    const [allLectures, setAllLectures] = useState<Map<string, Lecture[]>>(new Map());
+    const [lecturesLoading, setLecturesLoading] = useState(true);
 
     const courseRef = useMemoFirebase(() => doc(db, 'courses', courseId as string), [db, courseId]);
     const { data: course, isLoading: courseLoading } = useDoc<Course>(courseRef);
 
+    const sectionsQuery = useMemoFirebase(() => query(collection(db, 'courses', courseId as string, 'sections'), orderBy('order')), [db, courseId]);
+    const { data: sections, isLoading: sectionsLoading } = useCollection<Section>(sectionsQuery);
+    
     const enrollmentQuery = useMemoFirebase(() => {
         if (!user || !courseId) return null;
         return query(collection(db, 'enrollments'), where('studentId', '==', user.uid), where('courseId', '==', courseId as string));
@@ -259,7 +241,32 @@ export default function CoursePlayerPage() {
     const isEnrolled = !!enrollment;
     const completedLessons = useMemo(() => enrollment?.completedLessons || [], [enrollment]);
 
-    const isLoading = courseLoading || isUserLoading || enrollmentLoading;
+    useEffect(() => {
+        if (!sections || sections.length === 0) {
+             if(!sectionsLoading) setLecturesLoading(false);
+             return;
+        }
+
+        setLecturesLoading(true);
+        const promises = sections.map(section => {
+            const lecturesQuery = query(collection(db, `courses/${courseId}/sections/${section.id}/lectures`), orderBy('title'));
+            return getDocs(lecturesQuery);
+        });
+
+        Promise.all(promises).then(snapshots => {
+            const lecturesMap = new Map<string, Lecture[]>();
+            snapshots.forEach((snapshot, index) => {
+                const sectionId = sections[index].id;
+                const sectionLectures = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Lecture));
+                lecturesMap.set(sectionId, sectionLectures);
+            });
+            setAllLectures(lecturesMap);
+            setLecturesLoading(false);
+        });
+
+    }, [sections, sectionsLoading, courseId, db]);
+
+    const isLoading = courseLoading || isUserLoading || enrollmentLoading || lecturesLoading;
 
     // Redirect if not enrolled
     useEffect(() => {
@@ -277,20 +284,12 @@ export default function CoursePlayerPage() {
         if (!enrollment || !activeLesson) return;
     
         if (completedLessons.includes(activeLesson.id)) {
-            toast({ title: 'Déjà terminée', description: 'Cette leçon est déjà marquée comme terminée.' });
+            // No toast needed if already complete, just proceed to next lesson
+            handleNextLesson();
             return;
         }
 
-        const sectionsQuery = query(collection(db, 'courses', courseId as string, 'sections'));
-        const sectionsSnap = await getDocs(sectionsQuery);
-    
-        let totalLessons = 0;
-        for (const sectionDoc of sectionsSnap.docs) {
-            const lecturesQuery = query(collection(db, 'courses', courseId as string, 'sections', sectionDoc.id, 'lectures'));
-            const lecturesSnap = await getDocs(lecturesQuery);
-            totalLessons += lecturesSnap.size;
-        }
-    
+        const totalLessons = Array.from(allLectures.values()).reduce((acc, val) => acc + val.length, 0);
         const updatedCompletedLessons = [...completedLessons, activeLesson.id];
     
         const newProgress = totalLessons > 0 ? Math.round((updatedCompletedLessons.length / totalLessons) * 100) : 0;
@@ -306,8 +305,29 @@ export default function CoursePlayerPage() {
             title: "Leçon terminée !",
             description: `Votre progression est maintenant de ${newProgress}%.`,
         });
+        
+        handleNextLesson();
     };
 
+    const handleNextLesson = () => {
+        if (!activeLesson || !sections) return;
+
+        let foundCurrent = false;
+        for (const section of sections) {
+            const lectures = allLectures.get(section.id) || [];
+            for (const lesson of lectures) {
+                if (foundCurrent) {
+                    setActiveLesson(lesson);
+                    return; // Next lesson found and set
+                }
+                if (lesson.id === activeLesson.id) {
+                    foundCurrent = true;
+                }
+            }
+        }
+        // If loop finishes, it was the last lesson
+        toast({ title: "Félicitations!", description: "Vous avez terminé la dernière leçon de ce cours." });
+    };
 
     if (isLoading) {
         return (
@@ -349,7 +369,7 @@ export default function CoursePlayerPage() {
                        </Worker>
                     </div>
                 ) : (
-                     <VideoPlayer videoUrl={activeLesson?.videoUrl} />
+                     <VideoPlayer videoUrl={activeLesson?.videoUrl} onEnded={handleLessonCompletion} />
                 )}
                 <div className="mt-4">
                      <h1 className="text-xl lg:text-2xl font-bold">{isEbook ? course.title : activeLesson?.title || course.title}</h1>
@@ -378,6 +398,7 @@ export default function CoursePlayerPage() {
                             onLessonClick={setActiveLesson} 
                             isEnrolled={isEnrolled}
                             completedLessons={completedLessons}
+                            allLectures={allLectures}
                         />
                     </div>
                 </aside>
@@ -385,5 +406,7 @@ export default function CoursePlayerPage() {
         </div>
     );
 }
+
+    
 
     
