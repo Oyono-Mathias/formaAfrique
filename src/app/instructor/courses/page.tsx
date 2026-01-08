@@ -53,29 +53,29 @@ function CourseCard({ course, onDelete }: { course: Course, onDelete: (courseId:
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden transition-shadow duration-300 hover:shadow-lg flex flex-col">
         <Link href={`/instructor/courses/edit/${course.id}`} className="block">
             <Image
-              src={course.imageUrl || `https://picsum.photos/seed/${course.id}/300/180`}
+              src={course.imageUrl || `https://picsum.photos/seed/${course.id}/300/170`}
               alt={course.title}
               width={300}
-              height={180}
-              className="aspect-[16/10] object-cover w-full"
+              height={170}
+              className="aspect-video object-cover w-full"
             />
         </Link>
-        <div className="p-3 flex flex-col flex-grow">
-          <h3 className="font-bold text-sm truncate text-slate-800 h-5">{course.title}</h3>
+        <div className="p-2 flex flex-col flex-grow">
+          <h3 className="font-bold text-xs truncate text-slate-800 h-4">{course.title}</h3>
           <div className="flex-grow"></div>
-          <div className="flex items-center justify-between mt-2">
-            {loadingCount ? <Skeleton className="h-4 w-20" /> : (
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                    <Users className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center justify-between mt-1">
+            {loadingCount ? <Skeleton className="h-4 w-16" /> : (
+                <div className="flex items-center gap-1 text-[11px] text-slate-500">
+                    <Users className="w-3 h-3 text-slate-400" />
                     <span>{enrollmentCount} {t('studentLabel', { count: enrollmentCount })}</span>
                 </div>
             )}
-             <div className="flex items-center gap-1">
-                 <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-primary" asChild>
-                    <Link href={`/instructor/courses/edit/${course.id}`}><Edit className="h-4 w-4" /></Link>
+             <div className="flex items-center gap-0.5">
+                 <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-primary" asChild>
+                    <Link href={`/instructor/courses/edit/${course.id}`}><Edit className="h-3.5 w-3.5" /></Link>
                  </Button>
-                 <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-destructive" onClick={handleDeleteClick}>
-                     <Trash2 className="h-4 w-4" />
+                 <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-destructive" onClick={handleDeleteClick}>
+                     <Trash2 className="h-3.5 w-3.5" />
                  </Button>
              </div>
           </div>
@@ -191,4 +191,3 @@ export default function InstructorCoursesPage() {
     </div>
   );
 }
-
