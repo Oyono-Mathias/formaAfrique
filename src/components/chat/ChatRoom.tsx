@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -93,43 +94,24 @@ export function ChatRoom({ chatId }: { chatId: string }) {
     const chatDocRef = doc(db, "chats", chatId);
     const messagesCollectionRef = collection(chatDocRef, "messages");
 
-    const markAsRead = async () => {
-        if (!otherParticipantId) return;
-
-        const batch = writeBatch(db);
-        const unreadMessagesQuery = query(
-            messagesCollectionRef, 
-            where('status', '!=', 'read'), 
-            where('senderId', '==', otherParticipantId)
-        );
-        const unreadSnapshot = await getDocs(unreadMessagesQuery);
-        
-        let hasUnread = false;
-        unreadSnapshot.forEach(messageDoc => {
-            batch.update(messageDoc.ref, { status: 'read' });
-            hasUnread = true;
-        });
-
-        if (hasUnread) {
-            await batch.commit();
+    // Fetch participant details first
+    const fetchParticipantDetails = async () => {
+      const chatDoc = await getDoc(chatDocRef);
+      if (chatDoc.exists()) {
+        const participants = chatDoc.data().participants as string[];
+        const otherId = participants.find(p => p !== user.uid);
+        if (otherId) {
+          setOtherParticipantId(otherId);
+          const userDocRef = doc(db, 'users', otherId);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setOtherParticipant(userDoc.data() as ParticipantDetails);
+          }
         }
+      }
     };
 
-    // Initial fetch and marking as read
-    const unsubscribeChatDoc = onSnapshot(chatDocRef, async (chatDoc) => {
-        if(chatDoc.exists()) {
-            const participants = chatDoc.data().participants as string[];
-            const otherId = participants.find(p => p !== user.uid);
-            if(otherId && otherId !== otherParticipantId) {
-                setOtherParticipantId(otherId);
-                const userDocRef = doc(db, 'users', otherId);
-                const userDoc = await getDoc(userDocRef);
-                if (userDoc.exists()) {
-                    setOtherParticipant(userDoc.data() as ParticipantDetails);
-                }
-            }
-        }
-    });
+    fetchParticipantDetails();
 
     // Listen for new messages
     const q = query(messagesCollectionRef, orderBy("createdAt", "asc"));
@@ -140,7 +122,6 @@ export function ChatRoom({ chatId }: { chatId: string }) {
       } as Message));
       setMessages(docs);
       setIsLoading(false);
-      markAsRead(); // Mark as read on new message or initial load
     }, (error) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
             path: `chats/${chatId}/messages`,
@@ -150,10 +131,37 @@ export function ChatRoom({ chatId }: { chatId: string }) {
     });
 
     return () => {
-      unsubscribeChatDoc();
       unsubscribeMessages();
     };
-  }, [chatId, user, db, otherParticipantId]);
+  }, [chatId, user, db]);
+
+  // Effect to mark messages as read
+  useEffect(() => {
+    if (messages.length === 0 || !otherParticipantId) return;
+
+    const markAsRead = async () => {
+        const batch = writeBatch(db);
+        let hasUnread = false;
+        
+        messages.forEach(msg => {
+            if (msg.senderId === otherParticipantId && msg.status !== 'read') {
+                const msgRef = doc(db, 'chats', chatId, 'messages', msg.id);
+                batch.update(msgRef, { status: 'read' });
+                hasUnread = true;
+            }
+        });
+
+        if (hasUnread) {
+            try {
+                await batch.commit();
+            } catch (error) {
+                console.error("Failed to mark messages as read:", error);
+            }
+        }
+    };
+
+    markAsRead();
+  }, [messages, otherParticipantId, chatId, db]);
 
 
   // Auto-scroll to the bottom
@@ -192,6 +200,8 @@ export function ChatRoom({ chatId }: { chatId: string }) {
             lastMessage: textToSend,
             updatedAt: serverTimestamp(),
             lastSenderId: user.uid,
+            // Ensure the other user will see it as unread
+            unreadBy: [otherParticipantId],
         });
 
         await batch.commit();
