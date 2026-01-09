@@ -32,8 +32,8 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
 import { sendEnrollmentEmails } from '@/lib/emails';
-import { useMoneroo } from 'moneroo.js/react';
 import { verifyMonerooTransaction } from '@/app/actions/monerooActions';
+import Script from 'next/script';
 
 const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
 
@@ -403,7 +403,7 @@ export default function CourseDetailsClient() {
   const isEnrolled = useMemo(() => (enrollments?.length ?? 0) > 0, [enrollments]);
   
   const handlePaymentSuccess = async (data: any) => {
-    if (!course || !instructor || !user) return;
+    if (!course || !instructor || !user || !formaAfriqueUser) return;
     setIsPaying(true);
 
     try {
@@ -458,11 +458,27 @@ export default function CourseDetailsClient() {
     }
   };
   
-  const { checkout } = useMoneroo({
-      publicKey: process.env.NEXT_PUBLIC_MONEROO_PUBLIC_KEY || '',
-      onClose: () => setIsPaying(false),
-      onSuccess: handlePaymentSuccess,
-  });
+  const handleCheckout = () => {
+    if (typeof window !== 'undefined' && (window as any).Moneroo) {
+        (window as any).Moneroo.setup({
+            publicKey: process.env.NEXT_PUBLIC_MONEROO_PUBLIC_KEY || '',
+            onClose: () => setIsPaying(false),
+            onSuccess: handlePaymentSuccess,
+        }).open({
+            amount: course!.price,
+            currency: "XOF",
+            description: course!.title,
+            customer: {
+                email: formaAfriqueUser!.email,
+                name: formaAfriqueUser!.fullName,
+            },
+            metadata: {
+                courseId: course!.id,
+                userId: user!.uid,
+            }
+        });
+    }
+  };
 
   useEffect(() => {
     if (!courseId || course?.contentType === 'ebook') return;
@@ -494,7 +510,7 @@ export default function CourseDetailsClient() {
   const handleFreeEnrollment = async () => {
     if (!user || !course || !course.instructorId || !instructor || !formaAfriqueUser) {
         toast({ variant: 'destructive', title: 'Erreur', description: 'Vous devez être connecté et les détails du cours doivent être complets.' });
-        if(!user) router.push('/');
+        if(!user) router.push('/login');
         return;
     }
 
@@ -549,19 +565,7 @@ export default function CourseDetailsClient() {
         handleFreeEnrollment();
     } else if(course && user && formaAfriqueUser) {
         setIsPaying(true);
-        checkout({
-            amount: course.price,
-            currency: "XOF",
-            description: course.title,
-            customer: {
-                email: formaAfriqueUser.email,
-                name: formaAfriqueUser.fullName,
-            },
-            metadata: {
-                courseId: course.id,
-                userId: user.uid,
-            }
-        });
+        handleCheckout();
     }
   };
 
@@ -639,6 +643,7 @@ export default function CourseDetailsClient() {
 
   return (
     <>
+      <Script src="https://cdn.moneroo.io/checkout/v1/moneroo.js" strategy="afterInteractive" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

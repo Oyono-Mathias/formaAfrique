@@ -12,11 +12,11 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2, CreditCard, ArrowLeft } from 'lucide-react';
 import type { Course } from '@/lib/types';
-import { useMoneroo } from 'moneroo.js/react';
 import { verifyMonerooTransaction } from '../actions/monerooActions';
 import { toast } from '@/hooks/use-toast';
 import { sendEnrollmentEmails } from '@/lib/emails';
 import { setDoc, serverTimestamp } from 'firebase/firestore';
+import Script from 'next/script';
 
 
 function PaymentPageContent() {
@@ -85,28 +85,32 @@ function PaymentPageContent() {
         }
     };
 
-    const { checkout } = useMoneroo({
-        publicKey: process.env.NEXT_PUBLIC_MONEROO_PUBLIC_KEY || '',
-        onClose: () => setIsLoading(false),
-        onSuccess: handlePaymentSuccess,
-    });
-
+    const handleCheckout = () => {
+        if (typeof window !== 'undefined' && (window as any).Moneroo) {
+            (window as any).Moneroo.setup({
+                publicKey: process.env.NEXT_PUBLIC_MONEROO_PUBLIC_KEY || '',
+                onClose: () => setIsLoading(false),
+                onSuccess: handlePaymentSuccess,
+            }).open({
+                amount: course!.price,
+                currency: "XOF",
+                description: `Achat du cours: ${course!.title}`,
+                customer: {
+                    email: formaAfriqueUser!.email,
+                    name: formaAfriqueUser!.fullName,
+                },
+                metadata: {
+                    courseId: course!.id,
+                    userId: formaAfriqueUser!.uid,
+                }
+            });
+        }
+    };
+    
     const handlePayment = () => {
         if (!course || !formaAfriqueUser) return;
         setIsLoading(true);
-        checkout({
-            amount: course.price,
-            currency: "XOF",
-            description: `Achat du cours: ${course.title}`,
-            customer: {
-                email: formaAfriqueUser.email,
-                name: formaAfriqueUser.fullName,
-            },
-            metadata: {
-                courseId: course.id,
-                userId: formaAfriqueUser.uid,
-            }
-        });
+        handleCheckout();
     };
 
     const loading = isUserLoading || courseLoading;
@@ -135,42 +139,45 @@ function PaymentPageContent() {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-slate-50 dark:bg-slate-900 p-4">
-            <Card className="w-full max-w-md shadow-lg rounded-2xl">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">Finaliser votre achat</CardTitle>
-                    <CardDescription>Vous êtes sur le point de vous inscrire à un cours exceptionnel.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="p-4 border rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center gap-4">
-                        <Image 
-                            src={course.imageUrl || `https://picsum.photos/seed/${course.id}/150/100`}
-                            alt={course.title}
-                            width={80}
-                            height={45}
-                            className="rounded-lg aspect-video object-cover"
-                        />
-                        <div className="flex-1">
-                            <h3 className="font-bold text-sm line-clamp-2">{course.title}</h3>
-                            <p className="text-lg font-bold text-primary mt-1">{course.price.toLocaleString('fr-FR')} XOF</p>
+        <>
+            <Script src="https://cdn.moneroo.io/checkout/v1/moneroo.js" strategy="afterInteractive" />
+            <div className="flex justify-center items-center min-h-screen bg-slate-50 dark:bg-slate-900 p-4">
+                <Card className="w-full max-w-md shadow-lg rounded-2xl">
+                    <CardHeader className="text-center">
+                        <CardTitle className="text-2xl font-bold">Finaliser votre achat</CardTitle>
+                        <CardDescription>Vous êtes sur le point de vous inscrire à un cours exceptionnel.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="p-4 border rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center gap-4">
+                            <Image 
+                                src={course.imageUrl || `https://picsum.photos/seed/${course.id}/150/100`}
+                                alt={course.title}
+                                width={80}
+                                height={45}
+                                className="rounded-lg aspect-video object-cover"
+                            />
+                            <div className="flex-1">
+                                <h3 className="font-bold text-sm line-clamp-2">{course.title}</h3>
+                                <p className="text-lg font-bold text-primary mt-1">{course.price.toLocaleString('fr-FR')} XOF</p>
+                            </div>
                         </div>
-                    </div>
-                    <p className="text-xs text-center text-muted-foreground">
-                        Vous serez redirigé vers la passerelle de paiement sécurisée de Moneroo pour finaliser votre transaction.
-                    </p>
-                    <Button onClick={handlePayment} disabled={isLoading} size="lg" className="w-full h-12 text-base">
-                        {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CreditCard className="mr-2 h-5 w-5" />}
-                        Payer en toute sécurité
-                    </Button>
-                </CardContent>
-                 <CardFooter>
-                    <Button variant="link" onClick={() => router.back()} className="text-muted-foreground mx-auto">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Annuler et retourner au cours
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
+                        <p className="text-xs text-center text-muted-foreground">
+                            Vous serez redirigé vers la passerelle de paiement sécurisée de Moneroo pour finaliser votre transaction.
+                        </p>
+                        <Button onClick={handlePayment} disabled={isLoading} size="lg" className="w-full h-12 text-base">
+                            {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CreditCard className="mr-2 h-5 w-5" />}
+                            Payer en toute sécurité
+                        </Button>
+                    </CardContent>
+                    <CardFooter>
+                        <Button variant="link" onClick={() => router.back()} className="text-muted-foreground mx-auto">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Annuler et retourner au cours
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+        </>
     )
 }
 
