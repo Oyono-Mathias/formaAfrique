@@ -13,7 +13,9 @@ import { Loader2, ArrowLeft, Ticket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import type { Course } from '@/lib/types';
+import type { FormaAfriqueUser } from '@/context/RoleContext';
 import { Input } from '@/components/ui/input';
+import { sendEnrollmentEmails } from '@/lib/emails';
 
 interface PromoCode {
     id: string;
@@ -26,7 +28,7 @@ export default function PaiementsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const { user, isUserLoading } = useRole();
+  const { user, formaAfriqueUser, isUserLoading } = useRole();
   const db = getFirestore();
   
   const courseId = searchParams.get('courseId');
@@ -35,7 +37,7 @@ export default function PaiementsPage() {
   const [isCourseLoading, setIsCourseLoading] = useState(true);
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
-  const [isApplyingCode, setIsApplyingCode] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const discountedPrice = useMemo(() => {
     if (!course) return 0;
@@ -70,14 +72,14 @@ export default function PaiementsPage() {
 
   // Simulate payment processing and random outcome
   const startPaymentProcess = async () => {
-    if (isUserLoading || isCourseLoading || !course || !user) return;
+    if (isUserLoading || isCourseLoading || !course || !user || !formaAfriqueUser) return;
     
-    // Show loading state on the payment button
-    setIsApplyingCode(true); // Re-use this state to show loading
+    setIsProcessing(true);
 
-    // 1. Create a pending payment record
     try {
-        await addDoc(collection(db, 'payments'), {
+        const paymentId = doc(collection(db, 'payments')).id;
+        await setDoc(doc(db, 'payments', paymentId), {
+            paymentId: paymentId,
             userId: user.uid,
             instructorId: course.instructorId,
             courseId: course.id,
@@ -88,39 +90,46 @@ export default function PaiementsPage() {
             method: 'moneroo_simulation',
             promoCode: appliedPromo?.code || null,
         });
+
+        setTimeout(async () => {
+            const isSuccess = Math.random() > 0.1; // 90% chance of success
+            
+            if (isSuccess) {
+                const enrollmentId = `${user.uid}_${course.id}`;
+                const enrollmentRef = doc(db, 'enrollments', enrollmentId);
+                await setDoc(enrollmentRef, {
+                    studentId: user.uid,
+                    courseId: course.id,
+                    instructorId: course.instructorId,
+                    enrollmentDate: serverTimestamp(),
+                    progress: 0,
+                });
+                
+                // Fetch instructor details for email
+                const instructorRef = doc(db, 'users', course.instructorId);
+                const instructorSnap = await getDoc(instructorRef);
+                if(instructorSnap.exists()) {
+                    await sendEnrollmentEmails(formaAfriqueUser, course, instructorSnap.data() as FormaAfriqueUser);
+                }
+
+                router.push(`/payment/success?courseId=${course.id}`);
+            } else {
+                await updateDoc(doc(db, 'payments', paymentId), { status: 'Failed' });
+                router.push(`/payment/error?courseId=${course.id}`);
+            }
+            setIsProcessing(false);
+        }, 4000);
+
     } catch (error) {
         console.error("Error creating pending payment record: ", error);
+        toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible d\'initier le paiement.' });
+        setIsProcessing(false);
     }
-    
-    // 2. Simulate API call to payment provider
-    setTimeout(() => {
-        const isSuccess = Math.random() > 0.2; // 80% chance of success
-
-        if (isSuccess) {
-            const enrollmentId = `${user.uid}_${course.id}`;
-            const enrollmentRef = doc(db, 'enrollments', enrollmentId);
-            setDoc(enrollmentRef, {
-                studentId: user.uid,
-                courseId: course.id,
-                instructorId: course.instructorId,
-                enrollmentDate: serverTimestamp(),
-                progress: 0,
-            }).then(() => {
-                router.push(`/payment/success?courseId=${course.id}`);
-            }).catch(err => {
-                console.error("Enrollment creation failed: ", err);
-                router.push(`/payment/error?courseId=${course.id}`);
-            });
-        } else {
-            router.push(`/payment/error?courseId=${course.id}`);
-        }
-        setIsApplyingCode(false); // Stop loading
-    }, 4000);
   };
   
   const handleApplyPromoCode = async () => {
     if (!promoCode.trim()) return;
-    setIsApplyingCode(true);
+    setIsProcessing(true);
 
     const promoQuery = query(collection(db, 'promoCodes'), where('code', '==', promoCode.trim().toUpperCase()), where('isActive', '==', true));
     const snapshot = await getDocs(promoQuery);
@@ -133,7 +142,7 @@ export default function PaiementsPage() {
         setAppliedPromo(promo);
         toast({ title: 'Code appliqué !', description: `Vous avez obtenu une réduction de ${promo.discountPercentage}%.`});
     }
-    setIsApplyingCode(false);
+    setIsProcessing(false);
   }
 
   const renderLoadingState = () => (
@@ -184,8 +193,8 @@ export default function PaiementsPage() {
                 <label htmlFor="promo-code" className="text-sm font-medium">Code Promo</label>
                 <div className="flex gap-2">
                     <Input id="promo-code" value={promoCode} onChange={e => setPromoCode(e.target.value)} placeholder="Ex: AFRIQUE50" disabled={!!appliedPromo} />
-                    <Button onClick={handleApplyPromoCode} disabled={!promoCode.trim() || isApplyingCode || !!appliedPromo}>
-                        {isApplyingCode ? <Loader2 className="h-4 w-4 animate-spin"/> : 'Appliquer'}
+                    <Button onClick={handleApplyPromoCode} disabled={!promoCode.trim() || isProcessing || !!appliedPromo}>
+                        {isProcessing ? <Loader2 className="h-4 w-4 animate-spin"/> : 'Appliquer'}
                     </Button>
                 </div>
                 {appliedPromo && (
@@ -197,8 +206,8 @@ export default function PaiementsPage() {
 
         </CardContent>
         <CardFooter className="flex-col gap-4">
-             <Button size="lg" className="w-full h-12 text-base" onClick={startPaymentProcess} disabled={isApplyingCode}>
-                 {isApplyingCode ? <Loader2 className="h-5 w-5 animate-spin"/> : `Payer ${discountedPrice.toLocaleString('fr-FR')} XOF`}
+             <Button size="lg" className="w-full h-12 text-base" onClick={startPaymentProcess} disabled={isProcessing}>
+                 {isProcessing ? <Loader2 className="h-5 w-5 animate-spin"/> : `Payer ${discountedPrice.toLocaleString('fr-FR')} XOF`}
              </Button>
             <p className="text-xs text-center text-muted-foreground w-full">Vous serez redirigé vers notre partenaire de paiement sécurisé pour finaliser votre achat.</p>
         </CardFooter>
@@ -206,5 +215,3 @@ export default function PaiementsPage() {
     </div>
   );
 }
-
-    

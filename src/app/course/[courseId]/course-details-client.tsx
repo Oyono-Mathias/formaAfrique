@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -16,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { Review, Section, Lecture, Course } from '@/lib/types';
+import type { FormaAfriqueUser } from '@/context/RoleContext';
 import { cn } from '@/lib/utils';
 import { format, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -29,6 +31,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
+import { sendEnrollmentEmails } from '@/lib/emails';
 
 const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
 
@@ -376,7 +379,7 @@ export default function CourseDetailsClient() {
   const db = getFirestore();
   const { toast } = useToast();
   const router = useRouter();
-  const { user, isUserLoading } = useRole();
+  const { user, formaAfriqueUser, isUserLoading } = useRole();
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [courseStats, setCourseStats] = useState({ totalDuration: 0, lessonCount: 0 });
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -386,7 +389,7 @@ export default function CourseDetailsClient() {
   const { data: course, isLoading: courseLoading } = useDoc<Course>(courseRef);
 
   const instructorRef = useMemoFirebase(() => course?.instructorId ? doc(db, 'users', course.instructorId) : null, [db, course]);
-  const { data: instructor, isLoading: instructorLoading } = useDoc(instructorRef);
+  const { data: instructor, isLoading: instructorLoading } = useDoc<FormaAfriqueUser>(instructorRef);
 
   const enrollmentQuery = useMemoFirebase(() => {
     if (!user || !courseId) return null;
@@ -432,7 +435,7 @@ export default function CourseDetailsClient() {
   };
 
   const handleFreeEnrollment = async () => {
-    if (!user || !course || !course.instructorId) {
+    if (!user || !course || !course.instructorId || !instructor || !formaAfriqueUser) {
         toast({ variant: 'destructive', title: 'Erreur', description: 'Vous devez être connecté et les détails du cours doivent être complets.' });
         if(!user) router.push('/');
         return;
@@ -463,6 +466,9 @@ export default function CourseDetailsClient() {
 
         toast({ title: 'Inscription réussie!', description: `Vous avez maintenant accès à "${course.title}".` });
         
+        // Send email notifications
+        await sendEnrollmentEmails(formaAfriqueUser, course, instructor);
+
         router.push(`/courses/${courseId}?newEnrollment=true`);
 
     } catch (error) {
