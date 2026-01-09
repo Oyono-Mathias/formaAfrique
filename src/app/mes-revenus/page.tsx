@@ -351,7 +351,7 @@ export default function MyRevenuePage() {
                                     <CartesianGrid vertical={false} strokeDasharray="3 3" className="dark:stroke-slate-700" />
                                     <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} />
                                     <YAxis tickFormatter={(value) => `${Number(value) / 1000}k`} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                                    <Tooltip content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)}/>} className="dark:bg-slate-900 dark:border-slate-700" />
+                                    <Tooltip content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)} className="dark:bg-slate-900 dark:border-slate-700" />} />
                                     <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={8} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -494,5 +494,3 @@ export default function MyRevenuePage() {
     </div>
   );
 }
-
-    
