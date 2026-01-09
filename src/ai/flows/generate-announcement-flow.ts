@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -9,14 +10,14 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
-const GenerateAnnouncementInputSchema = z.object({
+export const GenerateAnnouncementInputSchema = z.object({
   topic: z.string().describe('The topic or existing text of the announcement message. For example: "a flash sale for the weekend", "a new course about AI", or an existing message to be improved.'),
 });
 export type GenerateAnnouncementInput = z.infer<typeof GenerateAnnouncementInputSchema>;
 
-const GenerateAnnouncementOutputSchema = z.object({
+export const GenerateAnnouncementOutputSchema = z.object({
   announcement: z.string().describe('The generated marketing announcement message, tailored for a pan-african audience. It should be engaging, professional, and concise. It MUST be in French and should also include a creative and culturally relevant translation in Sango and Lingala at the end, like: "Sango: ... - Lingala: ..."'),
 });
 export type GenerateAnnouncementOutput = z.infer<typeof GenerateAnnouncementOutputSchema>;

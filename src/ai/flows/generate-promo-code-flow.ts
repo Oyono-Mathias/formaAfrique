@@ -5,10 +5,11 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 import { adminDb } from '@/firebase/admin';
 import * as admin from 'firebase-admin';
-import { generateAnnouncement, GenerateAnnouncementInput, GenerateAnnouncementOutput } from './generate-announcement-flow';
+import { generateAnnouncement, GenerateAnnouncementInputSchema, GenerateAnnouncementOutputSchema } from './generate-announcement-flow';
+import type { GenerateAnnouncementInput, GenerateAnnouncementOutput } from './generate-announcement-flow';
 
 
 // Define the tool's input schema using Zod
@@ -57,10 +58,10 @@ const generateAnnouncementTool = ai.defineTool(
     {
         name: 'generateAnnouncement',
         description: "Generates or improves a marketing announcement. Use this tool ONLY when the user's prompt is about WRITING an announcement, marketing message, or any other text content.",
-        inputSchema: GenerateAnnouncementInput,
-        outputSchema: GenerateAnnouncementOutput,
+        inputSchema: GenerateAnnouncementInputSchema,
+        outputSchema: GenerateAnnouncementOutputSchema,
     },
-    async (input) => {
+    async (input: GenerateAnnouncementInput) => {
         // This tool simply calls the existing flow function
         return await generateAnnouncement(input);
     }
