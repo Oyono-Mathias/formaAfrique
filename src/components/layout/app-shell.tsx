@@ -48,6 +48,7 @@ const pageTitles: { [key: string]: string } = {
     '/ressources': 'Ressources',
     '/mentions-legales': 'Mentions Légales',
     '/cgu': 'Conditions Générales d\'Utilisation',
+    '/admin': 'Admin: Tableau de bord',
     '/admin/dashboard': 'Admin: Tableau de bord',
     '/admin/users': 'Admin: Gestion des utilisateurs',
     '/admin/courses': 'Admin: Gestion des cours',
@@ -423,23 +424,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const userIsNotAdmin = formaAfriqueUser?.role !== 'admin';
   const showAdminAccessRequired = isAdminRoute && userIsNotAdmin;
   const isFullScreenPage = pathname.startsWith('/courses/');
-  const isChatPage = pathname.startsWith('/messages/');
+  const isChatPage = pathname.startsWith('/messages');
   const showBottomNav = (role === 'student') && isMobile;
 
   // This handles the full-screen layout for chat pages on mobile.
-  if (isMobile && isChatPage) {
+  if (isMobile && pathname.startsWith('/messages/')) {
     return <main className="h-screen w-screen">{children}</main>;
   }
 
-
   return (
-    <div className='dark flex flex-col min-h-screen bg-background-alt dark:bg-[#0f172a]'>
+    <div className='dark flex flex-col min-h-screen bg-background-alt dark:bg-[#0f172a] tv:text-lg'>
+      <AnnouncementBanner />
         <div className="flex flex-1">
-            <aside className={cn("hidden", isMobile ? "hidden" : "md:flex", isFullScreenPage && "md:hidden", isChatPage && role !== 'admin' && "md:hidden lg:flex")}>
+            <aside className={cn("hidden md:flex md:flex-col h-screen sticky top-0", isFullScreenPage && "md:hidden", isChatPage && !isMobile && "md:w-80 lg:w-96")}>
               {renderSidebar()}
             </aside>
-            <div className={cn("flex flex-col flex-1", isChatPage && "lg:grid lg:grid-cols-[1fr,2fr] xl:grid-cols-[1fr,3fr]")}>
-              {!isChatPage && (
+            <div className={cn("flex flex-col flex-1", isChatPage && !isMobile && "overflow-hidden")}>
+               {!isChatPage && !isFullScreenPage && (
                 <header className="flex h-14 items-center gap-4 border-b bg-card dark:bg-[#1e293b] dark:border-slate-700 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
                     <Sheet>
                       <SheetTrigger asChild>
@@ -478,11 +479,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               )}
               
               <main className={cn("flex-1 overflow-y-auto", 
-                isChatPage ? "h-full" : "p-4 sm:p-6", 
+                isChatPage && !isMobile ? "" : "p-4 sm:p-6", 
                 showBottomNav ? "pb-20" : "")
               }>
-                  <div className={cn(isChatPage ? "h-full" : "", !isFullScreenPage && "w-full")}>
-                    {!isUserLoading && user && !user.emailVerified && !isFullScreenPage && (
+                  <div className={cn(!isFullScreenPage && "w-full", isChatPage && !isMobile ? "h-full" : "")}>
+                    {!isUserLoading && user && !user.emailVerified && !isFullScreenPage && !isChatPage && (
                       <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-md" role="alert">
                         <p className="font-bold">Vérifiez votre adresse e-mail</p>
                         <p className="text-sm">

@@ -152,7 +152,7 @@ export default function InstructorProfilePage() {
     if (isLoading) {
         return (
             <div className="bg-gray-900 text-white min-h-screen p-4 sm:p-6 lg:p-12">
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-6xl mx-auto">
                     <header className="flex flex-col sm:flex-row items-center gap-6 mb-10">
                         <Skeleton className="h-32 w-32 rounded-full" />
                         <div className="space-y-3">

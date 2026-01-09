@@ -35,6 +35,8 @@ import {
     DialogDescription,
 } from '@/components/ui/dialog';
 import type { FormaAfriqueUser } from '@/context/RoleContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ChatRoom } from '@/components/chat/ChatRoom';
 
 // --- INTERFACES ---
 interface Chat {
@@ -53,6 +55,7 @@ export default function MessagesPage() {
   const pathname = usePathname();
   const db = getFirestore();
   const router = useRouter();
+  const isMobile = useIsMobile();
   
   const [chatList, setChatList] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,6 +64,9 @@ export default function MessagesPage() {
   const [allStudents, setAllStudents] = useState<FormaAfriqueUser[]>([]);
   const [modalSearchTerm, setModalSearchTerm] = useState('');
   const [isCreatingChat, setIsCreatingChat] = useState(false);
+  
+  // This state is only relevant on desktop
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
   // Listen for user's conversations in real-time
   useEffect(() => {
@@ -102,6 +108,11 @@ export default function MessagesPage() {
         }));
 
         setChatList(populated);
+        
+        // On desktop, if no chat is selected, select the first one
+        if (!isMobile && !activeChatId && populated.length > 0) {
+          setActiveChatId(populated[0].id);
+        }
         setIsLoading(false);
     }, (error) => {
         console.error("Error fetching chats:", error);
@@ -109,7 +120,7 @@ export default function MessagesPage() {
     });
 
     return () => unsubscribe();
-  }, [user?.uid, db, isUserLoading]);
+  }, [user?.uid, db, isUserLoading, isMobile, activeChatId]);
   
   // Fetch all students when opening the new chat modal
   useEffect(() => {
@@ -149,7 +160,11 @@ export default function MessagesPage() {
             chatId = newChatRef.id;
         }
         setIsNewChatModalOpen(false);
-        router.push(`/messages/${chatId}`);
+        if (isMobile) {
+            router.push(`/messages/${chatId}`);
+        } else {
+            setActiveChatId(chatId);
+        }
     } catch (error) {
         console.error("Error starting chat:", error);
     } finally {
@@ -179,8 +194,126 @@ export default function MessagesPage() {
   }
   
   const currentChatId = pathname.split('/').pop();
+  
+  // On desktop, this component renders the split view
+  if (!isMobile) {
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] lg:grid-cols-[400px_1fr] h-full">
+            {/* Left Column: Chat List */}
+            <div className="flex flex-col h-full bg-slate-900 border-r border-slate-800">
+                 <div className="p-4 border-b border-slate-800">
+                    <h1 className="font-bold text-xl text-white">Messagerie</h1>
+                     <div className="relative pt-2">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <Input
+                            placeholder="Rechercher une discussion..."
+                            className="pl-10 h-9 rounded-full bg-slate-800 border-slate-700 text-white"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <ScrollArea className="flex-1">
+                     {filteredChatList.length > 0 ? (
+                        <div className="space-y-0">
+                            {filteredChatList.map(chat => {
+                                const otherId = chat.participants.find(p => p !== user?.uid);
+                                const other = otherId ? chat.participantDetails[otherId] : null;
+                                const isUnread = chat.lastSenderId !== user?.uid && (chat.unreadBy ? chat.unreadBy.includes(user?.uid || '') : true);
+                                const isActive = activeChatId === chat.id;
 
+                                return (
+                                    <button
+                                        key={chat.id}
+                                        onClick={() => setActiveChatId(chat.id)}
+                                        className={cn(
+                                            "w-full text-left p-3 flex items-center gap-4 transition-all border-b border-slate-800",
+                                            isActive ? "bg-primary/10" : "hover:bg-slate-800/50"
+                                        )}
+                                    >
+                                        <div className="relative">
+                                            <Avatar className="h-12 w-12 border-2 border-slate-700">
+                                                <AvatarImage src={other?.profilePictureURL} alt={other?.fullName}/>
+                                                <AvatarFallback className="bg-slate-700 text-slate-300">{other?.fullName?.charAt(0) || '?'}</AvatarFallback>
+                                            </Avatar>
+                                            {other?.isOnline && <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 ring-2 ring-slate-900" />}
+                                        </div>
+                                        <div className="flex-1 overflow-hidden">
+                                            <div className="flex justify-between items-baseline">
+                                                <p className={cn("truncate text-sm text-slate-200", isUnread ? "font-bold" : "font-semibold")}>
+                                                {other?.fullName || "Utilisateur"}
+                                                </p>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <p className={cn("text-sm truncate leading-relaxed", isUnread ? "font-medium text-slate-300" : "text-slate-400")}>
+                                                    {chat.lastMessage || "Cliquez pour lire les messages"}
+                                                </p>
+                                                {isUnread && <div className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0"></div>}
+                                            </div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="p-8 text-center text-slate-500 h-full flex flex-col justify-center items-center">
+                            <MessageSquareDashed className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                            <h3 className="font-semibold text-lg">Aucune conversation</h3>
+                        </div>
+                    )}
+                </ScrollArea>
+                <div className="p-2 border-t border-slate-800">
+                    <Button variant="ghost" className="w-full" onClick={() => setIsNewChatModalOpen(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nouvelle discussion
+                    </Button>
+                </div>
+            </div>
 
+            {/* Right Column: Active Chat */}
+            <div className="h-full">
+                {activeChatId ? <ChatRoom chatId={activeChatId} /> : (
+                    <div className="h-full flex flex-col items-center justify-center bg-slate-900 text-slate-500">
+                        <MessageSquareDashed className="h-16 w-16 mb-4" />
+                        <p>Sélectionnez une conversation pour commencer</p>
+                    </div>
+                )}
+            </div>
+             <Dialog open={isNewChatModalOpen} onOpenChange={setIsNewChatModalOpen}>
+              <DialogContent className="dark:bg-slate-900 dark:border-slate-800">
+                  <DialogHeader>
+                      <DialogTitle>Démarrer une nouvelle discussion</DialogTitle>
+                      <DialogDescription>Sélectionnez un étudiant pour commencer à discuter.</DialogDescription>
+                  </DialogHeader>
+                  <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input 
+                          placeholder="Rechercher un étudiant..." 
+                          className="pl-10 dark:bg-slate-800 dark:border-slate-700" 
+                          value={modalSearchTerm}
+                          onChange={e => setModalSearchTerm(e.target.value)}
+                      />
+                  </div>
+                  <ScrollArea className="h-72">
+                      <div className="space-y-1 pr-4">
+                          {filteredStudents.map(student => (
+                              <button key={student.uid} onClick={() => handleStartChat(student.uid)} disabled={isCreatingChat} className="w-full text-left flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 disabled:opacity-50">
+                                  <Avatar className="h-9 w-9">
+                                      <AvatarImage src={student.profilePictureURL} />
+                                      <AvatarFallback>{student.fullName.charAt(0)}</AvatarFallback>
+                                  </Avatar>
+                                  <span className="font-medium text-sm">{student.fullName}</span>
+                              </button>
+                          ))}
+                      </div>
+                  </ScrollArea>
+              </DialogContent>
+            </Dialog>
+        </div>
+    );
+  }
+
+  // On mobile, this component renders just the list
   return (
     <>
     <Card className="dark:bg-slate-900 dark:border-slate-800 flex flex-col h-full">
@@ -228,11 +361,6 @@ export default function MessagesPage() {
                                             <p className={cn("truncate text-sm dark:text-slate-200", isUnread ? "font-bold" : "font-semibold")}>
                                               {other?.fullName || "Utilisateur"}
                                             </p>
-                                            {chat.updatedAt && (
-                                                <span className="text-[11px] text-slate-400 whitespace-nowrap ml-2">
-                                                    {formatDistanceToNow(chat.updatedAt.toDate(), { addSuffix: true, locale: fr })}
-                                                </span>
-                                            )}
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <p className={cn("text-sm truncate leading-relaxed", isUnread ? "font-medium text-slate-300" : "text-slate-400")}>
@@ -287,7 +415,7 @@ export default function MessagesPage() {
         </DialogContent>
     </Dialog>
 
-    <Button onClick={() => setIsNewChatModalOpen(true)} className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center">
+    <Button onClick={() => setIsNewChatModalOpen(true)} className="fixed bottom-24 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center">
         <Plus className="h-8 w-8" />
         <span className="sr-only">Nouveau Message</span>
     </Button>
