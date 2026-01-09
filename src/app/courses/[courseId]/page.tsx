@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -19,11 +20,13 @@ import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { PdfViewerSkeleton } from '@/components/ui/PdfViewerClient';
+
 
 const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
 const PdfViewerClient = dynamic(() => import('@/components/ui/PdfViewerClient').then(mod => mod.PdfViewerClient), { 
     ssr: false,
-    loading: () => <Skeleton className="w-full h-full" />
+    loading: () => <PdfViewerSkeleton />
 });
 
 
@@ -332,11 +335,7 @@ export default function CoursePlayerPage() {
                 </div>
                  {isEbook ? (
                     <div className="flex-1 w-full bg-slate-900 rounded-lg overflow-hidden">
-                        {course.ebookUrl ? (
-                            <PdfViewerClient fileUrl={course.ebookUrl} />
-                        ) : (
-                            <div className="flex items-center justify-center h-full text-white">Ce livre n'est pas disponible.</div>
-                        )}
+                        <PdfViewerClient fileUrl={course.ebookUrl || ''} />
                     </div>
                 ) : (
                      <VideoPlayer videoUrl={activeLesson?.videoUrl} onEnded={handleLessonCompletion} />

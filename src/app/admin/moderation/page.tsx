@@ -20,10 +20,11 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { PdfViewerSkeleton } from '@/components/ui/PdfViewerClient';
 
 const PdfViewerClient = dynamic(() => import('@/components/ui/PdfViewerClient').then(mod => mod.PdfViewerClient), { 
     ssr: false,
-    loading: () => <Skeleton className="w-full h-full" />
+    loading: () => <PdfViewerSkeleton />
 });
 
 

@@ -1,10 +1,8 @@
+
 'use client';
 
-import dynamic from 'next/dynamic';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
 import { Skeleton } from './skeleton';
-
-const Worker = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Worker), { ssr: false });
-const Viewer = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Viewer), { ssr: false });
 
 export function PdfViewerClient({ fileUrl }: { fileUrl: string }) {
     if (!fileUrl) {
