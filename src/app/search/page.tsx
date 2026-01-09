@@ -69,7 +69,7 @@ export default function SearchPage() {
         if (debouncedSearchTerm) {
             const lowercasedTerm = debouncedSearchTerm.toLowerCase();
             q = query(q, 
-                orderBy('title_lowercase'), // Assuming a 'title_lowercase' field exists for search
+                orderBy('title'),
                 startAt(lowercasedTerm),
                 endAt(lowercasedTerm + '\uf8ff')
             );

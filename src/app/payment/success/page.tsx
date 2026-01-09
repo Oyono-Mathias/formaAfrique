@@ -76,7 +76,7 @@ export default function PaymentSuccessPage() {
                     
                     <Button asChild size="lg" className="w-full h-14 text-base font-bold bg-blue-600 hover:bg-blue-700 rounded-xl">
                         {courseId ? (
-                            <Link href={`/courses/${courseId}`}>Accéder à ma formation maintenant</Link>
+                            <Link href={`/courses/${courseId}`}>Commencer ma formation</Link>
                         ) : (
                              <Link href="/dashboard">Aller au tableau de bord</Link>
                         )}
@@ -93,4 +93,3 @@ export default function PaymentSuccessPage() {
         </div>
     );
 }
-

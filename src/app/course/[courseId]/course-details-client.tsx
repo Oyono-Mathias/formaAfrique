@@ -551,6 +551,9 @@ export default function CourseDetailsClient() {
             origin: typeof window !== 'undefined' ? window.location.origin : 'https://formaafrique-app.web.app',
             autoplay: 0
         }
+    },
+     attributes: {
+      playsInline: true,
     }
   };
 
@@ -663,8 +666,6 @@ export default function CourseDetailsClient() {
                                   height="100%" 
                                   playing={true} 
                                   controls={true} 
-                                  playsinline={true}
-                                  light={course.imageUrl || `https://picsum.photos/seed/${course.id}/800/450`}
                                   config={playerConfig}
                                 />
                            ) : (
