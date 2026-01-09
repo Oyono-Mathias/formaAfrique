@@ -86,16 +86,16 @@ const getStatusBadge = (status: 'valide' | 'en_attente' | 'rejete') => {
 
 
 const StatCard = ({ title, value, icon: Icon, isLoading }: { title: string, value: string, icon: React.ElementType, isLoading: boolean }) => (
-  <Card>
+  <Card className="dark:bg-slate-800 dark:border-slate-700">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      <CardTitle className="text-sm font-medium dark:text-slate-400">{title}</CardTitle>
       <Icon className="h-4 w-4 text-muted-foreground" />
     </CardHeader>
     <CardContent>
       {isLoading ? (
-        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-8 w-3/4 dark:bg-slate-700" />
       ) : (
-        <div className="text-2xl font-bold font-mono">{value}</div>
+        <div className="text-2xl font-bold font-mono dark:text-white">{value}</div>
       )}
     </CardContent>
   </Card>
@@ -264,20 +264,20 @@ export default function MyRevenuePage() {
   const chartConfig = { revenue: { label: 'Gains', color: 'hsl(var(--primary))' }};
 
   return (
-    <div className="space-y-8 text-foreground">
+    <div className="space-y-8 max-w-7xl mx-auto px-4">
       <header>
-        <h1 className="text-3xl font-bold">Mes Revenus</h1>
-        <p className="text-muted-foreground">Suivez vos gains et l'historique de vos transactions.</p>
+        <h1 className="text-3xl font-bold dark:text-white">Mes Revenus</h1>
+        <p className="text-muted-foreground dark:text-slate-400">Suivez vos gains et l'historique de vos transactions.</p>
       </header>
 
       <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="col-span-1 lg:col-span-2">
+        <Card className="col-span-1 lg:col-span-2 dark:bg-slate-800 dark:border-slate-700">
            <CardHeader>
-                <CardTitle className="text-sm font-medium">Solde Disponible</CardTitle>
+                <CardTitle className="text-sm font-medium dark:text-slate-400">Solde Disponible</CardTitle>
             </CardHeader>
             <CardContent>
-                {isLoading ? <Skeleton className="h-12 w-3/4" /> : (
-                  <p className="text-5xl font-bold font-mono tracking-tighter">{formatCurrency(availableBalance)}</p>
+                {isLoading ? <Skeleton className="h-12 w-3/4 dark:bg-slate-700" /> : (
+                  <p className="text-5xl font-bold font-mono tracking-tighter dark:text-white">{formatCurrency(availableBalance)}</p>
                 )}
             </CardContent>
             <CardFooter>
@@ -288,10 +288,10 @@ export default function MyRevenuePage() {
                             Demander un retrait
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-[425px] dark:bg-slate-900 dark:border-slate-700">
                         <DialogHeader>
-                            <DialogTitle>Demande de Retrait</DialogTitle>
-                            <DialogDescription>
+                            <DialogTitle className="dark:text-white">Demande de Retrait</DialogTitle>
+                            <DialogDescription className="dark:text-slate-400">
                                 Le montant minimum est de {formatCurrency(WITHDRAWAL_THRESHOLD)}. Votre solde est de <strong className="font-mono">{formatCurrency(availableBalance)}</strong>.
                             </DialogDescription>
                         </DialogHeader>
@@ -299,17 +299,17 @@ export default function MyRevenuePage() {
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
                                 <FormField control={form.control} name="amount" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Montant du retrait</FormLabel>
-                                        <FormControl><Input type="number" placeholder="5000" {...field} /></FormControl>
+                                        <FormLabel className="dark:text-slate-300">Montant du retrait</FormLabel>
+                                        <FormControl><Input type="number" placeholder="5000" {...field} className="dark:bg-slate-800 dark:border-slate-700" /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name="method" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Méthode de paiement</FormLabel>
+                                        <FormLabel className="dark:text-slate-300">Méthode de paiement</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Sélectionnez une méthode" /></SelectTrigger></FormControl>
-                                            <SelectContent>
+                                            <FormControl><SelectTrigger className="dark:bg-slate-800 dark:border-slate-700"><SelectValue placeholder="Sélectionnez une méthode" /></SelectTrigger></FormControl>
+                                            <SelectContent className="dark:bg-slate-900 dark:border-slate-700">
                                                 <SelectItem value="Mobile Money">Mobile Money (Orange, Moov)</SelectItem>
                                                 <SelectItem value="Virement">Virement bancaire</SelectItem>
                                             </SelectContent>
@@ -341,17 +341,17 @@ export default function MyRevenuePage() {
       )}
       
        <section>
-          <h2 className="text-2xl font-semibold mb-4">Gains par mois (votre part)</h2>
-           <Card>
+          <h2 className="text-2xl font-semibold mb-4 dark:text-white">Gains par mois (votre part)</h2>
+           <Card className="dark:bg-slate-800 dark:border-slate-700">
                 <CardContent className="pt-6">
-                    {isLoading ? <Skeleton className="h-80 w-full" /> : (
+                    {isLoading ? <Skeleton className="h-80 w-full dark:bg-slate-700" /> : (
                         <ChartContainer config={chartConfig} className="h-80 w-full">
                             <ResponsiveContainer>
                                 <BarChart data={revenueTrendData}>
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="dark:stroke-slate-700" />
                                     <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} stroke="hsl(var(--muted-foreground))" fontSize={12} />
                                     <YAxis tickFormatter={(value) => `${Number(value) / 1000}k`} stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                                    <Tooltip content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)}/>} />
+                                    <Tooltip content={<ChartTooltipContent formatter={(value) => formatCurrency(value as number)}/>} className="dark:bg-slate-900 dark:border-slate-700" />
                                     <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={8} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -363,94 +363,129 @@ export default function MyRevenuePage() {
 
       <div className="grid lg:grid-cols-2 gap-8">
         <section>
-          <h2 className="text-2xl font-semibold mb-4">Historique des transactions</h2>
-          <Card className="bg-card">
+          <h2 className="text-2xl font-semibold mb-4 dark:text-white">Historique des transactions</h2>
+          <Card className="dark:bg-slate-800 dark:border-slate-700">
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Détails</TableHead>
-                    <TableHead className="text-right">Montant</TableHead>
-                    <TableHead className="text-right">Votre Part (70%)</TableHead>
-                    <TableHead className="text-right">Commission (30%)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    [...Array(3)].map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                        <TableCell className="text-right"><Skeleton className="h-5 w-20" /></TableCell>
-                        <TableCell className="text-right"><Skeleton className="h-5 w-20" /></TableCell>
-                        <TableCell className="text-right"><Skeleton className="h-5 w-20" /></TableCell>
+              <div className="hidden sm:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="dark:border-slate-700 dark:hover:bg-slate-700/50">
+                        <TableHead className="dark:text-slate-400">Date</TableHead>
+                        <TableHead className="dark:text-slate-400">Détails</TableHead>
+                        <TableHead className="text-right dark:text-slate-400">Votre Part (70%)</TableHead>
                       </TableRow>
-                    ))
-                  ) : transactions.length > 0 ? (
-                    transactions.map((tx) => (
-                      <TableRow key={tx.id}>
-                        <TableCell className="text-muted-foreground">{tx.date ? format(tx.date.toDate(), 'dd/MM/yy', { locale: fr }) : 'N/A'}</TableCell>
-                        <TableCell className="font-medium max-w-xs truncate">{tx.courseTitle}</TableCell>
-                        <TableCell className="text-right font-mono">{formatCurrency(tx.amount)}</TableCell>
-                        <TableCell className="text-right font-mono font-semibold text-green-600">{formatCurrency(tx.amount * 0.7)}</TableCell>
-                        <TableCell className="text-right font-mono text-red-600">{formatCurrency(tx.amount * 0.3)}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                        Aucune transaction trouvée.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {isLoading ? (
+                        [...Array(3)].map((_, i) => (
+                          <TableRow key={i} className="dark:border-slate-700">
+                            <TableCell><Skeleton className="h-5 w-24 dark:bg-slate-700" /></TableCell>
+                            <TableCell><Skeleton className="h-5 w-40 dark:bg-slate-700" /></TableCell>
+                            <TableCell className="text-right"><Skeleton className="h-5 w-20 dark:bg-slate-700" /></TableCell>
+                          </TableRow>
+                        ))
+                      ) : transactions.length > 0 ? (
+                        transactions.map((tx) => (
+                          <TableRow key={tx.id} className="dark:border-slate-700 dark:hover:bg-slate-700/50">
+                            <TableCell className="text-muted-foreground dark:text-slate-400">{tx.date ? format(tx.date.toDate(), 'dd/MM/yy', { locale: fr }) : 'N/A'}</TableCell>
+                            <TableCell className="font-medium max-w-xs truncate dark:text-slate-100">{tx.courseTitle}</TableCell>
+                            <TableCell className="text-right font-mono font-semibold text-green-600 dark:text-green-400">{formatCurrency(tx.amount * 0.7)}</TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow className="dark:border-slate-700">
+                          <TableCell colSpan={3} className="h-24 text-center text-muted-foreground dark:text-slate-400">
+                            Aucune transaction trouvée.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+              </div>
+              <div className="sm:hidden p-4 space-y-4">
+                 {isLoading ? (
+                    [...Array(3)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-lg dark:bg-slate-700" />)
+                 ) : transactions.length > 0 ? (
+                     transactions.map(tx => (
+                        <Card key={tx.id} className="p-3 dark:bg-slate-900/50 dark:border-slate-700">
+                            <div className="flex justify-between items-start">
+                                <p className="font-semibold text-sm dark:text-white">{tx.courseTitle}</p>
+                                <p className="font-bold font-mono text-green-600 dark:text-green-400">{formatCurrency(tx.amount * 0.7)}</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1 dark:text-slate-400">Le {tx.date ? format(tx.date.toDate(), 'dd MMM yyyy', { locale: fr }) : 'N/A'}</p>
+                        </Card>
+                     ))
+                 ) : (
+                    <div className="h-24 text-center flex items-center justify-center text-muted-foreground dark:text-slate-400">Aucune transaction.</div>
+                 )}
+              </div>
             </CardContent>
           </Card>
         </section>
 
         <section>
-            <h2 className="text-2xl font-semibold mb-4">Historique des retraits</h2>
-            <Card className="bg-card">
+            <h2 className="text-2xl font-semibold mb-4 dark:text-white">Historique des retraits</h2>
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
             <CardContent className="p-0">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Méthode</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead className="text-right">Montant</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {isLoading ? (
-                    [...Array(3)].map((_, i) => (
-                        <TableRow key={i}>
-                        <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-5 w-28" /></TableCell>
-                        <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
-                        <TableCell className="text-right"><Skeleton className="h-5 w-20" /></TableCell>
-                        </TableRow>
-                    ))
-                    ) : payouts.length > 0 ? (
-                    payouts.map((payout) => (
-                        <TableRow key={payout.id}>
-                        <TableCell className="text-muted-foreground">{payout.date ? format(payout.date.toDate(), 'dd/MM/yy', { locale: fr }) : 'N/A'}</TableCell>
-                        <TableCell>{payout.method}</TableCell>
-                        <TableCell>{getStatusBadge(payout.status)}</TableCell>
-                        <TableCell className="text-right font-semibold font-mono">{formatCurrency(payout.amount)}</TableCell>
-                        </TableRow>
-                    ))
-                    ) : (
-                    <TableRow>
-                        <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                        Aucune demande de retrait.
-                        </TableCell>
-                    </TableRow>
-                    )}
-                </TableBody>
-                </Table>
+                <div className="hidden sm:block">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="dark:border-slate-700 dark:hover:bg-slate-700/50">
+                                <TableHead className="dark:text-slate-400">Date</TableHead>
+                                <TableHead className="dark:text-slate-400">Méthode</TableHead>
+                                <TableHead className="dark:text-slate-400">Statut</TableHead>
+                                <TableHead className="text-right dark:text-slate-400">Montant</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                            [...Array(3)].map((_, i) => (
+                                <TableRow key={i} className="dark:border-slate-700">
+                                <TableCell><Skeleton className="h-5 w-24 dark:bg-slate-700" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-28 dark:bg-slate-700" /></TableCell>
+                                <TableCell><Skeleton className="h-6 w-20 rounded-full dark:bg-slate-700" /></TableCell>
+                                <TableCell className="text-right"><Skeleton className="h-5 w-20 dark:bg-slate-700" /></TableCell>
+                                </TableRow>
+                            ))
+                            ) : payouts.length > 0 ? (
+                            payouts.map((payout) => (
+                                <TableRow key={payout.id} className="dark:border-slate-700 dark:hover:bg-slate-700/50">
+                                <TableCell className="text-muted-foreground dark:text-slate-400">{payout.date ? format(payout.date.toDate(), 'dd/MM/yy', { locale: fr }) : 'N/A'}</TableCell>
+                                <TableCell className="dark:text-slate-200">{payout.method}</TableCell>
+                                <TableCell>{getStatusBadge(payout.status)}</TableCell>
+                                <TableCell className="text-right font-semibold font-mono dark:text-white">{formatCurrency(payout.amount)}</TableCell>
+                                </TableRow>
+                            ))
+                            ) : (
+                            <TableRow className="dark:border-slate-700">
+                                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground dark:text-slate-400">
+                                Aucune demande de retrait.
+                                </TableCell>
+                            </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                 <div className="sm:hidden p-4 space-y-4">
+                     {isLoading ? (
+                        [...Array(3)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-lg dark:bg-slate-700" />)
+                     ) : payouts.length > 0 ? (
+                         payouts.map(payout => (
+                            <Card key={payout.id} className="p-3 dark:bg-slate-900/50 dark:border-slate-700">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-2">
+                                        {getStatusBadge(payout.status)}
+                                        <p className="font-semibold text-sm dark:text-white">{payout.method}</p>
+                                    </div>
+                                    <p className="font-bold font-mono dark:text-white">{formatCurrency(payout.amount)}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1 dark:text-slate-400">Le {payout.date ? format(payout.date.toDate(), 'dd MMM yyyy', { locale: fr }) : 'N/A'}</p>
+                            </Card>
+                         ))
+                     ) : (
+                        <div className="h-24 text-center flex items-center justify-center text-muted-foreground dark:text-slate-400">Aucun retrait.</div>
+                     )}
+                </div>
             </CardContent>
             </Card>
         </section>

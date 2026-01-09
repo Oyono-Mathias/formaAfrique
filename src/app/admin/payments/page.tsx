@@ -71,13 +71,13 @@ interface Payout {
 
 // --- HELPER COMPONENTS ---
 const StatCard = ({ title, value, icon: Icon, isLoading }: { title: string; value: string; icon: React.ElementType; isLoading?: boolean; }) => (
-  <Card className="shadow-sm border-slate-200 bg-white">
+  <Card className="shadow-sm border-slate-200 dark:bg-slate-800 dark:border-slate-700">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium text-slate-500">{title}</CardTitle>
+      <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</CardTitle>
       <Icon className="h-4 w-4 text-slate-400" />
     </CardHeader>
     <CardContent>
-      {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold text-slate-900">{value}</div>}
+      {isLoading ? <Skeleton className="h-8 w-3/4 dark:bg-slate-700" /> : <div className="text-2xl font-bold text-slate-900 dark:text-white">{value}</div>}
     </CardContent>
   </Card>
 );
@@ -245,10 +245,10 @@ export default function AdminPaymentsPage() {
     const hasError = paymentsError || payoutsError;
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 max-w-7xl mx-auto px-4">
             <header>
-                <h1 className="text-3xl font-bold">Gestion des Finances</h1>
-                <p className="text-muted-foreground">Suivez les revenus, les transactions et gérez les retraits.</p>
+                <h1 className="text-3xl font-bold dark:text-white">Gestion des Finances</h1>
+                <p className="text-muted-foreground dark:text-slate-400">Suivez les revenus, les transactions et gérez les retraits.</p>
             </header>
             
             <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -268,24 +268,24 @@ export default function AdminPaymentsPage() {
             {/* Payouts Section */}
             {pendingPayouts && pendingPayouts.length > 0 && (
                 <section>
-                    <h2 className="text-2xl font-semibold mb-4">Demandes de retrait</h2>
-                    <Card className="bg-amber-50 border-amber-200">
+                    <h2 className="text-2xl font-semibold mb-4 dark:text-white">Demandes de retrait</h2>
+                    <Card className="bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-700/50">
                         <CardContent className="pt-6">
                             <Table>
                                 <TableHeader>
-                                     <TableRow className="hover:bg-amber-100/50 border-amber-200">
-                                        <TableHead>Instructeur</TableHead>
-                                        <TableHead>Montant</TableHead>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead className="text-right">Action</TableHead>
+                                     <TableRow className="hover:bg-amber-100/50 dark:hover:bg-amber-900/30 border-amber-200 dark:border-amber-700/50">
+                                        <TableHead className="dark:text-amber-200">Instructeur</TableHead>
+                                        <TableHead className="dark:text-amber-200">Montant</TableHead>
+                                        <TableHead className="dark:text-amber-200">Date</TableHead>
+                                        <TableHead className="text-right dark:text-amber-200">Action</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {populatedData.payouts.map((payout) => (
-                                        <TableRow key={payout.id} className="hover:bg-amber-100/50 border-amber-200">
-                                            <TableCell className="font-medium">{payout.instructorName}</TableCell>
-                                            <TableCell className="font-bold">{payout.amount.toLocaleString('fr-FR')} XOF</TableCell>
-                                            <TableCell>{format(payout.date.toDate(), 'dd MMM yyyy', { locale: fr })}</TableCell>
+                                        <TableRow key={payout.id} className="hover:bg-amber-100/50 dark:hover:bg-amber-900/30 border-amber-200 dark:border-amber-700/50">
+                                            <TableCell className="font-medium dark:text-slate-100">{payout.instructorName}</TableCell>
+                                            <TableCell className="font-bold dark:text-white">{payout.amount.toLocaleString('fr-FR')} XOF</TableCell>
+                                            <TableCell className="dark:text-slate-300">{format(payout.date.toDate(), 'dd MMM yyyy', { locale: fr })}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button size="sm" onClick={() => handleValidatePayout(payout.id)}>Valider le paiement</Button>
                                             </TableCell>
@@ -301,59 +301,59 @@ export default function AdminPaymentsPage() {
             {/* Transactions Section */}
             <section>
                  <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
-                    <h2 className="text-2xl font-semibold">Toutes les transactions</h2>
+                    <h2 className="text-2xl font-semibold dark:text-white">Toutes les transactions</h2>
                     <div className="flex w-full md:w-auto items-center gap-2">
                         <div className="relative flex-1 md:flex-none">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                            <Input placeholder="Rechercher..." className="pl-9" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                            <Input placeholder="Rechercher..." className="pl-9 dark:bg-slate-800 dark:border-slate-700" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                         </div>
-                        <Button variant="outline" onClick={handleExport}><Download className="mr-2 h-4 w-4"/> Exporter en CSV</Button>
+                        <Button variant="outline" onClick={handleExport} className="dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700"><Download className="mr-2 h-4 w-4"/> Exporter en CSV</Button>
                     </div>
                 </div>
-                <Card>
+                <Card className="dark:bg-slate-800 dark:border-slate-700">
                     <CardContent className="pt-6">
                        <div className="hidden md:block">
                          <Table>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead>Utilisateur</TableHead>
-                                    <TableHead>Formation</TableHead>
-                                    <TableHead>Montant</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Statut</TableHead>
+                                <TableRow className="dark:border-slate-700 dark:hover:bg-slate-700/50">
+                                    <TableHead className="dark:text-slate-400">Utilisateur</TableHead>
+                                    <TableHead className="dark:text-slate-400">Formation</TableHead>
+                                    <TableHead className="dark:text-slate-400">Montant</TableHead>
+                                    <TableHead className="dark:text-slate-400">Date</TableHead>
+                                    <TableHead className="dark:text-slate-400">Statut</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     [...Array(5)].map((_, i) => (
-                                        <TableRow key={i}>
-                                            <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                                            <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                                            <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                                            <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                                            <TableCell><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
+                                        <TableRow key={i} className="dark:border-slate-700">
+                                            <TableCell><Skeleton className="h-5 w-32 dark:bg-slate-700" /></TableCell>
+                                            <TableCell><Skeleton className="h-5 w-40 dark:bg-slate-700" /></TableCell>
+                                            <TableCell><Skeleton className="h-5 w-20 dark:bg-slate-700" /></TableCell>
+                                            <TableCell><Skeleton className="h-5 w-24 dark:bg-slate-700" /></TableCell>
+                                            <TableCell><Skeleton className="h-6 w-24 rounded-full dark:bg-slate-700" /></TableCell>
                                         </TableRow>
                                     ))
                                 ) : filteredPayments.length > 0 ? (
                                     filteredPayments.map(payment => (
-                                        <TableRow key={payment.id}>
+                                        <TableRow key={payment.id} className="dark:border-slate-700 dark:hover:bg-slate-700/50">
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="h-8 w-8">
                                                         <AvatarImage src={payment.userAvatar} />
                                                         <AvatarFallback>{payment.userName?.charAt(0)}</AvatarFallback>
                                                     </Avatar>
-                                                    <span className="font-medium">{payment.userName}</span>
+                                                    <span className="font-medium dark:text-slate-100">{payment.userName}</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-slate-600">{payment.courseTitle}</TableCell>
-                                            <TableCell className="font-semibold text-slate-800">{payment.amount.toLocaleString('fr-FR')} {payment.currency}</TableCell>
-                                            <TableCell>{format(payment.date.toDate(), 'dd MMM yyyy, HH:mm', { locale: fr })}</TableCell>
+                                            <TableCell className="text-slate-600 dark:text-slate-300">{payment.courseTitle}</TableCell>
+                                            <TableCell className="font-semibold text-slate-800 dark:text-white">{payment.amount.toLocaleString('fr-FR')} {payment.currency}</TableCell>
+                                            <TableCell className="dark:text-slate-400">{format(payment.date.toDate(), 'dd MMM yyyy, HH:mm', { locale: fr })}</TableCell>
                                             <TableCell>{getStatusBadge(payment.status)}</TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
-                                    <TableRow><TableCell colSpan={5} className="h-24 text-center">Aucune transaction trouvée.</TableCell></TableRow>
+                                    <TableRow className="dark:border-slate-700"><TableCell colSpan={5} className="h-24 text-center dark:text-slate-400">Aucune transaction trouvée.</TableCell></TableRow>
                                 )}
                             </TableBody>
                         </Table>
@@ -361,15 +361,15 @@ export default function AdminPaymentsPage() {
                        {/* Mobile View */}
                        <div className="md:hidden space-y-4">
                            {isLoading ? (
-                                [...Array(5)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-lg" />)
+                                [...Array(5)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-lg dark:bg-slate-700" />)
                            ) : filteredPayments.length > 0 ? (
                                 filteredPayments.map(payment => (
-                                    <Card key={payment.id} className="p-4">
+                                    <Card key={payment.id} className="p-4 dark:bg-slate-800/50 dark:border-slate-700">
                                         <div className="flex items-center justify-between">
-                                            <p className="font-bold text-slate-800">{payment.courseTitle}</p>
-                                            <p className="font-bold text-slate-900">{payment.amount.toLocaleString('fr-FR')} {payment.currency}</p>
+                                            <p className="font-bold text-slate-800 dark:text-white">{payment.courseTitle}</p>
+                                            <p className="font-bold text-slate-900 dark:text-white">{payment.amount.toLocaleString('fr-FR')} {payment.currency}</p>
                                         </div>
-                                        <div className="flex items-center justify-between mt-2 text-sm text-slate-500">
+                                        <div className="flex items-center justify-between mt-2 text-sm text-slate-500 dark:text-slate-400">
                                             <p>{payment.userName}</p>
                                             <p>{format(payment.date.toDate(), 'dd/MM/yy', { locale: fr })}</p>
                                         </div>
@@ -377,7 +377,7 @@ export default function AdminPaymentsPage() {
                                     </Card>
                                 ))
                            ) : (
-                                <div className="h-24 text-center flex items-center justify-center text-slate-500">Aucune transaction.</div>
+                                <div className="h-24 text-center flex items-center justify-center text-slate-500 dark:text-slate-400">Aucune transaction.</div>
                            )}
                        </div>
                     </CardContent>
@@ -386,3 +386,5 @@ export default function AdminPaymentsPage() {
         </div>
     );
 }
+
+    

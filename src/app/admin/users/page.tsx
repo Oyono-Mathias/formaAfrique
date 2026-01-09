@@ -285,23 +285,23 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4">
       <header>
-        <h1 className="text-3xl font-bold">Gestion des Utilisateurs</h1>
-        <p className="text-muted-foreground">Recherchez, consultez et gérez tous les utilisateurs de la plateforme.</p>
+        <h1 className="text-3xl font-bold dark:text-white">Gestion des Utilisateurs</h1>
+        <p className="text-muted-foreground dark:text-slate-400">Recherchez, consultez et gérez tous les utilisateurs de la plateforme.</p>
       </header>
 
-      <Card>
+      <Card className="dark:bg-slate-800 dark:border-slate-700">
         <CardHeader>
-          <CardTitle>Utilisateurs de FormaAfrique</CardTitle>
-          <CardDescription>
+          <CardTitle className="dark:text-white">Utilisateurs de FormaAfrique</CardTitle>
+          <CardDescription className="dark:text-slate-400">
             Liste de tous les utilisateurs enregistrés.
           </CardDescription>
           <div className="relative pt-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher par nom ou email..."
-              className="max-w-sm pl-10"
+              className="max-w-sm pl-10 dark:bg-slate-700 dark:border-slate-600"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -311,33 +311,33 @@ export default function AdminUsersPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead className="hidden md:table-cell">Email</TableHead>
-                  <TableHead className="hidden lg:table-cell">Rôle</TableHead>
-                  <TableHead className="hidden sm:table-cell">Statut</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="dark:hover:bg-slate-700/50 dark:border-slate-700">
+                  <TableHead className="dark:text-slate-400">Nom</TableHead>
+                  <TableHead className="hidden md:table-cell dark:text-slate-400">Email</TableHead>
+                  <TableHead className="hidden lg:table-cell dark:text-slate-400">Rôle</TableHead>
+                  <TableHead className="hidden sm:table-cell dark:text-slate-400">Statut</TableHead>
+                  <TableHead className="text-right dark:text-slate-400">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   [...Array(5)].map((_, i) => (
-                    <TableRow key={i}>
+                    <TableRow key={i} className="dark:border-slate-700">
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <Skeleton className="h-10 w-10 rounded-full" />
-                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-10 rounded-full dark:bg-slate-700" />
+                          <Skeleton className="h-4 w-32 dark:bg-slate-700" />
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
-                      <TableCell className="hidden lg:table-cell"><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
-                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
-                      <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                      <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-48 dark:bg-slate-700" /></TableCell>
+                      <TableCell className="hidden lg:table-cell"><Skeleton className="h-6 w-24 rounded-full dark:bg-slate-700" /></TableCell>
+                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-6 w-20 rounded-full dark:bg-slate-700" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto dark:bg-slate-700" /></TableCell>
                     </TableRow>
                   ))
                 ) : filteredUsers.length > 0 ? (
                   filteredUsers.map((user) => (
-                    <TableRow key={user.uid}>
+                    <TableRow key={user.uid} className="dark:hover:bg-slate-700/50 dark:border-slate-700">
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar>
@@ -345,7 +345,7 @@ export default function AdminUsersPage() {
                             <AvatarFallback>{user.fullName?.charAt(0) || 'U'}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <span className="font-medium">{user.fullName}</span>
+                            <span className="font-medium dark:text-slate-100">{user.fullName}</span>
                             <div className="sm:hidden mt-1">
                                 <Badge variant={getStatusBadgeVariant(user.status)} className={cn('text-xs', user.status !== 'suspended' && 'bg-green-100 text-green-800')}>
                                     {user.status === 'suspended' ? 'Suspendu' : 'Actif'}
@@ -354,7 +354,7 @@ export default function AdminUsersPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground hidden md:table-cell">{user.email}</TableCell>
+                      <TableCell className="text-muted-foreground hidden md:table-cell dark:text-slate-400">{user.email}</TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <Badge variant={getRoleBadgeVariant(user.role)} className="capitalize">
                           {user.role}
@@ -371,9 +371,9 @@ export default function AdminUsersPage() {
                     </TableRow>
                   ))
                 ) : (
-                  <TableRow>
+                  <TableRow className="dark:border-slate-700">
                     <TableCell colSpan={5} className="h-48 text-center">
-                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground dark:text-slate-400">
                           <UserX className="h-12 w-12" />
                           <p className="font-medium">Aucun utilisateur trouvé</p>
                           <p className="text-sm">
@@ -394,3 +394,5 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+
+    
