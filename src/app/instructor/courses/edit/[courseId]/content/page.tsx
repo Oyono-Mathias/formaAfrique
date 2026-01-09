@@ -47,14 +47,27 @@ const VideoPlayer = ({ videoUrl }: { videoUrl?: string }) => {
     }
     
     return (
-       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden video-wrapper shadow-2xl">
+       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden video-wrapper shadow-2xl relative z-10">
          <ReactPlayer
+            key={cleanedUrl}
             url={cleanedUrl}
             width="100%"
             height="100%"
             controls={true}
             playing={true}
+            playsinline={true}
             onError={() => setError(true)}
+            config={{
+                youtube: {
+                    playerVars: { 
+                        origin: typeof window !== 'undefined' ? window.location.origin : 'https://formaafrique-app.web.app',
+                        autoplay: 0,
+                    }
+                },
+                attributes: {
+                    playsInline: true,
+                }
+            }}
          />
          {error && (
             <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white p-4">

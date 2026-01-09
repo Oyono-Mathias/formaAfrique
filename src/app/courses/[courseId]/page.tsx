@@ -37,7 +37,7 @@ const VideoPlayer = ({ videoUrl, onEnded }: { videoUrl?: string; onEnded?: () =>
     }
 
     return (
-       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden video-wrapper shadow-2xl min-h-[200px]">
+       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden video-wrapper shadow-2xl min-h-[200px] relative z-10">
          <ReactPlayer 
             key={videoUrl}
             url={videoUrl} 
@@ -46,12 +46,16 @@ const VideoPlayer = ({ videoUrl, onEnded }: { videoUrl?: string; onEnded?: () =>
             height="100%" 
             controls 
             playing
-            playsinline
+            playsinline={true}
             config={{
                 youtube: {
                     playerVars: { 
-                        origin: typeof window !== 'undefined' ? window.location.origin : 'https://formaafrique-app.web.app'
+                        origin: typeof window !== 'undefined' ? window.location.origin : 'https://formaafrique-app.web.app',
+                        autoplay: 0,
                     }
+                },
+                attributes: {
+                    playsInline: true,
                 }
             }}
           />
@@ -165,7 +169,7 @@ const CourseContentTabs = ({ courseId }: { courseId: string }) => {
                  {isLoading ? <Skeleton className="h-20 w-full"/> : (
                     resources && resources.length > 0 ? (
                         <ul className="space-y-2">
-                            {resources.map(res => (
+                            {resources.map((res: any) => (
                                 <li key={res.id}>
                                     <a href={res.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-100 border">
                                         <FileText className="h-4 w-4 text-primary" />

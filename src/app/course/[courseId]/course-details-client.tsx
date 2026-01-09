@@ -311,7 +311,7 @@ const QASection = ({ courseId, instructorId }: { courseId: string, instructorId:
       courseId: courseId,
       subject: newQuestion.trim(),
       lastMessage: newQuestion.trim(),
-      status: 'open',
+      status: 'open' as 'open' | 'closed',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
@@ -350,7 +350,7 @@ const QASection = ({ courseId, instructorId }: { courseId: string, instructorId:
           <Skeleton className="h-20 w-full" />
         ) : tickets && tickets.length > 0 ? (
           <div className="space-y-3">
-            {tickets.map((ticket) => (
+            {tickets.map((ticket: any) => (
               <Link key={ticket.id} href={`/questions-reponses/${ticket.id}`} className="block p-4 border dark:border-slate-700 rounded-2xl hover:bg-muted/50 dark:hover:bg-slate-800/50">
                   <p className="font-semibold dark:text-white">{ticket.subject}</p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -548,7 +548,8 @@ export default function CourseDetailsClient() {
   const playerConfig = {
     youtube: {
         playerVars: { 
-            origin: typeof window !== 'undefined' ? window.location.origin : 'https://formaafrique-app.web.app'
+            origin: typeof window !== 'undefined' ? window.location.origin : 'https://formaafrique-app.web.app',
+            autoplay: 0
         }
     }
   };
@@ -653,7 +654,7 @@ export default function CourseDetailsClient() {
               <aside className="hidden lg:block mt-8 lg:mt-0">
                   <div className="sticky top-24">
                     <Card className="shadow-xl rounded-3xl dark:bg-[#1e293b] dark:border-slate-700">
-                         <div className="relative group aspect-video w-full bg-black rounded-t-3xl overflow-hidden min-h-[200px]">
+                         <div className="relative group aspect-video w-full bg-black rounded-t-3xl overflow-hidden min-h-[200px] z-10">
                            {activeLesson?.videoUrl ? (
                                <ReactPlayer
                                   key={activeLesson.videoUrl} 
@@ -721,15 +722,17 @@ export default function CourseDetailsClient() {
               </aside>
               
                {/* Sticky footer for mobile */}
-              <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-4 border-t border-slate-200 dark:border-slate-700 z-50">
-                  <div className="flex justify-between items-center">
-                    <p className="font-bold text-xl dark:text-white">{isFree ? 'Gratuit' : `${course.price.toLocaleString('fr-FR')} XOF`}</p>
-                    <Button className={cn("w-auto", isEnrolled && "bg-green-600 hover:bg-green-700")} size="lg" onClick={handleMainAction} disabled={isEnrolling}>
-                        {isEnrolling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {getButtonText()}
-                    </Button>
-                  </div>
-              </div>
+              {!isEnrolled && (
+                <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-4 border-t border-slate-200 dark:border-slate-700 z-50">
+                    <div className="flex justify-between items-center">
+                        <p className="font-bold text-xl dark:text-white">{isFree ? 'Gratuit' : `${course.price.toLocaleString('fr-FR')} XOF`}</p>
+                        <Button className="w-auto" size="lg" onClick={handleMainAction} disabled={isEnrolling}>
+                            {isEnrolling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {getButtonText()}
+                        </Button>
+                    </div>
+                </div>
+              )}
           </div>
         </div>
       </div>
