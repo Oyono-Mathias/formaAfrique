@@ -2,18 +2,19 @@
 import type { Metadata } from "next";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 import { RoleProvider } from "@/context/RoleContext";
-import { I18nProvider } from "@/context/I18nProvider"; // Import I18nProvider
+import { I18nProvider } from "@/context/I18nProvider"; 
 import { AppShell } from "@/components/layout/app-shell";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Inter as FontSans } from "next/font/google"
+import { getAuth } from "firebase/auth";
+import { initializeFirebase } from "@/firebase";
 
 export const metadata: Metadata = {
-  title: "FormaAfrique | Formations Gratuites et Certifiantes au Cameroun",
-  description: "La plateforme n°1 pour apprendre un métier. Accédez à nos formations gratuites et premium. Payez facilement par Orange Money, MTN et Wave.",
-  keywords: ['formation gratuite', 'apprendre en ligne Afrique', 'e-commerce Cameroun', 'cours certifiants'],
+  title: "FormaAfrique | Formations en ligne pour le marché Africain",
+  description: "Apprenez des compétences d'avenir avec des cours conçus par des experts locaux. Payez facilement par Orange Money et MTN MoMo.",
+  keywords: ['formation en ligne', 'e-learning afrique', 'compétences numériques', 'cours en français', 'udemy afrique'],
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 };
 
