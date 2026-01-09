@@ -184,7 +184,7 @@
 
 .dark .chat-bubble-received {
     background-color: hsl(var(--muted)); 
-    color: hsl(var(--muted-foreground));
+    color: hsl(var(--foreground));
 }
 .dark .chat-bubble-received::after {
      border-color: transparent transparent hsl(var(--muted)) transparent;

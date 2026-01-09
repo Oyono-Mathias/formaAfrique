@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -172,13 +172,16 @@ export default function MessagesPage() {
     }
   };
 
-  const filteredChatList = chatList.filter(chat => {
+  const filteredChatList = useMemo(() => chatList.filter(chat => {
     const otherId = chat.participants.find(p => p !== user?.uid);
     const other = otherId ? chat.participantDetails[otherId] : null;
     return other?.fullName?.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  }), [chatList, user, searchTerm]);
+
   
-  const filteredStudents = allStudents.filter(student => student.fullName.toLowerCase().includes(modalSearchTerm.toLowerCase()));
+  const filteredStudents = useMemo(() => allStudents.filter(student => 
+      student.fullName.toLowerCase().includes(modalSearchTerm.toLowerCase())
+  ), [allStudents, modalSearchTerm]);
 
   if (isLoading) {
     return (
