@@ -21,8 +21,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
-const Worker = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Worker), { ssr: false });
-const Viewer = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Viewer), { ssr: false });
+const PdfViewerClient = dynamic(() => import('@/components/ui/PdfViewerClient').then(mod => mod.PdfViewerClient), { 
+    ssr: false,
+    loading: () => <Skeleton className="w-full h-full" />
+});
 
 
 const InstructorRequestCard = ({ user, onApprove, onReject }: { user: FormaAfriqueUser & { instructorApplication?: any }, onApprove: (id: string) => void, onReject: (id: string) => void }) => {
@@ -88,11 +90,9 @@ const InstructorRequestCard = ({ user, onApprove, onReject }: { user: FormaAfriq
                     </DialogHeader>
                     <div className="flex-1 p-4 bg-muted dark:bg-slate-800 rounded-lg">
                         {docUrl && (docUrl.toLowerCase().includes('.pdf') ? (
-                           <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
-                               <div className="h-full w-full">
-                                <Viewer fileUrl={docUrl} />
-                               </div>
-                           </Worker>
+                           <div className="h-full w-full">
+                             <PdfViewerClient fileUrl={docUrl} />
+                           </div>
                         ) : (
                             <Image src={docUrl} alt="Justificatif" layout="fill" objectFit="contain" />
                         ))}

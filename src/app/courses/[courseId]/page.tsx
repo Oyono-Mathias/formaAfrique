@@ -21,8 +21,10 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
-const Worker = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Worker), { ssr: false });
-const Viewer = dynamic(() => import('@react-pdf-viewer/core').then(mod => mod.Viewer), { ssr: false });
+const PdfViewerClient = dynamic(() => import('@/components/ui/PdfViewerClient').then(mod => mod.PdfViewerClient), { 
+    ssr: false,
+    loading: () => <Skeleton className="w-full h-full" />
+});
 
 
 const VideoPlayer = ({ videoUrl, onEnded }: { videoUrl?: string; onEnded?: () => void }) => {
@@ -330,13 +332,11 @@ export default function CoursePlayerPage() {
                 </div>
                  {isEbook ? (
                     <div className="flex-1 w-full bg-slate-900 rounded-lg overflow-hidden">
-                       <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
-                           {course.ebookUrl ? (
-                                <Viewer fileUrl={course.ebookUrl} />
-                           ) : (
-                                <div className="flex items-center justify-center h-full text-white">Ce livre n'est pas disponible.</div>
-                           )}
-                       </Worker>
+                        {course.ebookUrl ? (
+                            <PdfViewerClient fileUrl={course.ebookUrl} />
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-white">Ce livre n'est pas disponible.</div>
+                        )}
                     </div>
                 ) : (
                      <VideoPlayer videoUrl={activeLesson?.videoUrl} onEnded={handleLessonCompletion} />
