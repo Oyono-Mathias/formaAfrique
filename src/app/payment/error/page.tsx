@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useRouter, useSearchParams, Suspense } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { XCircle } from 'lucide-react';
 import Link from 'next/link';
