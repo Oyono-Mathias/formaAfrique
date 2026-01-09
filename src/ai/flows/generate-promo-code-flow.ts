@@ -8,7 +8,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { adminDb } from '@/firebase/admin';
 import * as admin from 'firebase-admin';
-import { generateAnnouncement } from './generate-announcement-flow';
+import { generateAnnouncement, GenerateAnnouncementInput, GenerateAnnouncementOutput } from './generate-announcement-flow';
 
 
 // Define the tool's input schema using Zod
@@ -19,7 +19,7 @@ const PromoCodeSchema = z.object({
   expiresAt: z.string().optional().describe('Optional expiration date for the code in ISO 8601 format.'),
 });
 
-// Define the tool that the AI can use
+// Define the tool that the AI can use to create promo codes
 const createPromoCode = ai.defineTool(
   {
     name: 'createPromoCode',
@@ -52,6 +52,21 @@ const createPromoCode = ai.defineTool(
   }
 );
 
+// Define the tool for generating announcements
+const generateAnnouncementTool = ai.defineTool(
+    {
+        name: 'generateAnnouncement',
+        description: "Generates or improves a marketing announcement. Use this tool ONLY when the user's prompt is about WRITING an announcement, marketing message, or any other text content.",
+        inputSchema: GenerateAnnouncementInput,
+        outputSchema: GenerateAnnouncementOutput,
+    },
+    async (input) => {
+        // This tool simply calls the existing flow function
+        return await generateAnnouncement(input);
+    }
+);
+
+
 // Define the input and output schemas for the main flow
 const GeneratePromoCodeInputSchema = z.object({
   prompt: z.string().describe("The user's marketing request, e.g., 'Create a 20% discount for Easter' or 'Write an announcement for a new course'"),
@@ -69,7 +84,7 @@ const generatePromoCodePrompt = ai.definePrompt({
     name: 'generatePromoCodePrompt',
     input: { schema: GeneratePromoCodeInputSchema },
     output: { schema: GeneratePromoCodeOutputSchema },
-    tools: [createPromoCode, generateAnnouncement],
+    tools: [createPromoCode, generateAnnouncementTool],
     prompt: `You are Mathias, an AI marketing assistant for FormaAfrique.
     Your task is to help an administrator with marketing tasks.
     - First, determine the user's primary intent from their prompt. Is the user asking to CREATE a promo code, or are they asking to WRITE an announcement/message?
