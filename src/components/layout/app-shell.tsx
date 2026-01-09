@@ -12,7 +12,7 @@ import { AdminSidebar } from './admin-sidebar';
 import { Footer } from './footer';
 import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
-import { ShieldAlert, Bell, PanelLeft, Star, Search, Play, Heart, User, X, Megaphone, MessageSquare, Tool, Loader2, HelpCircle, Mail } from 'lucide-react';
+import { ShieldAlert, Bell, PanelLeft, Star, Search, Play, Heart, User, X, Megaphone, MessageSquare, Wrench, Loader2, HelpCircle, Mail } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { cn } from '@/lib/utils';
@@ -82,7 +82,7 @@ function getPageTitle(pathname: string): string {
 function MaintenancePage() {
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-background text-center p-4">
-            <Tool className="h-16 w-16 text-primary mb-4" />
+            <Wrench className="h-16 w-16 text-primary mb-4" />
             <h1 className="text-3xl font-bold text-foreground">Site en maintenance</h1>
             <p className="text-muted-foreground mt-2">Nous effectuons des mises à jour. Le site sera de retour très prochainement.</p>
         </div>

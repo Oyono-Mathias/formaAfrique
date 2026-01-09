@@ -47,7 +47,7 @@ interface Message {
   createdAt: any;
 }
 
-export function AdminTicketDetailsPage({ ticketId }: { ticketId: string }) {
+function AdminTicketDetailsPage({ ticketId }: { ticketId: string }) {
     const router = useRouter();
     const db = getFirestore();
     const { toast } = useToast();
@@ -259,9 +259,15 @@ export function AdminTicketDetailsPage({ ticketId }: { ticketId: string }) {
     );
 }
 
-// Default export needed for Next.js pages, even if we use the named export elsewhere.
-export default function TicketDetailsWrapper() {
+// Default export needed for Next.js pages. This is the main component for the page.
+export default function TicketDetailsPage() {
   const { ticketId } = useParams();
-  if (!ticketId) return null;
-  return <AdminTicketDetailsPage ticketId={ticketId as string} />;
+  if (!ticketId || typeof ticketId !== 'string') {
+    return (
+        <div className="flex h-full items-center justify-center text-muted-foreground">
+          ID de ticket invalide.
+        </div>
+    );
+  }
+  return <AdminTicketDetailsPage ticketId={ticketId} />;
 }
