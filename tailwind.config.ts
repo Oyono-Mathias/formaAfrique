@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 import { fontFamily } from "tailwindcss/defaultTheme"
 
@@ -104,8 +105,8 @@ export default {
           },
         },
         'marquee-fast': {
-          from: { transform: 'translateX(100%)' },
-          to: { transform: 'translateX(-100%)' },
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' },
         }
       },
       animation: {
@@ -117,3 +118,5 @@ export default {
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    

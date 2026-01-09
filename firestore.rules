@@ -165,6 +165,12 @@ service cloud.firestore {
       allow list: if isSignedIn() && request.query.keys().hasAny(['courseId']);
     }
 
+    // --- Règles pour les codes promo ---
+    match /promoCodes/{codeId} {
+      allow get: if isSignedIn(); // Allow any signed-in user to read promo codes
+      allow list: if isSignedIn();
+      allow create, update, delete: if isAdmin(); // Only admins can manage promo codes
+    }
 
     // --- Règles pour 'chats' (CORRIGÉES) ---
     match /chats/{chatId} {
@@ -182,3 +188,5 @@ service cloud.firestore {
     }
   }
 }
+
+    

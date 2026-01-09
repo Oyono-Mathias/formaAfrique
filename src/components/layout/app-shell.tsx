@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -20,6 +21,8 @@ import { sendEmailVerification } from 'firebase/auth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { collection, query, where, onSnapshot, getFirestore, writeBatch, doc, getDoc } from 'firebase/firestore';
 import { LanguageSelector } from './language-selector'; // Import the new component
+import { useTranslation } from 'react-i18next';
+
 
 const pageTitles: { [key: string]: string } = {
     '/dashboard': 'Sélection',
@@ -186,6 +189,7 @@ const useUnreadNotifications = (userId?: string) => {
 };
 
 const AnnouncementBanner = () => {
+    const { t } = useTranslation();
     const [message, setMessage] = useState('');
     const [isVisible, setIsVisible] = useState(false);
     const db = getFirestore();
@@ -205,12 +209,27 @@ const AnnouncementBanner = () => {
                         setIsVisible(true);
                     }
                 } else {
-                  setIsVisible(false);
+                  // Use translated launch offer as fallback
+                  const launchOffer = t('launchOffer');
+                   const dismissed = sessionStorage.getItem(`announcement_${launchOffer}`);
+                   if (!dismissed) {
+                       setMessage(launchOffer);
+                       setIsVisible(true);
+                   } else {
+                        setIsVisible(false);
+                   }
+                }
+            } else {
+                const launchOffer = t('launchOffer');
+                const dismissed = sessionStorage.getItem(`announcement_${launchOffer}`);
+                if (!dismissed) {
+                    setMessage(launchOffer);
+                    setIsVisible(true);
                 }
             }
         };
         fetchSettings();
-    }, [db, pathname]);
+    }, [db, pathname, t]);
     
     const handleDismiss = () => {
         setIsVisible(false);
@@ -512,3 +531,5 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+    

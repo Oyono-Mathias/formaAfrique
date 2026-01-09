@@ -1,5 +1,4 @@
 
-
 {
   "entities": {
     "User": {
@@ -564,6 +563,31 @@
         "link": { "type": "string", "format": "uri" }
       },
       "required": ["text", "createdAt", "read"]
+    },
+    "PromoCode": {
+      "title": "Promo Code",
+      "type": "object",
+      "description": "Represents a promotional code for discounts.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "The promo code string (e.g., 'AFRIQUE50')."
+        },
+        "discountPercentage": {
+          "type": "number",
+          "description": "The percentage discount (e.g., 50 for 50%)."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether the code is currently active."
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional expiration date for the code."
+        }
+      },
+      "required": ["code", "discountPercentage", "isActive"]
     }
   },
   "auth": {
@@ -648,6 +672,12 @@
     "/resources/{resourceId}": {
       "schema": { "$ref": "#/entities/Resource" },
       "description": "Stores course resources like files and links."
+    },
+    "/promoCodes/{codeId}": {
+      "schema": { "$ref": "#/entities/PromoCode" },
+      "description": "Stores promotional codes for discounts."
     }
   }
 }
+
+    
