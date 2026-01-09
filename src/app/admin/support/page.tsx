@@ -46,8 +46,9 @@ const StatCard = ({ title, value, icon: Icon, isLoading }: { title: string; valu
 
 const TicketListItem = ({ ticket, isActive, onClick }: { ticket: SupportTicket, isActive: boolean, onClick: (id: string) => void }) => {
     const [lastActivity, setLastActivity] = useState('');
+
     useEffect(() => {
-        if (ticket.updatedAt) {
+        if (ticket.updatedAt?.toDate) {
             setLastActivity(formatDistanceToNow(ticket.updatedAt.toDate(), { locale: fr, addSuffix: true }));
         }
     }, [ticket.updatedAt]);

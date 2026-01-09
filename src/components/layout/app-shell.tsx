@@ -341,11 +341,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isSendingVerification, setIsSendingVerification] = useState(false);
-  const isAuthPage = pathname === '/' || pathname === '/register' || pathname === '/login';
   const hasUnreadNotifications = useUnreadNotifications(user?.uid);
   const [siteSettings, setSiteSettings] = useState({ siteName: 'FormaAfrique', logoUrl: '/icon.svg', maintenanceMode: false });
   const db = getFirestore();
   
+  const isAuthPage = pathname === '/' || pathname === '/register' || pathname === '/login' || pathname === '/forgot-password';
+  const isAdminRoute = pathname.startsWith('/admin');
+
   useEffect(() => {
     const settingsRef = doc(db, 'settings', 'global');
     const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
@@ -366,8 +368,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       router.push('/login');
     }
   }, [user, isUserLoading, router, isAuthPage]);
-  
-  const isAdminRoute = pathname.startsWith('/admin');
   
   useEffect(() => {
     if (isAdminRoute && !isRoleLoading && formaAfriqueUser?.role === 'admin' && role !== 'admin') {
@@ -416,16 +416,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const renderSidebar = () => {
     const props = { siteName: siteSettings.siteName, logoUrl: siteSettings.logoUrl };
-    switch (role) {
-      case 'student':
-        return <StudentSidebar {...props} />;
-      case 'instructor':
-        return <InstructorSidebar {...props} />;
-      case 'admin':
-        return <AdminSidebar {...props} />;
-      default:
-        return <StudentSidebar {...props} />;
-    }
+    if (role === 'student') return <StudentSidebar {...props} />;
+    if (role === 'instructor') return <InstructorSidebar {...props} />;
+    // Admin role has its own layout, so this part should not be reached for admin routes.
+    return null;
   };
   
   if (!user) {
@@ -438,9 +432,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  // If it's an admin route, the src/app/admin/layout.tsx will handle the layout.
+  if (isAdminRoute) {
+      return <>{children}</>;
+  }
+
   const isInstructorAndNotApproved = role === 'instructor' && formaAfriqueUser && !formaAfriqueUser.isInstructorApproved;
-  const userIsNotAdmin = formaAfriqueUser?.role !== 'admin';
-  const showAdminAccessRequired = isAdminRoute && userIsNotAdmin;
   const isFullScreenPage = pathname.startsWith('/courses/');
   const isChatPage = pathname.startsWith('/messages');
   const showBottomNav = (role === 'student') && isMobile;
@@ -451,7 +448,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className='dark flex flex-col min-h-screen bg-background-alt dark:bg-[#0f172a] tv:text-lg'>
+    <div className={cn('flex flex-col min-h-screen bg-background-alt', role === 'instructor' ? 'dark' : '')}>
       <AnnouncementBanner />
         <div className="flex flex-1">
             <aside className={cn("hidden md:flex md:flex-col h-screen sticky top-0", isFullScreenPage && "md:hidden")}>
@@ -459,7 +456,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </aside>
             <div className={cn("flex flex-col flex-1", isChatPage && !isMobile && "overflow-hidden")}>
                {!isChatPage && !isFullScreenPage && (
-                <header className="flex h-14 items-center gap-4 border-b bg-card dark:bg-[#1e293b] dark:border-slate-700 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
+                <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
                     <Sheet>
                       <SheetTrigger asChild>
                         <Button variant="ghost" size="icon" className={cn("shrink-0 md:hidden", isFullScreenPage && "hidden")}>
@@ -467,7 +464,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                           <span className="sr-only">Toggle Menu</span>
                         </Button>
                       </SheetTrigger>
-                      <SheetContent side="left" className="p-0 w-64 dark:bg-[#1e293b] border-r-0">
+                      <SheetContent side="left" className="p-0 w-64">
                          <SheetHeader>
                           <SheetTitle className="sr-only">Menu principal</SheetTitle>
                           <SheetDescription className="sr-only">Navigation pour le profil utilisateur.</SheetDescription>
@@ -476,13 +473,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       </SheetContent>
                     </Sheet>
                     <div className="flex-1">
-                        <h1 className="text-lg font-semibold md:text-xl text-card-foreground dark:text-white">
+                        <h1 className="text-lg font-semibold md:text-xl text-card-foreground">
                             {isInstructorAndNotApproved ? "Approbation en attente" : getPageTitle(pathname)}
                         </h1>
                     </div>
                     <div className="flex items-center gap-2">
                         <LanguageSelector />
-                        <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')} className="text-card-foreground dark:text-white relative">
+                        <Button variant="ghost" size="icon" onClick={() => router.push('/notifications')} className="text-card-foreground relative">
                             <Bell className="h-4 w-4" />
                             {hasUnreadNotifications && (
                                 <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
@@ -517,7 +514,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         </Button>
                       </div>
                     )}
-                    {showAdminAccessRequired ? <AdminAccessRequiredScreen /> : (isInstructorAndNotApproved ? <ApprovalPendingScreen /> : children)}
+                    {isInstructorAndNotApproved ? <ApprovalPendingScreen /> : children}
                   </div>
               </main>
               {showBottomNav && <BottomNavBar />}
@@ -531,5 +528,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
-    

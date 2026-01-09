@@ -80,13 +80,13 @@ export default function MyStudentsPage() {
   const router = useRouter();
 
   // State to force re-render for time updates
-  const [, setTick] = useState(0);
+  const [time, setTime] = useState(Date.now());
 
   useEffect(() => {
     // This interval will trigger a re-render every 60 seconds
     // to update the 'formatDistanceToNow' output.
     const timer = setInterval(() => {
-      setTick(prev => prev + 1);
+      setTime(Date.now());
     }, 60000); // 60 seconds
 
     return () => clearInterval(timer); // Cleanup on unmount
@@ -321,7 +321,7 @@ export default function MyStudentsPage() {
                         </Badge>
                       ) : (
                         <span className="text-xs text-muted-foreground">
-                          Il y a {formatDistanceToNow(student.lastSeen, { locale: fr })}
+                           {student.lastSeen && `Il y a ${formatDistanceToNow(student.lastSeen, { locale: fr })}`}
                         </span>
                       )}
                     </TableCell>
