@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, getFirestore, getDocs, limit, orderBy } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
-import { Star, Frown, BookText, Video, Award, Users, BookOpen, Clock, Linkedin, Twitter, Youtube } from "lucide-react";
+import { Star, Frown, BookText, Video, Award, Users, BookOpen, Clock, Linkedin, Twitter, Youtube, Briefcase } from "lucide-react";
 import Image from 'next/image';
 import { useMemo, useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,6 +17,8 @@ import { useRole } from '@/context/RoleContext';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
+import { Card, CardContent } from '@/components/ui/card';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 const StarRating = ({ rating, reviewCount }: { rating: number, reviewCount: number }) => (
     <div className="flex items-center gap-1 text-xs text-white/80">
@@ -79,6 +81,32 @@ const FeatureItem = ({ icon: Icon, title, description }: { icon: React.ElementTy
     </div>
 );
 
+const TestimonialCard = ({ quote, name, country, flag }: { quote: string, name: string, country: string, flag: string }) => (
+    <Card className="h-full bg-slate-800/50 border border-slate-700/80 rounded-2xl text-white flex flex-col p-6">
+        <CardContent className="p-0 flex-grow">
+            <p className="italic">"{quote}"</p>
+        </CardContent>
+        <div className="mt-4 flex items-center gap-2">
+            <Image src={`/flags/${flag}.svg`} alt={country} width={20} height={15} />
+            <p className="font-bold text-sm">{name}, <span className="text-slate-400">{country}</span></p>
+        </div>
+    </Card>
+);
+
+const AfricanFlags = () => (
+    <div className="py-8 bg-black/20">
+        <div className="container mx-auto px-4 text-center">
+             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Une Communauté Panafricaine</p>
+            <div className="flex justify-center items-center gap-4 flex-wrap">
+                {['ng', 'ci', 'cm', 'ga', 'cd', 'sn', 'ke', 'za'].map(flag => (
+                    <Image key={flag} src={`/flags/${flag}.svg`} alt={flag} width={36} height={24} className="rounded-sm" />
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
+
 export default function LandingPage() {
   const db = getFirestore();
   const [instructorsMap, setInstructorsMap] = useState<Map<string, Partial<FormaAfriqueUser>>>(new Map());
@@ -121,7 +149,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="w-full bg-[#0f172a] text-white">
+    <div className="w-full bg-[#020617] text-white">
       <header className="absolute top-0 left-0 right-0 z-50 p-4">
         <div className="container mx-auto flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
@@ -148,9 +176,9 @@ export default function LandingPage() {
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-28 text-center overflow-hidden">
           <div className="absolute inset-0 bg-grid-slate-700/40 [mask-image:linear-gradient(to_bottom,white_20%,transparent_100%)]"></div>
           <div className="container mx-auto px-4 relative">
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 mb-4">La plateforme N°1 au Cameroun</Badge>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">Apprenez des compétences d'avenir avec FormaAfrique</h1>
-            <p className="max-w-3xl mx-auto mt-6 text-lg md:text-xl text-slate-300">Des formations de qualité, accessibles partout, pour booster votre carrière en Afrique.</p>
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 mb-4">La plateforme d'excellence pour les talents de toute l'Afrique</Badge>
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">Révélez votre potentiel sur le continent</h1>
+            <p className="max-w-3xl mx-auto mt-6 text-lg md:text-xl text-slate-300">Des formations de qualité, accessibles partout, pour booster votre carrière et construire l'Afrique de demain.</p>
             <div className="mt-8 flex justify-center gap-4">
               <Button size="lg" asChild className="h-12 px-8 text-base bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Link href="/search">Explorer les cours</Link>
@@ -197,14 +225,37 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Testimonials Section */}
+        <section className="py-20">
+            <div className="container mx-auto px-4">
+                <h2 className="text-3xl font-bold text-center mb-12">Ils réussissent avec FormaAfrique</h2>
+                <div className="md:hidden">
+                     <Carousel opts={{ loop: true, align: "start" }} className="w-full">
+                        <CarouselContent className="-ml-4">
+                            <CarouselItem className="pl-4 basis-4/5"><TestimonialCard quote="Grâce à la formation Alibaba Cloud, j'ai pu lancer mon service de e-commerce et toucher des clients bien au-delà de Dakar." name="Moussa" country="Sénégal" flag="sn" /></CarouselItem>
+                            <CarouselItem className="pl-4 basis-4/5"><TestimonialCard quote="Le cours de Python est ultra-clair et bien structuré. Je peux suivre les leçons depuis mon téléphone à Nairobi sans problème." name="Amina" country="Kenya" flag="ke" /></CarouselItem>
+                            <CarouselItem className="pl-4 basis-4/5"><TestimonialCard quote="Enfin une plateforme qui pense à nous ! Le support en Sango est un vrai plus pour comprendre les concepts complexes." name="Jean-David" country="Centrafrique" flag="cf" /></CarouselItem>
+                        </CarouselContent>
+                    </Carousel>
+                </div>
+                <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-8">
+                     <TestimonialCard quote="Grâce à la formation Alibaba Cloud, j'ai pu lancer mon service de e-commerce et toucher des clients bien au-delà de Dakar." name="Moussa" country="Sénégal" flag="sn" />
+                     <TestimonialCard quote="Le cours de Python est ultra-clair et bien structuré. Je peux suivre les leçons depuis mon téléphone à Nairobi sans problème." name="Amina" country="Kenya" flag="ke" />
+                     <TestimonialCard quote="Enfin une plateforme qui pense à nous ! Le support en Sango est un vrai plus pour comprendre les concepts complexes." name="Jean-David" country="Centrafrique" flag="cf" />
+                </div>
+            </div>
+        </section>
+
+        <AfricanFlags />
+
         {/* Why Us Section */}
         <section className="py-20 bg-slate-900/50">
             <div className="container mx-auto px-4">
                 <h2 className="text-3xl font-bold text-center mb-12">Pourquoi choisir FormaAfrique ?</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <FeatureItem icon={Clock} title="Apprentissage flexible" description="Accédez à vos cours 24/7 sur mobile ou ordinateur et apprenez à votre propre rythme." />
-                    <FeatureItem icon={Users} title="Experts locaux" description="Nos formateurs sont des professionnels expérimentés et reconnus dans leur domaine en Afrique." />
-                    <FeatureItem icon={Award} title="Accès à vie" description="Une fois inscrit, vous avez un accès à vie au contenu du cours et à toutes ses mises à jour." />
+                    <FeatureItem icon={Briefcase} title="Experts locaux" description="Nos formateurs sont des professionnels expérimentés et reconnus dans leur domaine sur le continent africain." />
+                    <FeatureItem icon={Award} title="Accès à vie & Certificat" description="Une fois inscrit, vous avez un accès à vie au contenu du cours et recevez un certificat à la fin." />
                 </div>
             </div>
         </section>
